@@ -1,0 +1,150 @@
+/* src/components/LandingPage.css */
+
+.landing-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #ffffff;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #333;
+  }
+  
+  /* Header */
+  .landing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .landing-logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #000;
+  }
+  
+  .landing-nav {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    font-weight: 500;
+    color: #007bff; /* Default link color */
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .nav-link:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .nav-link.secondary {
+    background-color: #272d2d;
+    color: #fff;
+  }
+  
+  .nav-link.secondary:hover {
+    background-color: #1e2424;
+  }
+  
+  /* Hero Section */
+  .landing-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 60px 40px;
+  }
+  
+  .hero-content {
+    flex: 1;
+    max-width: 600px;
+    text-align: left;
+    padding-right: 20px;
+  }
+  
+  .hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #111;
+  }
+  
+  .hero-content p {
+    font-size: 1.2rem;
+    line-height: 1.4;
+    margin-bottom: 30px;
+    color: #555;
+  }
+  
+  .hero-cta {
+    display: inline-block;
+    padding: 15px 30px;
+    font-size: 1rem;
+    background-color: #f4ff47;
+    color: #000;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+  }
+  
+  .hero-cta:hover {
+    background-color: #e0e633;
+  }
+  
+  .hero-image-container {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .hero-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  
+  /* Auction Preview Section */
+  .auction-preview {
+    padding: 40px;
+    text-align: center;
+  }
+  
+  .auction-preview h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  .auction-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    justify-items: center;
+  }
+  
+  .auction-card {
+    width: 200px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 10px;
+    text-align: center;
+    background-color: #fff;
+  }
+  
+  .auction-card img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+  }
+  
+  .auction-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  
+  .auction-price {
+    color: #272d2d;
+    font-weight: 700;
+  }
+  
