@@ -1,150 +1,352 @@
-/* src/components/LandingPage.css */
+/* Reset & Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-.landing-container {
+body, html {
     width: 100%;
-    min-height: 100vh;
-    background-color: #ffffff;
+    height: 100%;
     font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+/* Container for Entire Landing Page */
+.landing-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #e9e9e9;
     color: #333;
-  }
-  
-  /* Header */
-  .landing-header {
+    min-height: 100vh;
+}
+
+/* =========================================
+   TOP NAV (Outside the Thick Frame)
+========================================= */
+.top-nav {
+    width: 100%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .landing-logo {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #000;
-  }
-  
-  .landing-nav {
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background-color: #e9e9e9;
+}
+
+.top-nav-left {
     display: flex;
-    gap: 20px;
-  }
-  
-  .nav-link {
+    align-items: center;
+}
+
+/* 
+   Updated to 55px (10% bigger than 50px) 
+   and made circular with border-radius: 50%.
+*/
+.nav-logo {
+    width: 65px; 
+    height: 65px;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+/* Right side of top nav: Log in & Sign Up */
+.top-nav-right {
+    display: flex;
+    gap: 1rem;
+}
+
+.top-nav-login {
     text-decoration: none;
-    font-weight: 500;
-    color: #007bff; /* Default link color */
-    padding: 8px 16px;
+    background-color: #e9e9e9;
+    color: #272d2d;
+    font-weight: bold;
+    padding: 0.6rem 1.2rem;
     border-radius: 4px;
-    transition: background-color 0.3s;
-  }
-  
-  .nav-link:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .nav-link.secondary {
+    transition: background-color 0.2s ease;
+}
+.top-nav-login:hover {
+    background-color: #ccc;
+}
+
+/* Sign Up button: more rounded */
+.top-nav-signup {
+    text-decoration: none;
     background-color: #272d2d;
-    color: #fff;
-  }
-  
-  .nav-link.secondary:hover {
-    background-color: #1e2424;
-  }
-  
-  /* Hero Section */
-  .landing-hero {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 60px 40px;
-  }
-  
-  .hero-content {
-    flex: 1;
-    max-width: 600px;
-    text-align: left;
-    padding-right: 20px;
-  }
-  
-  .hero-content h1 {
+    color: #ffffff;
+    font-weight: bold;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px; /* More rounded */
+    transition: background-color 0.2s ease;
+}
+.top-nav-signup:hover {
+    background-color: #1e2323;
+}
+
+/* =========================================
+   HERO SECTION
+========================================= */
+.hero-section {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #e9e9e9;
+    margin-bottom: 1rem;
+}
+
+.hero-title {
     font-size: 3rem;
     margin-bottom: 20px;
     color: #111;
-  }
-  
-  .hero-content p {
+}
+
+.hero-subtitle {
     font-size: 1.2rem;
-    line-height: 1.4;
     margin-bottom: 30px;
     color: #555;
-  }
-  
-  .hero-cta {
-    display: inline-block;
-    padding: 15px 30px;
-    font-size: 1rem;
+}
+
+/* Start bidding button: more rounded now */
+.cta-button {
     background-color: #f4ff47;
     color: #000;
-    text-decoration: none;
-    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1rem;
+    border-radius: 999px; /* more rounded */
+    cursor: pointer;
     transition: background-color 0.3s;
-  }
-  
-  .hero-cta:hover {
+}
+.cta-button:hover {
     background-color: #e0e633;
-  }
-  
-  .hero-image-container {
-    flex: 1;
-    text-align: center;
-  }
-  
-  .hero-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-  }
-  
-  /* Auction Preview Section */
-  .auction-preview {
-    padding: 40px;
-    text-align: center;
-  }
-  
-  .auction-preview h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-  }
-  
-  .auction-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    justify-items: center;
-  }
-  
-  .auction-card {
-    width: 200px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    padding: 10px;
-    text-align: center;
-    background-color: #fff;
-  }
-  
-  .auction-card img {
+}
+
+/* =========================================
+   AUCTIONS CONTAINER (Thick Frame)
+========================================= */
+.auctions-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto 2rem auto;
+    background-color: #e9e9e9;
+    border-radius: 20px;
+    padding: 2rem;
+    border: 6px solid #111; /* thick frame border */
+}
+
+/* =========================================
+   FRAME TOP BAR
+========================================= */
+.frame-topbar {
     width: 100%;
-    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+/* -- Left Side: second logo + white pill -- */
+.frame-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* The second (in-frame) logo at 50px circle */
+.logo-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #f4ff47; /* bright yellow */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    object-fit: contain;
+}
+.topbar-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* White pill container on left side, for the nav buttons */
+.left-pill-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2px;
+    background-color: #fff;
+    border-radius: 999px;
+}
+
+/* Nav Button (Auctions / Profile) inside the pill */
+.nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: 50px;
+    padding: 0 1.2rem;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background-color: #fff;      /* unselected color */
+    color: #272d2d;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-btn:hover {
+    background-color: #646464;
+}
+.nav-btn-active {
+    background-color: #272d2d;
+    color: #ffffff;
+}
+.nav-btn img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+/* -- Right Side: white pill for Bell/Plus/User -- */
+.frame-topbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.right-pill-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2px;
+    background-color: #fff;
+    border-radius: 999px;
+}
+
+/* Each icon button is a circle */
+.icon-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #ccc; /* default color as in your code */
+}
+
+.bell-btn {
+    background-color: #ccc;
+}
+.plus-btn {
+    background-color: #f4ff47;
+}
+.user-btn {
+    background-color: #ccc;
+}
+
+.icon-button img {
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+}
+
+/* =========================================
+   AUCTIONS HEADER
+========================================= */
+.auctions-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.auctions-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111;
+}
+
+/* =========================================
+   AUCTION CARDS GRID & STYLING
+========================================= */
+.auction-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+}
+
+.auction-card {
+    position: relative;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: left;
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.auction-card:hover {
+    transform: translateY(-2px);
+}
+
+.auction-card-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
     margin-bottom: 10px;
-  }
-  
-  .auction-title {
+}
+
+.auction-card-title {
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 5px;
-  }
-  
-  .auction-price {
+    color: #222;
+}
+
+.auction-card-price {
+    font-size: 1rem;
     color: #272d2d;
-    font-weight: 700;
-  }
-  
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* Auction Card Status Badge */
+.auction-card-status {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #51c878;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Loading More Text */
+.loading-more {
+    text-align: center;
+    padding: 1rem;
+    font-style: italic;
+}
+
+/* =========================================
+   RESPONSIVE ADJUSTMENTS
+========================================= */
+@media (max-width: 1200px) {
+    .auction-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    .auction-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
