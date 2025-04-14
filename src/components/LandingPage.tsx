@@ -165,7 +165,7 @@ const LandingPage: React.FC = () => {
         </div>
         <div className="top-nav-right">
           <Link to="/login" className="top-nav-login">Log in</Link>
-          <Link to="/signup" className="top-nav-signup">Sign Up</Link>
+          <Link to="/register" className="top-nav-signup">Sign Up</Link>
         </div>
       </div>
 
