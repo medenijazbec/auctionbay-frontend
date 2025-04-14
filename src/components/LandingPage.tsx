@@ -164,7 +164,7 @@ const LandingPage: React.FC = () => {
           <img src={logo} alt="Main Logo (Top Nav)" className="nav-logo" />
         </div>
         <div className="top-nav-right">
-          <Link to="/login" className="top-nav-login">Log in</Link>
+          <Link to="/login" className="top-nav-login">Log in</Link>or
           <Link to="/register" className="top-nav-signup">Sign Up</Link>
         </div>
       </div>
