@@ -209,7 +209,7 @@ const RegisterPage: React.FC = () => {
               <label className={styles.inputLabel}>Name</label>
               <input
                 type="text"
-                placeholder="Name"
+                placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -219,7 +219,7 @@ const RegisterPage: React.FC = () => {
               <label className={styles.inputLabel}>Surname</label>
               <input
                 type="text"
-                placeholder="Surname"
+                placeholder="Enter your surname"
                 value={surname}
                 onChange={(e) => setSurname(e.target.value)}
                 required
@@ -230,7 +230,7 @@ const RegisterPage: React.FC = () => {
           <label className={styles.inputLabel}>E-mail</label>
           <input
             type="email"
-            placeholder="E-mail"
+            placeholder="Enter your E-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -239,7 +239,7 @@ const RegisterPage: React.FC = () => {
           <label className={styles.inputLabel}>Password</label>
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -248,7 +248,7 @@ const RegisterPage: React.FC = () => {
           <label className={styles.inputLabel}>Repeat password</label>
           <input
             type="password"
-            placeholder=" Repeat password"
+            placeholder=" Retype your password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
