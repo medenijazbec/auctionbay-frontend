@@ -37,10 +37,6 @@ body, html {
     align-items: center;
 }
 
-/* 
-   Updated to 55px (10% bigger than 50px) 
-   and made circular with border-radius: 50%.
-*/
 .nav-logo {
     width: 65px; 
     height: 65px;
@@ -48,7 +44,6 @@ body, html {
     object-fit: contain;
 }
 
-/* Right side of top nav: Log in & Sign Up */
 .top-nav-right {
     display: flex;
     gap: 1rem;
@@ -67,14 +62,13 @@ body, html {
     background-color: #ccc;
 }
 
-/* Sign Up button: more rounded */
 .top-nav-signup {
     text-decoration: none;
     background-color: #272d2d;
     color: #ffffff;
     font-weight: bold;
     padding: 0.6rem 1.2rem;
-    border-radius: 999px; /* More rounded */
+    border-radius: 999px;
     transition: background-color 0.2s ease;
 }
 .top-nav-signup:hover {
@@ -103,7 +97,6 @@ body, html {
     color: #555;
 }
 
-/* Start bidding button: more rounded now */
 .cta-button {
     background-color: #f4ff47;
     color: #000;
@@ -111,7 +104,7 @@ body, html {
     border: none;
     padding: 15px 30px;
     font-size: 1rem;
-    border-radius: 999px; /* more rounded */
+    border-radius: 999px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
@@ -120,16 +113,21 @@ body, html {
 }
 
 /* =========================================
-   AUCTIONS CONTAINER (Thick Frame)
+   WRAPPER + AUCTIONS CONTAINER (Thick Frame)
 ========================================= */
+.auctions-container-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+}
+
 .auctions-container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto 2rem auto;
+    width: fit-content; /* Wraps around cards perfectly */
     background-color: #e9e9e9;
     border-radius: 20px;
     padding: 2rem;
     border: 6px solid #111; /* thick frame border */
+    margin-bottom: 2rem;
 }
 
 /* =========================================
@@ -143,19 +141,17 @@ body, html {
     margin-bottom: 1.5rem;
 }
 
-/* -- Left Side: second logo + white pill -- */
 .frame-topbar-left {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-/* The second (in-frame) logo at 50px circle */
 .logo-circle {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #f4ff47; /* bright yellow */
+    background-color: #f4ff47;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -167,7 +163,6 @@ body, html {
     object-fit: contain;
 }
 
-/* White pill container on left side, for the nav buttons */
 .left-pill-container {
     display: flex;
     align-items: center;
@@ -177,7 +172,6 @@ body, html {
     border-radius: 999px;
 }
 
-/* Nav Button (Auctions / Profile) inside the pill */
 .nav-btn {
     display: flex;
     align-items: center;
@@ -190,11 +184,10 @@ body, html {
     cursor: pointer;
     font-weight: 600;
     font-size: 0.9rem;
-    background-color: #fff;      /* unselected color */
+    background-color: #fff;
     color: #272d2d;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
-
 .nav-btn:hover {
     background-color: #646464;
 }
@@ -208,7 +201,6 @@ body, html {
     object-fit: contain;
 }
 
-/* -- Right Side: white pill for Bell/Plus/User -- */
 .frame-topbar-right {
     display: flex;
     align-items: center;
@@ -223,7 +215,6 @@ body, html {
     border-radius: 999px;
 }
 
-/* Each icon button is a circle */
 .icon-button {
     width: 40px;
     height: 40px;
@@ -233,9 +224,8 @@ body, html {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    background-color: #ccc; /* default color as in your code */
+    background-color: #ccc;
 }
-
 .bell-btn {
     background-color: #ccc;
 }
@@ -266,87 +256,186 @@ body, html {
     font-size: 2rem;
     font-weight: 700;
     color: #111;
+
 }
 
 /* =========================================
-   AUCTION CARDS GRID & STYLING
+   AUCTION CARDS GRID & UPDATED STYLING
 ========================================= */
 .auction-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    /* Use 6 columns on large screens */
+    grid-template-columns: repeat(6, 216px);
     gap: 1rem;
+    justify-content: center;
 }
 
+/* Auction Card */
 .auction-card {
+    /* Removed fixed height so it can grow with content */
+    width: 216px;
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    padding: 8px 8px 4px 8px;
+    display: flex;
+    flex-direction: column;
     position: relative;
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 15px;
-    text-align: left;
-    transition: transform 0.2s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.auction-card:hover {
-    transform: translateY(-2px);
-}
-
-.auction-card-image {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-bottom: 10px;
-}
-
-.auction-card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #222;
-}
-
-.auction-card-price {
-    font-size: 1rem;
-    color: #272d2d;
-    font-weight: bold;
+/* Header: Tag + Time Tag */
+.auction-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
 }
 
-/* Auction Card Status Badge */
-.auction-card-status {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #51c878;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 4px;
+/* 
+   Default (Outbid) pink:
+   existing classes => no extra class: 
+   background-color: #FFB3AB
+   color: #071015
+*/
+
+/* In progress => existing .editable class (light yellow) */
+.auction-tag.editable,
+.time-tag.editable {
+    background-color: #FFF5BA;
+    color: #8A7D00;
 }
 
-/* Loading More Text */
+/* Winning => light green background, dark green text */
+.auction-tag.winning,
+.time-tag.winning {
+    background-color: #B2F0B2;  /* Light green */
+    color: #137513;            /* Dark green text */
+}
+
+/* Done => dark gray background, white text */
+.auction-tag.done,
+.time-tag.done {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Bid Status Tag (Outbid) & Time Tag (24h) => default 
+   is .auction-tag {} & .time-tag {} from below 
+   (which sets pink if no extra class is applied) */
+.auction-tag {
+    background-color: #FFB3AB; /* Soft red (default) */
+    color: #071015;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.time-tag {
+    display: flex;
+    align-items: center;
+    background-color: #FFB3AB; /* Soft red (default) */
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Clock Icon in Time Tag */
+.clock-icon {
+    width: 12px;
+    height: 12px;
+    margin-left: 4px;
+}
+
+/* Title & Price */
+.auction-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+
+.auction-title {
+    color: #071015;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500; /* Medium weight as per "text/m" */
+    text-align: left;
+    margin-bottom: 8px; 
+}
+
+.auction-price {
+    color: #071015;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600; 
+    text-align: left;
+}
+
+
+/* Image Container */
+.auction-card-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+.auction-card-image {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+/* Action Buttons (if in progress) */
+.auction-card-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 8px;
+}
+.action-button {
+    border: none;
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+.delete-button {
+    background-color: #ff4d4d;
+    color: #fff;
+}
+.edit-button {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Loading More */
 .loading-more {
     text-align: center;
     padding: 1rem;
     font-style: italic;
 }
 
-/* =========================================
-   RESPONSIVE ADJUSTMENTS
-========================================= */
+
+/* For medium screens (below 1200px), reduce to 4 columns */
 @media (max-width: 1200px) {
     .auction-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, 216px);
     }
 }
 
+/* For smaller screens (below 768px), reduce to 2 columns */
 @media (max-width: 768px) {
     .hero-title {
         font-size: 2rem;
     }
     .auction-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 216px);
     }
 }
