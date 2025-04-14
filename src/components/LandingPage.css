@@ -24,17 +24,18 @@ body, html {
    TOP NAV (Outside the Thick Frame)
 ========================================= */
 .top-nav {
+
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 2rem;
+    height: auto;
     background-color: #e9e9e9;
+    padding-top: 1rem;
+    padding-bottom: 6rem;
 }
 
 .top-nav-left {
-    display: flex;
-    align-items: center;
+    position: absolute;
+    top: 3rem;
+    left: 3rem;
 }
 
 .nav-logo {
@@ -45,19 +46,24 @@ body, html {
 }
 
 .top-nav-right {
+    position: absolute;
+    top: 3rem;
+    right: 3rem;
     display: flex;
+    align-items: center;
     gap: 1rem;
 }
 
 .top-nav-login {
     text-decoration: none;
-    background-color: #e9e9e9;
+    background-color: transparent;
     color: #272d2d;
     font-weight: bold;
     padding: 0.6rem 1.2rem;
     border-radius: 4px;
     transition: background-color 0.2s ease;
 }
+
 .top-nav-login:hover {
     background-color: #ccc;
 }
@@ -256,7 +262,6 @@ body, html {
     font-size: 2rem;
     font-weight: 700;
     color: #111;
-
 }
 
 /* =========================================
@@ -291,37 +296,7 @@ body, html {
     margin-bottom: 8px;
 }
 
-/* 
-   Default (Outbid) pink:
-   existing classes => no extra class: 
-   background-color: #FFB3AB
-   color: #071015
-*/
-
-/* In progress => existing .editable class (light yellow) */
-.auction-tag.editable,
-.time-tag.editable {
-    background-color: #FFF5BA;
-    color: #8A7D00;
-}
-
-/* Winning => light green background, dark green text */
-.auction-tag.winning,
-.time-tag.winning {
-    background-color: #B2F0B2;  /* Light green */
-    color: #137513;            /* Dark green text */
-}
-
-/* Done => dark gray background, white text */
-.auction-tag.done,
-.time-tag.done {
-    background-color: #333;
-    color: #fff;
-}
-
-/* Bid Status Tag (Outbid) & Time Tag (24h) => default 
-   is .auction-tag {} & .time-tag {} from below 
-   (which sets pink if no extra class is applied) */
+/* Default (Outbid) pink tag and time tag */
 .auction-tag {
     background-color: #FFB3AB; /* Soft red (default) */
     color: #071015;
@@ -340,6 +315,27 @@ body, html {
     font-weight: bold;
 }
 
+/* In progress => light yellow */
+.auction-tag.editable,
+.time-tag.editable {
+    background-color: #FFF5BA;
+    color: #8A7D00;
+}
+
+/* Winning => light green, dark green text */
+.auction-tag.winning,
+.time-tag.winning {
+    background-color: #B2F0B2;
+    color: #137513;
+}
+
+/* Done => dark gray, white text */
+.auction-tag.done,
+.time-tag.done {
+    background-color: #333;
+    color: #fff;
+}
+
 /* Clock Icon in Time Tag */
 .clock-icon {
     width: 12px;
@@ -355,15 +351,14 @@ body, html {
     margin-bottom: 4px;
 }
 
-
 .auction-title {
     color: #071015;
     font-family: 'Inter', sans-serif;
     font-size: 16px;
     line-height: 24px;
-    font-weight: 500; /* Medium weight as per "text/m" */
+    font-weight: 500;
     text-align: left;
-    margin-bottom: 8px; 
+    margin-bottom: 8px;
 }
 
 .auction-price {
@@ -371,10 +366,9 @@ body, html {
     font-family: 'Inter', sans-serif;
     font-size: 16px;
     line-height: 24px;
-    font-weight: 600; 
+    font-weight: 600;
     text-align: left;
 }
-
 
 /* Image Container */
 .auction-card-image-container {
@@ -421,7 +415,6 @@ body, html {
     padding: 1rem;
     font-style: italic;
 }
-
 
 /* For medium screens (below 1200px), reduce to 4 columns */
 @media (max-width: 1200px) {

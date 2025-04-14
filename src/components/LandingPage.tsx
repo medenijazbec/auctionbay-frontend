@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './LandingPage.css';
 
-//Images / icons
+// Images / icons
 import logo from '../assets/logo.png';
 import houseIcon from '../assets/home.png';
 import profileIcon from '../assets/profile.png';
@@ -10,10 +10,10 @@ import bellIcon from '../assets/bell.png';
 import plusIcon from '../assets/plus.png';
 import userPicIcon from '../assets/userpic.png';
 
-//Icons for card updates
+// Icons for card updates
 import trashIcon from '../assets/trash.png';
 
-//Clock icons based on time remaining
+// Clock icons based on time remaining
 import clock15 from '../assets/15clock.png';
 import clock30 from '../assets/30clock.png';
 import clock45 from '../assets/45clock.png';
@@ -25,15 +25,15 @@ interface Auction {
   startingPrice: number;
   startDateTime: string;
   endDateTime: string;
-  auctionState: string; // e.g. "outbid", "inProgress", "winning", "done"
+  auctionState: string; // e.g., "outbid", "inProgress", "winning", "done"
   createdAt: string;
   mainImageUrl?: string;
 }
 
 const BACKEND_BASE_URL = 'https://localhost:7056';
 
-//Helper: choose tag text based on auctionState
-function getTagText(state: string) {
+// Helper: choose tag text based on auctionState
+function getTagText(state: string): string {
   switch (state) {
     case 'inProgress':
       return 'In progress';
@@ -46,8 +46,8 @@ function getTagText(state: string) {
   }
 }
 
-//Helper: choose time text based on auctionState
-function getTimeText(state: string) {
+// Helper: choose time text based on auctionState
+function getTimeText(state: string): string {
   switch (state) {
     case 'inProgress':
       return '30h';
@@ -60,8 +60,8 @@ function getTimeText(state: string) {
   }
 }
 
-//Helper: choose extra class based on auctionState
-function getStatusClass(state: string) {
+// Helper: choose extra class based on auctionState
+function getStatusClass(state: string): string {
   switch (state) {
     case 'inProgress':
       return 'editable';
@@ -74,7 +74,7 @@ function getStatusClass(state: string) {
   }
 }
 
-//Helper to choose clock icon based on remaining time until auction closes
+// Helper: choose clock icon based on remaining time until auction closes
 function getClockIcon(endDateTime: string): string {
   const now = new Date();
   const end = new Date(endDateTime);
@@ -95,7 +95,7 @@ const LandingPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [activeNav, setActiveNav] = useState<'auctions' | 'profile'>('auctions');
 
-  //Fetch auctions with pagination
+  // Fetch auctions with pagination
   const fetchAuctions = async (pageNum: number) => {
     setLoading(true);
     try {
@@ -125,7 +125,7 @@ const LandingPage: React.FC = () => {
     fetchAuctions(page);
   }, [page]);
 
-  //Infinite scroll
+  // Infinite scroll
   const handleScroll = () => {
     if (!hasMore || loading) return;
     const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
@@ -141,7 +141,7 @@ const LandingPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [hasMore, loading]);
 
-  //Helper to build full image URL
+  // Helper to build full image URL
   const buildImageUrl = (url?: string) => {
     if (url && url.trim() !== '') {
       if (url.startsWith('http')) {
@@ -168,6 +168,7 @@ const LandingPage: React.FC = () => {
           <Link to="/register" className="top-nav-signup">Sign Up</Link>
         </div>
       </div>
+
 
       {/* HERO SECTION */}
       <section className="hero-section">
