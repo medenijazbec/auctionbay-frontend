@@ -605,4 +605,15 @@ body, html {
     position: relative;
   }
 
+/* make the avatar a bit larger & cover */
+.icon-button.user-btn img,
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
+
 

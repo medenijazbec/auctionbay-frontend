@@ -24,6 +24,10 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, children }) =>
     </div>
   );
 
+
+
+
+  
 /* ─── main component ────────────────────────────────────── */
 const ProfilePage: React.FC = () => {
   const nav = useNavigate();
@@ -45,6 +49,7 @@ const ProfilePage: React.FC = () => {
   /* picture helpers */
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+
 
   /* ─── fetch profile once ─────────────────────────────── */
   useEffect(() => {
@@ -146,28 +151,42 @@ const ProfilePage: React.FC = () => {
   };
   const savePic = async () => {
     if (!file) return;
+  
     const fd = new FormData();
     fd.append('file', file);
+  
     try {
+      /** 1. upload the blob */
       const up = await fetch(`${API}/api/ImageUpload`, {
-        method: 'POST',
-        body: fd,
-        headers: auth.headers,
+        method : 'POST',
+        headers: { Authorization: `Bearer ${token}` },   // ← keep token
+        body   : fd
       });
-      const { url } = await up.json();
+      if (!up.ok) throw new Error('upload');
+  
+      const { url } = await up.json();                  // { "/images/xxxx.jpg" }
+  
+      /** 2. patch user profile with the new URL */
       await fetch(`${API}/api/Profile/me`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...auth.headers },
-        body: JSON.stringify({ profilePictureUrl: url }),
+        method : 'PUT',
+        headers: {
+          ...auth.headers,                              // Authorization + JSON
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ profilePictureUrl: url })
       });
-      setMe((m) => (m ? { ...m, profilePictureUrl: url } : m));
+  
+      /** 3. reflect UI */
+      setMe(m => m ? { ...m, profilePictureUrl: url } : m);
       setPicOpen(false);
       setFile(null);
       setPreview(null);
-    } catch {
-      setFlash({ ok: false, text: 'Upload failed.' });
+    }
+    catch {
+      setFlash({ ok:false, text:'Upload failed.' });
     }
   };
+  
 
   /* ─── logout ────────────────────────────────────────── */
   const logout = () => {

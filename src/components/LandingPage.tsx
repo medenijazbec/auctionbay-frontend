@@ -70,27 +70,34 @@ const LandingPage:React.FC = () => {
 
   /* ─── greeting state ─────────────────────────────── */
   const [userName, setUserName] = useState<string>('there');
+  const [avatar,   setAvatar]   = useState<string>(userPicIcon);   // default icon
 
-  useEffect(() => {
-    if (!jwt) return;
+  /* ─── fetch logged‑in user once ───────────────────────── */
+useEffect(() => {
+  if (!jwt) return;
 
-    fetch(`${BACKEND_BASE_URL}/api/Profile/me`, {
-      headers: { Authorization: `Bearer ${jwt}` }
+  fetch(`${BACKEND_BASE_URL}/api/Profile/me`, {
+    headers: { Authorization: `Bearer ${jwt}` }
+  })
+    .then(async r => {
+      if (!r.ok) throw new Error('unauthorised');
+      const p: ProfileMeDto = await r.json();
+
+      setUserName(
+        `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() ||
+        p.email.split('@')[0] ||
+        'there'
+      );
+      setAvatar(
+        p.profilePictureUrl ? imgUrl(p.profilePictureUrl) : userPicIcon
+      );
     })
-      .then(async r => {
-        if (!r.ok) throw new Error('unauthorised');
-        const p: ProfileMeDto = await r.json();
-
-        const niceName = `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim()
-                      || p.email.split('@')[0]
-                      || 'there';
-        setUserName(niceName);
-      })
-      .catch(() => {
-        localStorage.removeItem('token');
-        setUserName('there');
-      });
-  }, [jwt]);
+    .catch(() => {
+      localStorage.removeItem('token');
+      setUserName('there');
+      setAvatar(userPicIcon);
+    });
+}, [jwt]);
 
   /* ─── dropdown ───────────────────────────────────── */
   const [menuOpen, setMenuOpen] = useState(false);
@@ -269,7 +276,7 @@ const LandingPage:React.FC = () => {
                   onClick={() => setMenuOpen(o => !o)}
                   onMouseEnter={() => setMenuOpen(true)}
                 >
-                  <img src={userPicIcon} alt="Your avatar" />
+                  <img src={avatar} alt="Your avatar" className="user-avatar" />
                   {menuOpen && (
                     <div className="user-menu">
                       <Link to="/profile" className="menu-link">
