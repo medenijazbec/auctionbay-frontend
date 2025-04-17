@@ -1,269 +1,178 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './RegisterPage.module.css';
 
-import logo from '../assets/logo.png';
-
-// Images / icons for auction cards and clock icons
-import clock15 from '../assets/15clock.png';
-import clock30 from '../assets/30clock.png';
-import clock45 from '../assets/45clock.png';
+import logo     from '../assets/logo.png';
+import clock15  from '../assets/15clock.png';
+import clock30  from '../assets/30clock.png';
+import clock45  from '../assets/45clock.png';
 
 const BACKEND_BASE_URL = 'https://localhost:7056';
 
+/* ── Types & helpers (same logic as above) ── */
 interface Auction {
-  auctionId: number;
-  title: string;
-  description: string;
+  auctionId:     number;
+  title:         string;
+  description:   string;
   startingPrice: number;
   startDateTime: string;
-  endDateTime: string;
-  auctionState: string; //"outbid", "inProgress", "winning", "done"
-  createdAt: string;
+  endDateTime:   string;
+  auctionState:  string;
+  createdAt:     string;
   mainImageUrl?: string;
 }
 
-//Helper Functions
-//Same color & clock logic as in Landing Page
-function getTagText(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return 'In progress';
-    case 'winning':
-      return 'Winning';
-    case 'done':
-      return 'Done';
-    default:
-      return 'Outbid';
-  }
-}
+const getTagText = (s: string) =>
+  s === 'inProgress' ? 'In progress' : s === 'winning' ? 'Winning'
+: s === 'done'       ? 'Done'       : 'Outbid';
 
-function getTimeText(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return '30h';
-    case 'winning':
-      return '20h';
-    case 'done':
-      return '0h';
-    default:
-      return '24h';
-  }
-}
+const getTimeText = (s: string) =>
+  s === 'inProgress' ? '30h' : s === 'winning' ? '20h'
+: s === 'done'       ? '0h'  : '24h';
 
-function getStatusClass(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return 'editable';
-    case 'winning':
-      return 'winning';
-    case 'done':
-      return 'done';
-    default:
-      return '';
-  }
-}
+const getStatusClass = (s: string) =>
+  s === 'inProgress' ? 'editable' : s === 'winning' ? 'winning'
+: s === 'done'       ? 'done'     : '';
 
-function getClockIcon(endDateTime: string): string {
-  const now = new Date();
-  const end = new Date(endDateTime);
-  const diffHours = (end.getTime() - now.getTime()) / (1000 * 60 * 60);
-  if (diffHours <= 15) {
-    return clock15;
-  } else if (diffHours <= 30) {
-    return clock30;
-  } else {
-    return clock45;
-  }
-}
+const getClockIcon = (end: string) => {
+  const hrs = (new Date(end).getTime() - Date.now()) / 3.6e6;
+  return hrs <= 15 ? clock15 : hrs <= 30 ? clock30 : clock45;
+};
 
+/* ───────────────────────────────────────────────────────── */
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
 
-  //State for auctions (to be shown on the left)
+  /* promo auctions */
   const [auctions, setAuctions] = useState<Auction[]>([]);
 
-  //Registration form states
-  const [name, setName] = useState('');
+  /* form state */
+  const [name,  setName]  = useState('');
   const [surname, setSurname] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail]     = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [confirm,  setConfirm]  = useState('');
+
+  const [error,   setError]   = useState('');
   const [success, setSuccess] = useState('');
 
-  //Fetch auctions from the backend
-  const fetchAuctions = async () => {
-    try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=20`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch auctions');
-      }
-      const data = await response.json();
-      setAuctions(data);
-    } catch (err) {
-      console.error('Error fetching auctions:', err);
-    }
-  };
-
+  /* fetch once */
   useEffect(() => {
-    fetchAuctions();
+    fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=20`)
+      .then(r => r.json())
+      .then(setAuctions)
+      .catch(() => {/* ignore */});
   }, []);
 
-  // elect up to 4 random auctions if more than 4 are available
-  const selectedAuctions: Auction[] =
-    auctions.length > 4 ? [...auctions].sort(() => Math.random() - 0.5).slice(0, 4) : auctions;
+  /* memoised promo grid */
+  const promoAuctions = useMemo<Auction[]>(() => {
+    if (auctions.length <= 4) return auctions;
+    return [...auctions].sort(() => Math.random() - 0.5).slice(0, 4);
+  }, [auctions]);
 
-  //Handle registration form submission
+  /* register */
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    if (password !== confirmPassword) {
+    setError(''); setSuccess('');
+
+    if (password !== confirm) {
       setError('Passwords do not match.');
       return;
     }
+
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/Auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, surname, email, password, confirmPassword }),
+      const resp = await fetch(`${BACKEND_BASE_URL}/api/Auth/register`, {
+        method : 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body   : JSON.stringify({ name, surname, email, password, confirmPassword: confirm })
       });
-      const data = await response.json();
-      if (!response.ok) {
+      const data = await resp.json();
+
+      if (!resp.ok) {
         setError(data.Errors ? data.Errors[0].Description : 'Registration failed.');
         return;
       }
-      setSuccess(data.Message || 'Registration successful.');
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-    } catch (err) {
+
+      setSuccess('Registration successful! Redirecting…');
+      setTimeout(() => navigate('/login'), 1500);
+    } catch {
       setError('An error occurred during registration.');
     }
   };
 
   return (
     <div className={styles.registerPageContainer}>
-      {/* Left Column: Auction Grid */}
+      {/* ── Left column – promo grid ── */}
       <div className={styles.auctionGridContainer}>
         <div className={styles.auctionGrid}>
-          {selectedAuctions.map((auction) => {
-            const tagText = getTagText(auction.auctionState);
-            const timeText = getTimeText(auction.auctionState);
-            const statusClass = getStatusClass(auction.auctionState);
-            const clockImg = getClockIcon(auction.endDateTime);
-
-            return (
-              <div key={auction.auctionId} className={styles.auctionCard}>
-                <div className={styles.auctionCardHeader}>
-                  <span className={`${styles.auctionTag} ${styles[statusClass]}`}>
-                    {tagText}
-                  </span>
-                  <span className={`${styles.timeTag} ${styles[statusClass]}`}>
-                    {timeText}
-                    <img src={clockImg} alt="Clock Icon" className={styles.clockIcon} />
-                  </span>
-                </div>
-                <div className={styles.auctionCardInfo}>
-                  <div className={styles.auctionTitle}>{auction.title}</div>
-                  <div className={styles.auctionPrice}>
-                    {auction.startingPrice} €
-                  </div>
-                </div>
-                <div className={styles.auctionCardImageContainer}>
-                  <img
-                    className={styles.auctionCardImage}
-                    src={
-                      auction.mainImageUrl
-                        ? `${BACKEND_BASE_URL}${auction.mainImageUrl}`
-                        : `${BACKEND_BASE_URL}/placeholder.png`
-                    }
-                    alt={auction.title}
-                  />
-                </div>
+          {promoAuctions.map(a => (
+            <div key={a.auctionId} className={styles.auctionCard}>
+              <div className={styles.auctionCardHeader}>
+                <span className={`${styles.auctionTag} ${styles[getStatusClass(a.auctionState)]}`}>
+                  {getTagText(a.auctionState)}
+                </span>
+                <span className={`${styles.timeTag} ${styles[getStatusClass(a.auctionState)]}`}>
+                  {getTimeText(a.auctionState)}
+                  <img src={getClockIcon(a.endDateTime)} className={styles.clockIcon} />
+                </span>
               </div>
-            );
-          })}
+              <div className={styles.auctionCardInfo}>
+                <div className={styles.auctionTitle}>{a.title}</div>
+                <div className={styles.auctionPrice}>{a.startingPrice} €</div>
+              </div>
+              <div className={styles.auctionCardImageContainer}>
+                <img
+                  className={styles.auctionCardImage}
+                  src={a.mainImageUrl ? `${BACKEND_BASE_URL}${a.mainImageUrl}` : `${BACKEND_BASE_URL}/placeholder.png`}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Right Column: Registration Form */}
+      {/* ── Right column – registration form ── */}
       <div className={styles.registerFormContainer}>
-        {/* Logo in a yellow circle */}
-        <div className={styles.brandIcon}>
-          <img src={logo} alt="Main Logo" className={styles.logoImage} />
-        </div>
-        <h2 className={styles.formTitle}>Hello!</h2>
-        <p className={styles.formSubtitle}>Please enter your details</p>
+        <div className={styles.brandIcon}><img src={logo} className={styles.logoImage} /></div>
 
-        {error && <p className={styles.errorMsg}>{error}</p>}
+        <h2 className={styles.formTitle}>Hello!</h2>
+        <p  className={styles.formSubtitle}>Please enter your details</p>
+
+        {error   && <p className={styles.errorMsg}>{error}</p>}
         {success && <p className={styles.successMsg}>{success}</p>}
 
         <form onSubmit={handleRegister} className={styles.registerForm}>
-          {/* Name + Surname side by side */}
           <div className={styles.nameFields}>
             <div className={styles.nameField}>
               <label className={styles.inputLabel}>Name</label>
-              <input
-                type="text"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+              <input type="text" placeholder="Enter your name" value={name}
+                     onChange={e => setName(e.target.value)} required />
             </div>
             <div className={styles.nameField}>
               <label className={styles.inputLabel}>Surname</label>
-              <input
-                type="text"
-                placeholder="Enter your surname"
-                value={surname}
-                onChange={(e) => setSurname(e.target.value)}
-                required
-              />
+              <input type="text" placeholder="Enter your surname" value={surname}
+                     onChange={e => setSurname(e.target.value)} required />
             </div>
           </div>
 
-          <label className={styles.inputLabel}>E-mail</label>
-          <input
-            type="email"
-            placeholder="Enter your E-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <label className={styles.inputLabel}>E‑mail</label>
+          <input type="email" placeholder="Enter your E‑mail" value={email}
+                 onChange={e => setEmail(e.target.value)} required />
 
           <label className={styles.inputLabel}>Password</label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <input type="password" placeholder="Enter your password" value={password}
+                 onChange={e => setPassword(e.target.value)} required />
 
           <label className={styles.inputLabel}>Repeat password</label>
-          <input
-            type="password"
-            placeholder=" Retype your password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
+          <input type="password" placeholder="Retype your password" value={confirm}
+                 onChange={e => setConfirm(e.target.value)} required />
 
-          <button type="submit" className={styles.registerButton}>
-            Sign up
-          </button>
+          <button type="submit" className={styles.registerButton}>Sign up</button>
         </form>
 
         <p className={styles.footerText}>
           Already have an account?{' '}
-          <Link to="/login" className={styles.loginLink}>
-            Log in
-          </Link>
+          <Link to="/login" className={styles.loginLink}>Log in</Link>
         </p>
       </div>
     </div>

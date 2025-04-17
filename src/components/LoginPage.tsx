@@ -1,216 +1,173 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 
-import logo from '../assets/logo.png';
-
-// Images / icons for auction cards and clock icons
-import clock15 from '../assets/15clock.png';
-import clock30 from '../assets/30clock.png';
-import clock45 from '../assets/45clock.png';
+import logo     from '../assets/logo.png';
+import clock15  from '../assets/15clock.png';
+import clock30  from '../assets/30clock.png';
+import clock45  from '../assets/45clock.png';
 
 const BACKEND_BASE_URL = 'https://localhost:7056';
 
+/* ─── Types ────────────────────────────────────────────── */
 interface Auction {
-  auctionId: number;
-  title: string;
-  description: string;
+  auctionId:     number;
+  title:         string;
+  description:   string;
   startingPrice: number;
   startDateTime: string;
-  endDateTime: string;
-  auctionState: string; //"outbid", "inProgress", "winning", "done"
-  createdAt: string;
+  endDateTime:   string;
+  auctionState:  string;
+  createdAt:     string;
   mainImageUrl?: string;
 }
-
-//Helper Functions
-//Same color & clock logic as in Landing Page
-function getTagText(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return 'In progress';
-    case 'winning':
-      return 'Winning';
-    case 'done':
-      return 'Done';
-    default:
-      return 'Outbid';
-  }
+interface LoginResponse {
+  Token?:  string;  // what the backend sends
+  token?:  string;  // just in case it’s lower‑case
+  Error?:  string;
+  Message?:string;
 }
 
-function getTimeText(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return '30h';
-    case 'winning':
-      return '20h';
-    case 'done':
-      return '0h';
-    default:
-      return '24h';
-  }
-}
+/* ─── Helpers (same as LandingPage) ────────────────────── */
+const getTagText = (s: string) =>
+  s === 'inProgress' ? 'In progress'
+: s === 'winning'    ? 'Winning'
+: s === 'done'       ? 'Done'
+:                      'Outbid';
 
-function getStatusClass(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return 'editable';
-    case 'winning':
-      return 'winning';
-    case 'done':
-      return 'done';
-    default:
-      return '';
-  }
-}
+const getTimeText = (s: string) =>
+  s === 'inProgress' ? '30h'
+: s === 'winning'    ? '20h'
+: s === 'done'       ? '0h'
+:                      '24h';
 
-function getClockIcon(endDateTime: string): string {
-  const now = new Date();
-  const end = new Date(endDateTime);
-  const diffHours = (end.getTime() - now.getTime()) / (1000 * 60 * 60);
+const getStatusClass = (s: string) =>
+  s === 'inProgress' ? 'editable'
+: s === 'winning'    ? 'winning'
+: s === 'done'       ? 'done'
+:                      '';
 
-  if (diffHours <= 15) {
-    return clock15;
-  } else if (diffHours <= 30) {
-    return clock30;
-  } else {
-    return clock45;
-  }
-}
+const getClockIcon = (end: string) => {
+  const hrs = (new Date(end).getTime() - Date.now()) / 3.6e6;
+  return hrs <= 15 ? clock15 : hrs <= 30 ? clock30 : clock45;
+};
 
+/* ──────────────────────────────────────────────────────── */
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
-  //State for auctions (left side)
+  /* promo auctions */
   const [auctions, setAuctions] = useState<Auction[]>([]);
 
-  //Login form states
-  const [email, setEmail] = useState('');
+  /* form state */
+  const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [msg,      setMsg]      = useState<{ type: 'error'|'success'; text: string }|null>(null);
 
-  //tch auctions from the backend
-  const fetchAuctions = async () => {
-    try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=20`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch auctions');
-      }
-      const data = await response.json();
-      setAuctions(data);
-    } catch (err) {
-      console.error('Error fetching auctions:', err);
-    }
-  };
-
+  /* fetch promo auctions ONCE */
   useEffect(() => {
-    fetchAuctions();
+    fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=20`)
+      .then(r => r.json())
+      .then(setAuctions)
+      .catch(() => {/* ignore promo grid errors */});
   }, []);
 
-  //Select up to 4 random auctions if more than 4 are available
-  const selectedAuctions: Auction[] =
-    auctions.length > 4 ? [...auctions].sort(() => Math.random() - 0.5).slice(0, 4) : auctions;
+  /* memoised “pick ≤4 random auctions” */
+  const promoAuctions = useMemo(() => {
+    if (auctions.length <= 4) return auctions;
+    const shuffled = [...auctions].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 4);
+  }, [auctions]);
 
-  //Handle login form submission
+  /* login handler */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setMsg(null);
 
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/Auth/login`, {
-        method: 'POST',
+      const resp = await fetch(`${BACKEND_BASE_URL}/api/Auth/login`, {
+        method : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        /* backend DTO uses Email / Password (Pascal‑case) */
+        body   : JSON.stringify({ Email: email, Password: password })
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        setError(
-          data.Errors
-            ? data.Errors[0].Description
-            : data.Message || 'Login failed. Please check your credentials.'
-        );
+      const data: LoginResponse = await resp.json();
+
+      if (!resp.ok || (!data.Token && !data.token)) {
+        const text = data.Error || data.Message || 'Login failed.';
+        setMsg({ type:'error', text });
         return;
       }
 
-      setSuccess(data.Message || 'Login successful.');
-      //shran token tle
-      setTimeout(() => {
-        navigate('/dashboard'); //on success se pol zrihtat
-      }, 1500);
-    } catch (err) {
-      setError('An error occurred during login.');
+      /* success */
+      const jwt = data.Token || data.token!;
+      localStorage.setItem('token', jwt);
+      setMsg({ type:'success', text:'Login successful! Redirecting…' });
+      navigate('/landing', { replace: true });
+    } catch {
+      setMsg({ type:'error', text:'Network error. Please try again.' });
     }
   };
 
+  /* ─── JSX ────────────────────────────────────────────── */
   return (
     <div className={styles.registerPageContainer}>
-      {/* Left Column: Auction Grid */}
+      {/* ── Left column – promo grid ───────────────────── */}
       <div className={styles.auctionGridContainer}>
         <div className={styles.auctionGrid}>
-          {selectedAuctions.map((auction) => {
-            const tagText = getTagText(auction.auctionState);
-            const timeText = getTimeText(auction.auctionState);
-            const statusClass = getStatusClass(auction.auctionState);
-            const clockImg = getClockIcon(auction.endDateTime);
-
-            return (
-              <div key={auction.auctionId} className={styles.auctionCard}>
-                <div className={styles.auctionCardHeader}>
-                  <span className={`${styles.auctionTag} ${styles[statusClass]}`}>
-                    {tagText}
-                  </span>
-                  <span className={`${styles.timeTag} ${styles[statusClass]}`}>
-                    {timeText}
-                    <img src={clockImg} alt="Clock Icon" className={styles.clockIcon} />
-                  </span>
-                </div>
-                <div className={styles.auctionCardInfo}>
-                  <div className={styles.auctionTitle}>{auction.title}</div>
-                  <div className={styles.auctionPrice}>{auction.startingPrice} €</div>
-                </div>
-                <div className={styles.auctionCardImageContainer}>
-                  <img
-                    className={styles.auctionCardImage}
-                    src={
-                      auction.mainImageUrl
-                        ? `${BACKEND_BASE_URL}${auction.mainImageUrl}`
-                        : `${BACKEND_BASE_URL}/placeholder.png`
-                    }
-                    alt={auction.title}
-                  />
-                </div>
+          {promoAuctions.map(a => (
+            <div key={a.auctionId} className={styles.auctionCard}>
+              <div className={styles.auctionCardHeader}>
+                <span className={`${styles.auctionTag} ${styles[getStatusClass(a.auctionState)]}`}>
+                  {getTagText(a.auctionState)}
+                </span>
+                <span className={`${styles.timeTag} ${styles[getStatusClass(a.auctionState)]}`}>
+                  {getTimeText(a.auctionState)}
+                  <img src={getClockIcon(a.endDateTime)} className={styles.clockIcon} />
+                </span>
               </div>
-            );
-          })}
+              <div className={styles.auctionCardInfo}>
+                <div className={styles.auctionTitle}>{a.title}</div>
+                <div className={styles.auctionPrice}>{a.startingPrice} €</div>
+              </div>
+              <div className={styles.auctionCardImageContainer}>
+                <img
+                  className={styles.auctionCardImage}
+                  src={
+                    a.mainImageUrl
+                      ? `${BACKEND_BASE_URL}${a.mainImageUrl}`
+                      : `${BACKEND_BASE_URL}/placeholder.png`
+                  }
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Right Column: Login Form */}
+      {/* ── Right column – login form ─────────────────── */}
       <div className={styles.registerFormContainer}>
-        {/* Logo in a yellow circle */}
         <div className={styles.brandIcon}>
-          <img src={logo} alt="Main Logo" className={styles.logoImage} />
+          <img src={logo} className={styles.logoImage} />
         </div>
 
         <h2 className={styles.formTitle}>Welcome back!</h2>
-        <p className={styles.formSubtitle}>Please enter your details</p>
+        <p  className={styles.formSubtitle}>Please enter your details</p>
 
-        {error && <p className={styles.errorMsg}>{error}</p>}
-        {success && <p className={styles.successMsg}>{success}</p>}
+        {msg && (
+          <p className={msg.type === 'error' ? styles.errorMsg : styles.successMsg}>
+            {msg.text}
+          </p>
+        )}
 
         <form onSubmit={handleLogin} className={styles.registerForm}>
-          <label className={styles.inputLabel}>E-mail</label>
+          <label className={styles.inputLabel}>E‑mail</label>
           <input
             type="email"
-            placeholder="Enter your E-mail"
+            placeholder="Enter your E‑mail"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
           />
 
@@ -219,27 +176,22 @@ const LoginPage: React.FC = () => {
             type="password"
             placeholder="Enter your password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             required
           />
 
-          {/* Forgot password link */}
-          <div style={{ width: '100%', textAlign: 'right', marginBottom: '16px' }}>
-            <Link to="/forgot-password" style={{ textDecoration: 'none', color: '#6c7078' }}>
+          <div style={{ width:'100%', textAlign:'right', marginBottom:16 }}>
+            <Link to="/forgot-password" style={{ textDecoration:'none', color:'#6c7078' }}>
               Forgot password?
             </Link>
           </div>
 
-          <button type="submit" className={styles.registerButton}>
-            Login
-          </button>
+          <button type="submit" className={styles.registerButton}>Login</button>
         </form>
 
         <p className={styles.footerText}>
           Don’t have an account?{' '}
-          <Link to="/register" className={styles.loginLink}>
-            Sign Up
-          </Link>
+          <Link to="/register" className={styles.loginLink}>Sign Up</Link>
         </p>
       </div>
     </div>
