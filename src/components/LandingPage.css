@@ -551,3 +551,58 @@ body, html {
   /* center the sub‑tab pill buttons */
 
 
+/* tiny drop‑down under avatar */
+.user-menu {
+    position: absolute;
+    top: 100%;            /* sit immediately below the button */
+    right: 0;             /* align with its right edge */
+    margin-top: 8px;      /* a little gap from the avatar */
+    
+    background: #fff;
+    border-radius: 12px;  /* slightly softer corners */
+    padding: 12px;        /* tighter padding all around */
+    min-width: 160px;     /* enough room for the content */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  
+    display: flex;
+    flex-direction: column;
+    gap: 12px;            /* space between rows */
+    z-index: 100;
+  }
+  
+/* the “Profile settings” link row */
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;             /* space between icon & text */
+    font-size: 14px;
+    font-weight: 500;
+    color: #111;
+    text-decoration: none;
+  }
+  
+/* the “Log out” button */
+.logout-btn {
+    padding: 8px 0;
+    width: 100%;          /* full width of the panel */
+    border: 1px solid #111;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .logged-as {
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+  }
+
+
+/*popup for avatar*/
+.icon-button.user-btn {
+    position: relative;
+  }
+
+
