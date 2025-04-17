@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+// LandingPage.tsx
+import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 
@@ -43,24 +44,20 @@ const getTagText = (s:Auction['auctionState']) =>
   : s === 'winning'  ? 'Winning'
   : s === 'done'     ? 'Done'
   : 'Outbid';
-
 const getTimeText = (s:Auction['auctionState']) =>
   s === 'inProgress' ? '30h'
   : s === 'winning'  ? '20h'
   : s === 'done'     ? '0h'
   : '24h';
-
 const getStatusClass = (s:Auction['auctionState']) =>
   s === 'inProgress' ? 'editable'
   : s === 'winning'  ? 'winning'
   : s === 'done'     ? 'done'
   : '';
-
 const getClockIcon = (end:string) => {
   const hrs = (new Date(end).getTime() - Date.now()) / 3.6e6;
   return hrs <= 15 ? clock15 : hrs <= 30 ? clock30 : clock45;
 };
-
 const imgUrl = (u?:string) => u?.startsWith('http') ? u : `${BACKEND_BASE_URL}${u ?? ''}`;
 
 /* ─────────────────────────────────────────────────────────── */
@@ -70,34 +67,32 @@ const LandingPage:React.FC = () => {
 
   /* ─── greeting state ─────────────────────────────── */
   const [userName, setUserName] = useState<string>('there');
-  const [avatar,   setAvatar]   = useState<string>(userPicIcon);   // default icon
+  const [avatar,   setAvatar]   = useState<string>(userPicIcon);
 
-  /* ─── fetch logged‑in user once ───────────────────────── */
-useEffect(() => {
-  if (!jwt) return;
-
-  fetch(`${BACKEND_BASE_URL}/api/Profile/me`, {
-    headers: { Authorization: `Bearer ${jwt}` }
-  })
-    .then(async r => {
-      if (!r.ok) throw new Error('unauthorised');
-      const p: ProfileMeDto = await r.json();
-
-      setUserName(
-        `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() ||
-        p.email.split('@')[0] ||
-        'there'
-      );
-      setAvatar(
-        p.profilePictureUrl ? imgUrl(p.profilePictureUrl) : userPicIcon
-      );
+  /* ─── fetch logged‑in user once ────────────────────── */
+  useEffect(() => {
+    if (!jwt) return;
+    fetch(`${BACKEND_BASE_URL}/api/Profile/me`, {
+      headers: { Authorization: `Bearer ${jwt}` }
     })
-    .catch(() => {
-      localStorage.removeItem('token');
-      setUserName('there');
-      setAvatar(userPicIcon);
-    });
-}, [jwt]);
+      .then(async r => {
+        if (!r.ok) throw new Error('unauthorised');
+        const p: ProfileMeDto = await r.json();
+        setUserName(
+          `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() ||
+          p.email.split('@')[0] ||
+          'there'
+        );
+        setAvatar(
+          p.profilePictureUrl ? imgUrl(p.profilePictureUrl) : userPicIcon
+        );
+      })
+      .catch(() => {
+        localStorage.removeItem('token');
+        setUserName('there');
+        setAvatar(userPicIcon);
+      });
+  }, [jwt]);
 
   /* ─── dropdown ───────────────────────────────────── */
   const [menuOpen, setMenuOpen] = useState(false);
@@ -106,24 +101,29 @@ useEffect(() => {
     localStorage.removeItem('token');
     nav('/login', { replace:true });
   };
+  useEffect(() => {
+    const onBodyClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) document.addEventListener('click', onBodyClick);
+    return () => document.removeEventListener('click', onBodyClick);
+  }, [menuOpen]);
 
   /* ─── auctions data ──────────────────────────────── */
   const [auctions,   setAuctions]   = useState<Auction[]>([]);
   const [page,       setPage]       = useState(1);
   const [hasMore,    setHasMore]    = useState(true);
   const [loading,    setLoading]    = useState(false);
-
   const [activeNav,  setActiveNav]  = useState<'auctions'|'profile'>('auctions');
   const [subTab,     setSubTab]     = useState<'myAuctions'|'bidding'|'won'>('myAuctions');
-
   const [myAuctions, setMyAuctions] = useState<Auction[]>([]);
   const [bidding]    = useState<Auction[]>([]);
   const [won]        = useState<Auction[]>([]);
 
-  /* ─── load public auctions ───────────────────────── */
   useEffect(() => {
     if (activeNav !== 'auctions') return;
-
     setLoading(true);
     fetch(`${BACKEND_BASE_URL}/api/Auctions?page=${page}&pageSize=9`)
       .then(r => r.json())
@@ -134,20 +134,6 @@ useEffect(() => {
       .finally(() => setLoading(false));
   }, [page, activeNav]);
 
-  /* ─── click outside profile popup ────────────────── */
-  useEffect(() => {
-    const onBodyClick = (e: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-
-    if (menuOpen) document.addEventListener('click', onBodyClick);
-    return () => document.removeEventListener('click', onBodyClick);
-  }, [menuOpen]);
-
-
-  /* ─── infinite scroll ────────────────────────────── */
   useEffect(() => {
     const onScroll = () => {
       if (loading || !hasMore || activeNav !== 'auctions') return;
@@ -159,44 +145,8 @@ useEffect(() => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [loading, hasMore, activeNav]);
 
-
-
-  /* ─── profile data ───────────────────────────────── */
-
-  useEffect(() => {
-    if (!jwt) return;
-  
-    fetch(`${BACKEND_BASE_URL}/api/Profile/me`, {
-      headers: { Authorization: `Bearer ${jwt}` }
-    })
-      .then(async r => {
-        if (r.status === 401)  throw new Error('unauthorized');   //only 401
-        if (!r.ok)             throw new Error('server');
-  
-        const p: ProfileMeDto = await r.json();
-        const niceName =
-          `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() ||
-          p.email.split('@')[0] ||
-          'there';
-        setUserName(niceName);
-      })
-      .catch(err => {
-        if (err.message === 'unauthorized') {
-          localStorage.removeItem('token');        // token really invalid
-        }
-        setUserName('there');
-      });
-  }, [jwt]);
-
-
-
-
-
-
-  /* ─── profile delete ────────────────────────────── */
   const handleDelete = (id:number) => {
     if (!confirm('Delete this auction?')) return;
-
     fetch(`${BACKEND_BASE_URL}/api/Profile/auction/${id}`, {
       method:'DELETE',
       headers:{ Authorization:`Bearer ${jwt}` }
@@ -205,36 +155,81 @@ useEffect(() => {
     });
   };
 
-  /* ─── helpers ─────────────────────────────────────── */
   const placeholders = (n:number) => Array.from({ length:n }, (_,i) => (
     <div key={`ph-${i}`} className="auction-card auction-card--placeholder" />
   ));
-
   const currentCount =
     subTab === 'myAuctions' ? myAuctions.length :
     subTab === 'bidding'    ? bidding.length    :
                               won.length;
-
   const isProfileFixed = activeNav === 'profile' && currentCount === 0;
 
-  /* ────────────────────────── JSX ───────────────────────── */
+  /* ─── ADD AUCTION POPUP STATE ─────────────────────── */
+  const [addOpen, setAddOpen] = useState(false);
+  const [file, setFile] = useState<File|null>(null);
+  const [preview, setPreview] = useState<string|null>(null);
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
+  const [price, setPrice] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]; if (!f) return;
+    setFile(f); setPreview(URL.createObjectURL(f));
+  };
+  const removeImage = () => { setFile(null); setPreview(null); };
+
+
+  const submitAuction = async (e: FormEvent) => {
+    e.preventDefault();
+  
+    const fd = new FormData();
+    if (file) fd.append("image", file);
+    fd.append("title",         title);
+    fd.append("description",   desc);
+    fd.append("startingPrice", price);
+    fd.append("endDateTime",   endDate);
+  
+    const res = await fetch(`${BACKEND_BASE_URL}/api/Auctions`, {
+      method : "POST",
+      headers: { Authorization: `Bearer ${jwt}` },
+      body   : fd
+    });
+    if (!res.ok) { alert("Failed to add auction."); return; }
+  
+    /* refresh public list */
+    setAuctions([]); setPage(1); setHasMore(true);
+  
+    /* refresh “My auctions” tab */
+    fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+      headers: { Authorization: `Bearer ${jwt}` }
+    })
+      .then(r => r.json())
+      .then((rows: Auction[]) => setMyAuctions(rows));
+  
+    /* reset form */
+    setAddOpen(false);
+    setFile(null); setPreview(null);
+    setTitle(''); setDesc(''); setPrice(''); setEndDate('');
+  };
+
   return (
     <div className="landing-container">
-      {/* ── Top nav ─────────────────────────────────────── */}
       <header className="top-nav">
         <div className="top-nav-left"><img src={logo} className="nav-logo" /></div>
         <div className="top-nav-right">
           {jwt
-            ? <span className="logged-as">Logged in as <b>{userName}</b></span>
-            : (<>
+            ? <>
+                <span className="logged-as">Logged in as <b>{userName}</b></span>
+
+              </>
+            : <>
                 <Link to="/login"    className="top-nav-login">Log in</Link>{' or '}
                 <Link to="/register" className="top-nav-signup">Sign Up</Link>
-              </>)
+              </>
           }
         </div>
       </header>
 
-      {/* ── Hero ───────────────────────────────────────── */}
       <section className="hero-section">
         <h1 className="hero-title">E‑auctions made easy!</h1>
         <p className="hero-subtitle">
@@ -244,43 +239,37 @@ useEffect(() => {
         <button className="cta-button">Start bidding</button>
       </section>
 
-      {/* ── Thick frame ───────────────────────────────── */}
       <div className="auctions-container-wrapper">
-        <div className={`auctions-container ${isProfileFixed ? 'auctions-container--fixed' : ''}`}>
-
-          {/* -------- Frame top‑bar -------- */}
+        <div className={`auctions-container ${isProfileFixed?'auctions-container--fixed':''}`}>
           <div className="frame-topbar">
             <div className="frame-topbar-left">
-              <div className="logo-circle"><img src={logo} className="topbar-logo" /></div>
+              <div className="logo-circle"><img src={logo} className="topbar-logo"/></div>
               <div className="left-pill-container">
-                <button className={`nav-btn ${activeNav==='auctions' ? 'nav-btn-active' : ''}`}
-                        onClick={() => setActiveNav('auctions')}>
-                  <img src={houseIcon} /> <span>Auctions</span>
+                <button className={`nav-btn ${activeNav==='auctions'?'nav-btn-active':''}`}
+                        onClick={()=>setActiveNav('auctions')}>
+                  <img src={houseIcon}/> <span>Auctions</span>
                 </button>
-                <button className={`nav-btn ${activeNav==='profile' ? 'nav-btn-active' : ''}`}
-                        onClick={() => setActiveNav('profile')}>
-                  <img src={profileIcon} /> <span>Profile</span>
+                <button className={`nav-btn ${activeNav==='profile'?'nav-btn-active':''}`}
+                        onClick={()=>setActiveNav('profile')}>
+                  <img src={profileIcon}/> <span>Profile</span>
                 </button>
               </div>
             </div>
-
             <div className="frame-topbar-right">
               <div className="right-pill-container">
                 <button className="icon-button bell-btn"><img src={bellIcon}/></button>
-                <button className="icon-button plus-btn"><img src={plusIcon}/></button>
-
-                {/* avatar + menu */}
-                <div
-                  className="icon-button user-btn"
-                  ref={userMenuRef}
-                  onClick={() => setMenuOpen(o => !o)}
-                  onMouseEnter={() => setMenuOpen(true)}
-                >
-                  <img src={avatar} alt="Your avatar" className="user-avatar" />
+                <button className="icon-button plus-btn" onClick={()=>setAddOpen(true)}>
+                  <img src={plusIcon}/>
+                </button>
+                <div className="icon-button user-btn"
+                     ref={userMenuRef}
+                     onClick={()=>setMenuOpen(o=>!o)}
+                     onMouseEnter={()=>setMenuOpen(true)}>
+                  <img src={avatar} alt="Your avatar" className="user-avatar"/>
                   {menuOpen && (
                     <div className="user-menu">
                       <Link to="/profile" className="menu-link">
-                        <img src={gearIcon} alt="" /> Profile settings
+                      <img src={gearIcon} alt="" className="menu-gear-icon"/> Profile settings
                       </Link>
                       <button className="logout-btn" onClick={logOut}>Log out</button>
                     </div>
@@ -290,20 +279,21 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* -------- AUCTIONS TAB -------- */}
-          {activeNav === 'auctions' && (
+          {activeNav==='auctions' && (
             <>
-              <header className="auctions-header"><h2 className="auctions-title">Auctions</h2></header>
-
-              {auctions.length ? (
-                <div className="auction-grid">
-                  {auctions.map(a => (
+              <header className="auctions-header">
+                <h2 className="auctions-title">Auctions</h2>
+              </header>
+              {auctions.length
+                ? <div className="auction-grid">{auctions.map(a=>(
                     <div className="auction-card" key={a.auctionId}>
                       <div className="auction-card-header">
-                        <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>{getTagText(a.auctionState)}</span>
+                        <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>
+                          {getTagText(a.auctionState)}
+                        </span>
                         <span className={`time-tag ${getStatusClass(a.auctionState)}`}>
                           {getTimeText(a.auctionState)}
-                          <img src={getClockIcon(a.endDateTime)} className="clock-icon" />
+                          <img src={getClockIcon(a.endDateTime)} className="clock-icon"/>
                         </span>
                       </div>
                       <div className="auction-card-info">
@@ -311,121 +301,139 @@ useEffect(() => {
                         <div className="auction-price">{a.startingPrice} €</div>
                       </div>
                       <div className="auction-card-image-container">
-                        <img src={imgUrl(a.mainImageUrl)} className="auction-card-image" />
+                        <img src={imgUrl(a.mainImageUrl)} className="auction-card-image"/>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty-state">
-                  <h3>Oh no, no auctions yet!</h3>
-                  <p>Click “+” in the nav bar to create a new auction.</p>
-                </div>
-              )}
+                  ))}</div>
+                : <div className="empty-state">
+                    <h3>Oh no, no auctions yet!</h3>
+                    <p>Click “+” in the nav bar to create a new auction.</p>
+                  </div>
+              }
               {loading && hasMore && <div className="loading-more">Loading more…</div>}
             </>
           )}
 
-          {/* -------- PROFILE TAB -------- */}
-          {activeNav === 'profile' && (
+          {activeNav==='profile' && (
             <div className="profile-view">
               <h2 className="profile-greeting">Hello {userName}!</h2>
-
-              {/* sub‑tab pill */}
               <div className="profile-tabs">
-                <button className={`profile-tab ${subTab==='myAuctions' ? 'profile-tab--active' : ''}`}
-                        onClick={() => setSubTab('myAuctions')}>My auctions</button>
-                <button className={`profile-tab ${subTab==='bidding' ? 'profile-tab--active' : ''}`}
-                        onClick={() => setSubTab('bidding')}>Bidding</button>
-                <button className={`profile-tab ${subTab==='won' ? 'profile-tab--active' : ''}`}
-                        onClick={() => setSubTab('won')}>Won</button>
+                <button className={`profile-tab ${subTab==='myAuctions'?'profile-tab--active':''}`}
+                        onClick={()=>setSubTab('myAuctions')}>My auctions</button>
+                <button className={`profile-tab ${subTab==='bidding'?'profile-tab--active':''}`}
+                        onClick={()=>setSubTab('bidding')}>Bidding</button>
+                <button className={`profile-tab ${subTab==='won'?'profile-tab--active':''}`}
+                        onClick={()=>setSubTab('won')}>Won</button>
               </div>
-
               <div className="profile-content">
-                {/* --- My auctions --- */}
-                {subTab==='myAuctions' && (
-                  myAuctions.length ? (
-                    <div className="auction-grid">
-                      {myAuctions.map(a => (
-                        <div className="auction-card" key={a.auctionId}>
-                          <div className="auction-card-header">
-                            <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>{getTagText(a.auctionState)}</span>
-                            <span className={`time-tag ${getStatusClass(a.auctionState)}`}>
-                              {getTimeText(a.auctionState)}
-                              <img src={getClockIcon(a.endDateTime)} className="clock-icon" />
-                            </span>
-                          </div>
-                          <div className="auction-card-info">
-                            <div className="auction-title">{a.title}</div>
-                            <div className="auction-price">{a.startingPrice} €</div>
-                          </div>
-                          <div className="auction-card-image-container">
-                            <img src={imgUrl(a.mainImageUrl)} className="auction-card-image" />
-                          </div>
-                          {a.auctionState==='inProgress' && (
-                            <div className="auction-card-actions">
-                              <button className="action-button delete-button" onClick={() => handleDelete(a.auctionId)}>
-                                <img src={trashIcon} alt="" />
-                              </button>
-                              <button className="action-button edit-button">Edit</button>
-                            </div>
-                          )}
+                {subTab==='myAuctions' && ( myAuctions.length
+                  ? <div className="auction-grid">{myAuctions.map(a=>(
+                      <div className="auction-card" key={a.auctionId}>
+                        <div className="auction-card-header">
+                          <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>
+                            {getTagText(a.auctionState)}
+                          </span>
+                          <span className={`time-tag ${getStatusClass(a.auctionState)}`}>
+                            {getTimeText(a.auctionState)}
+                            <img src={getClockIcon(a.endDateTime)} className="clock-icon"/>
+                          </span>
                         </div>
-                      ))}
-                      {placeholders((6 - (myAuctions.length % 6)) % 6)}
-                    </div>
-                  ) : (
-                    <>
+                        <div className="auction-card-info">
+                          <div className="auction-title">{a.title}</div>
+                          <div className="auction-price">{a.startingPrice} €</div>
+                        </div>
+                        <div className="auction-card-image-container">
+                          <img src={imgUrl(a.mainImageUrl)} className="auction-card-image"/>
+                        </div>
+                        {a.auctionState==='inProgress' && (
+                          <div className="auction-card-actions">
+                            <button className="action-button delete-button"
+                                    onClick={()=>handleDelete(a.auctionId)}>
+                              <img src={trashIcon} alt=""/>
+                            </button>
+                            <button className="action-button edit-button">Edit</button>
+                          </div>
+                        )}
+                      </div>
+                    ))}{placeholders((6 - (myAuctions.length % 6)) % 6)}</div>
+                  : <>
                       <div className="auction-grid">{placeholders(6)}</div>
                       <div className="empty-state">
                         <h3>Oh no, no auctions added!</h3>
                         <p>Click “+” in the nav bar to add your first auction.</p>
                       </div>
                     </>
-                  )
                 )}
-
-                {/* --- Bidding --- */}
-                {subTab==='bidding' && (
-                  bidding.length ? (
-                    <div className="auction-grid">
-                      {/* map your bidding rows here */}
-                      {placeholders((6 - (bidding.length % 6)) % 6)}
-                    </div>
-                  ) : (
-                    <>
+                {subTab==='bidding' && ( bidding.length
+                  ? <div className="auction-grid">{placeholders((6 - (bidding.length % 6)) % 6)}</div>
+                  : <>
                       <div className="auction-grid">{placeholders(6)}</div>
                       <div className="empty-state">
                         <h3>No bidding in progress!</h3>
                         <p>Start bidding by browsing auctions.</p>
                       </div>
                     </>
-                  )
                 )}
-
-                {/* --- Won --- */}
-                {subTab==='won' && (
-                  won.length ? (
-                    <div className="auction-grid">
-                      {/* map won auctions here */}
-                      {placeholders((6 - (won.length % 6)) % 6)}
-                    </div>
-                  ) : (
-                    <>
+                {subTab==='won' && ( won.length
+                  ? <div className="auction-grid">{placeholders((6 - (won.length % 6)) % 6)}</div>
+                  : <>
                       <div className="auction-grid">{placeholders(6)}</div>
                       <div className="empty-state">
                         <h3>Nothing here yet?</h3>
                         <p>Your won items will appear here.</p>
                       </div>
                     </>
-                  )
                 )}
               </div>
             </div>
           )}
-
         </div>
       </div>
+
+      {addOpen && (
+        <div className="add-modal-overlay" onClick={()=>setAddOpen(false)}>
+          <div className="add-modal-body" onClick={e=>e.stopPropagation()}>
+            <h2>Add auction</h2>
+            <form className="add-form" onSubmit={submitAuction}>
+              <div className="add-image-area">
+                {preview
+                  ? <>
+                      <img src={preview} alt="preview"/>
+                      <button type="button" className="trash-btn" onClick={removeImage}>
+                        <img src={trashIcon} alt="remove"/>
+                      </button>
+                    </>
+                  : <>
+                      <input id="addFile" type="file" accept="image/*" hidden onChange={onAddSelect}/>
+                      <label htmlFor="addFile" className="add-image-btn">Add image</label>
+                    </>
+                }
+              </div>
+              <label>Title</label>
+              <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Write item name here" required/>
+              <label>Description</label>
+              <textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Write description here..." required/>
+              <div className="add-row">
+                <div className="add-col">
+                  <label>Starting price</label>
+                  <div className="price-input">
+                    <input type="number" step="0.01" value={price} onChange={e=>setPrice(e.target.value)} placeholder="Price" required/>
+                    <span>€</span>
+                  </div>
+                </div>
+                <div className="add-col">
+                  <label>End date</label>
+                  <input type="datetime-local" value={endDate} onChange={e=>setEndDate(e.target.value)} required/>
+                </div>
+              </div>
+              <div className="add-footer">
+                <button type="button" onClick={()=>setAddOpen(false)}>Cancel</button>
+                <button type="submit">Start auction</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

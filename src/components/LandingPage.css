@@ -11,6 +11,7 @@ body, html {
     font-family: 'Helvetica', 'Arial', sans-serif;
 }
 
+  
 /* Container for Entire Landing Page */
 .landing-container {
     display: flex;
@@ -581,6 +582,13 @@ body, html {
     text-decoration: none;
   }
   
+/*gear icon on profile popup*/
+.menu-gear-icon {
+    width: 20px !important;
+    height: 20px !important;
+    object-fit: contain;
+    margin-right: 4px;
+  }
 /* the “Log out” button */
 .logout-btn {
     padding: 8px 0;
@@ -616,4 +624,169 @@ body, html {
 
 
 
-
+/* ─── Add auction popup overlay & body ───────────────── */
+.add-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .add-modal-body {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    width: 480px;
+    max-width: 90vw;
+    text-align: left;
+  }
+  
+  .add-modal-body h2 {
+    margin: 0 0 24px;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  
+  /* ─── Form labels & fields ───────────────────────────────── */
+  .add-form label {
+    display: block;
+    margin: 16px 0 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .add-form input,
+  .add-form textarea {
+    width: 100%;
+    border: 1px solid #d6d6d6;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+  }
+  
+  .add-form input::placeholder,
+  .add-form textarea::placeholder {
+    color: #a3a3a3;
+  }
+  
+  .add-form textarea {
+    resize: vertical;
+    height: 100px;
+  }
+  
+  /* ─── Image placeholder area ───────────────────────────── */
+  .add-image-area {
+    background: #E9E9E9;      /* warmer bone‑white */
+    border-radius: 20px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .add-image-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* “Add image” button in placeholder */
+  .add-image-btn {
+    border: 1px solid #20232A;
+    padding: 8px 16px;
+    border-radius: 18px;
+    cursor: pointer;
+    background: none;
+    font-size: 14px;
+  }
+  
+  /* trash icon button when image is present */
+  .trash-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #333;
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .trash-btn img {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* ─── Price + Date row ─────────────────────────────────── */
+  .add-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  
+  .add-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* euro symbol inside price input */
+  .price-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid #d6d6d6;
+    border-radius: 12px;
+    padding: 0 12px;
+    background: #fff;
+  }
+  
+  .price-input input {
+    border: none;
+    flex: 1;
+    padding: 12px 0;
+    outline: none;
+  }
+  
+  .price-input span {
+    font-size: 14px;
+    margin-left: 8px;
+    color: #272D2D;
+  }
+  
+  /* ─── Footer buttons ───────────────────────────────────── */
+  .add-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  
+  .add-footer button {
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+  }
+  
+  .add-footer button:first-child {
+    background: #e2e7e2;
+    color: #20232A;
+  }
+  
+  .add-footer button:last-child {
+    background: #FBFF00;
+    color: #000;
+  }
