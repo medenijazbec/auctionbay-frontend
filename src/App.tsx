@@ -5,6 +5,9 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import ForgotPasswordPage from './components/ForgotPasswordPage';
 import ProfilePage from './components/ProfilePage';
+import AuctionsPage  from './components/AuctionsPage';
+
+
 import './App.css';
 
 
@@ -18,7 +21,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/landing"  element={<LandingPage  />} />
         <Route path="/profile" element={<ProfilePage />} />
-
+        <Route path="/auctions" element={<AuctionsPage />} />
 
       </Routes>
     </Router>

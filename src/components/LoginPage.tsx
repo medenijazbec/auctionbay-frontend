@@ -104,7 +104,7 @@ const LoginPage: React.FC = () => {
       const jwt = data.Token || data.token!;
       localStorage.setItem('token', jwt);
       setMsg({ type:'success', text:'Login successful! Redirecting…' });
-      navigate('/landing', { replace: true });
+      navigate('/auctions', { replace: true });
     } catch {
       setMsg({ type:'error', text:'Network error. Please try again.' });
     }
