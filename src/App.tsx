@@ -6,6 +6,7 @@ import RegisterPage from './components/RegisterPage';
 import ForgotPasswordPage from './components/ForgotPasswordPage';
 import ProfilePage from './components/ProfilePage';
 import AuctionsPage  from './components/AuctionsPage';
+import AuctionDetailPage from './components/AuctionDetailPage';
 
 
 import './App.css';
@@ -22,7 +23,7 @@ function App() {
         <Route path="/landing"  element={<LandingPage  />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/auctions" element={<AuctionsPage />} />
-
+        <Route path="/auctions/:id" element={<AuctionDetailPage />} />
       </Routes>
     </Router>
   );

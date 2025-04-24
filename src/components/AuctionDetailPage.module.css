@@ -1,0 +1,172 @@
+/* reset */
+html, body, #root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+  }
+  
+  /* ─── wrapper: inset by 2rem all around ───────────────── */
+  .wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 2rem;
+    height: calc(100vh - 4rem);
+    box-sizing: border-box;
+  }
+  
+  /* LEFT image column */
+  .imageCol {
+    overflow: hidden;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    height: 100%;
+  }
+  .image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  
+  /* RIGHT: two stacked cards */
+  .infoCol {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 2rem;
+    height: 100%;
+  }
+  
+  /* DETAILS CARD */
+  .detailsCard {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  /* HISTORY CARD */
+  .historyCard {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow-y: auto;
+  }
+  
+  /* loading / error message */
+  .message {
+    font-size: 1.25rem;
+    color: #555;
+    text-align: left;
+    width: 100%;
+    margin-top: 2rem;
+  }
+  
+
+  .tagsBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .statusTag {
+    background: #ffb3ab;
+    color: #071015;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: capitalize;
+  }
+  .timeTag {
+    background: #FBFF00;   /* bright yellow */
+    color: #071015;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  .clockIcon {
+    width: 12px;
+    height: 12px;
+    margin-left: 4px;
+  }
+  
+  .title {
+    font-size: 2rem;
+    text-align: left;
+    color: #000;
+    margin: 0 0 1rem;
+  }
+  .desc {
+    text-align: left;
+    color: #000;
+    line-height: 1.6;
+    margin: 0 0 2rem;
+  }
+  
+  .bidForm {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .bidForm input,
+  .bidForm button {
+    width: 6rem;
+    height: 2.5rem;
+    border-radius: 18px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+  }
+  .bidForm input {
+    padding: 0.9rem;
+    border: 1px solid #ddd;
+  }
+  .bidForm button {
+    background: #FBFF00;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bidForm button:hover {
+    background-color: #e0e633;
+  }
+  
+  .historyList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .historyList li {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  .historyList li:last-child {
+    border-bottom: none;
+  }
+  .bidUser { font-weight: 500; }
+  .bidTime {
+    font-size: 0.875rem;
+    color: #777;
+    margin: 0 1rem;
+  }
+  .bidAmount {
+    background: #ffd400;
+    color: #071015;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  
