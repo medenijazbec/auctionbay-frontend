@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import grid from './AuctionDetailPage.module.css';
 
 import clock15 from '../assets/15clock.png';
@@ -8,8 +8,9 @@ import clock45 from '../assets/45clock.png';
 
 export interface Bid {
   amount: number;
-  createdDateTime?: string;
-  userName?: string;
+  createdDateTime: string;
+  userName: string;
+  profilePictureUrl?: string;
 }
 
 export interface Auction {
@@ -21,7 +22,7 @@ export interface Auction {
   endDateTime: string;
   currentHighestBid: number;
   startingPrice?: number;
-  bids: Bid[];
+  bids: Bid[];    //now should include userName & profilePictureUrl hopefully lmao
 }
 
 const getStateClass = (s: Auction['auctionState']) =>
@@ -32,18 +33,56 @@ const getStateClass = (s: Auction['auctionState']) =>
 
 const AuctionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [auction, setAuction] = useState<Auction | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [myBid, setMyBid] = useState(0);
+  const navigate = useNavigate();
+  const jwt = localStorage.getItem('token');
 
+  const [auction,     setAuction]     = useState<Auction | null>(null);
+  const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState<string | null>(null);
+  const [myBid,       setMyBid]       = useState(0);
+  const [profileName, setProfileName] = useState('there');
+  const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+  // fetch current user’s name
+  useEffect(() => {
+    if (!jwt) return;
+    fetch('/api/Profile/me', {
+      headers: { Authorization: `Bearer ${jwt}` }
+    })
+      .then(res => {
+        if (res.status === 401) {
+          navigate('/login', { replace: true });
+          throw new Error('Unauthorized');
+        }
+        return res.json();
+      })
+      .then((p: { firstName?: string; lastName?: string; email: string }) => {
+        const name = `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim()
+          || p.email.split('@')[0];
+        setProfileName(name);
+      })
+      .catch(() => {
+        /* keep default “there” */
+      });
+  }, [jwt, navigate]);
+
+  // fetch auction details
   const fetchAuction = useCallback(async () => {
-    if (!id) { setError('Invalid auction ID'); setLoading(false); return; }
+    if (!id) {
+      setError('Invalid auction ID');
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`/api/Auctions/${id}`);
+      const res = await fetch(`/api/Auctions/${id}`, {
+        headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined
+      });
+      if (res.status === 401) {
+        navigate('/login', { replace: true });
+        return;
+      }
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data: Auction = await res.json();
       setAuction(data);
@@ -53,13 +92,15 @@ const AuctionDetailPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, jwt, navigate]);
 
-  useEffect(() => { fetchAuction(); }, [fetchAuction]);
+  useEffect(() => {
+    fetchAuction();
+  }, [fetchAuction]);
 
   const timeLeft = () => {
     if (!auction) return '';
-    const ms = new Date(auction.endDateTime).getTime() - Date.now();
+    const ms  = new Date(auction.endDateTime).getTime() - Date.now();
     if (ms <= 0) return '0h';
     const hrs = ms / 3_600_000;
     return hrs <= 72 ? `${Math.ceil(hrs)}h` : `${Math.ceil(hrs / 24)} days`;
@@ -74,11 +115,21 @@ const AuctionDetailPage: React.FC = () => {
   const submitBid = async () => {
     if (!auction) return;
     try {
-      const res = await fetch(`/api/Auctions/${auction.auctionId}/bid`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: myBid }),
-      });
+      const res = await fetch(
+        `/api/Auctions/${auction.auctionId}/bid`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(jwt ? { Authorization: `Bearer ${jwt}` } : {})
+          },
+          body: JSON.stringify({ amount: myBid }),
+        }
+      );
+      if (res.status === 401) {
+        navigate('/login', { replace: true });
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => null);
         throw new Error(err?.error || `Status ${res.status}`);
@@ -89,13 +140,13 @@ const AuctionDetailPage: React.FC = () => {
     }
   };
 
-  if (loading) return <p className={grid.message}>Loading auction…</p>;
-  if (error) return <p className={grid.message}>{error}</p>;
-  if (!auction) return <p className={grid.message}>No auction found.</p>;
+  if (loading)   return <p className={grid.message}>Loading auction…</p>;
+  if (error)     return <p className={grid.message}>{error}</p>;
+  if (!auction)  return <p className={grid.message}>No auction found.</p>;
 
-  const stateCls = getStateClass(auction.auctionState);
-  //ensure first letter capitalized
-  const displayTitle = auction.title.charAt(0).toUpperCase() + auction.title.slice(1);
+  const stateCls    = getStateClass(auction.auctionState);
+  const displayTitle =
+    auction.title.charAt(0).toUpperCase() + auction.title.slice(1);
 
   return (
     <div className={grid.container}>
@@ -116,7 +167,6 @@ const AuctionDetailPage: React.FC = () => {
           </div>
 
           <h1 className={grid.title}>{displayTitle}</h1>
-
           <p className={grid.description}>{auction.description}</p>
 
           <div className={grid.bidAction}>
@@ -133,38 +183,44 @@ const AuctionDetailPage: React.FC = () => {
         </div>
 
         <div className={grid.biddingHistory}>
-          <h2>Bidding history&nbsp;({auction.bids.length})</h2>
+          <h2>Bidding history ({auction.bids.length})</h2>
 
-          {auction.bids.length === 0 ? (
-            <div className={grid.emptyState}>
-              <h3>No bids yet!</h3>
-              <p>Place your bid to have a chance to get this item.</p>
-            </div>
-          ) : (
-            auction.bids.map((b, i) => (
+          {auction.bids.length === 0
+            ? (
+              <div className={grid.emptyState}>
+                <h3>No bids yet!</h3>
+                <p>Place your bid to have a chance to get this item.</p>
+              </div>
+            )
+            : auction.bids.map((b, i) => (
               <div className={grid.bidEntry} key={i}>
                 <img
-                  src={`https://i.pravatar.cc/40?u=${b.userName ?? i}`}
-                  alt={b.userName ?? 'Bidder'}
+                  className={grid.bidAvatar}
+                  src={
+                    b.profilePictureUrl
+                      ? `${BACKEND_BASE_URL}${b.profilePictureUrl}`
+                      : `https://i.pravatar.cc/40?u=${b.userName}`
+                  }
+                  alt={b.userName}
                 />
                 <div className={grid.bidInfo}>
-                  <strong>{b.userName ?? 'Anonymous'}</strong>
-                  {b.createdDateTime && (
-                    <span>
-                      {new Date(b.createdDateTime).toLocaleString(undefined, {
-                        hour:   '2-digit',
-                        minute: '2-digit',
-                        day:    'numeric',
-                        month:  'numeric',
-                        year:   'numeric',
-                      })}
-                    </span>
-                  )}
+                  {b.userName}
                 </div>
-                <div className={grid.amount}>{b.amount.toFixed(0)} €</div>
+                <div className={grid.timestamp}>
+                  {new Date(b.createdDateTime).toLocaleString(undefined, {
+                    hour:   '2-digit',
+                    minute: '2-digit',
+                    day:    'numeric',
+                    month:  'numeric',
+                    year:   'numeric',
+                  })}
+                </div>
+                <div className={grid.amount}>
+                  {b.amount.toFixed(0)} €
+                </div>
               </div>
             ))
-          )}
+          }
         </div>
 
       </div>

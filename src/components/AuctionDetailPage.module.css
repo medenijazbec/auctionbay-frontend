@@ -155,30 +155,55 @@
   .bidEntry {
     display: flex;
     align-items: center;
-    margin-bottom: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
   }
+
+  /* avatar + name container */
   .bidEntry img {
-    border-radius: 50%;
     width: 40px;
     height: 40px;
-    margin-right: 1rem;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.5rem;  /* ← remove or shrink */
   }
-  
-  .bidInfo {
-    flex-grow: 1;
+  .bidAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.75rem;  /* small gap to name */
   }
+.bidInfo {
+  /* stop it from expanding to fill the row */
+  flex: 0 1 auto;
+  font-weight: 500;
+  color: #333;
+
+  /* you can also give it a tiny margin if you like: */
+  /* margin-right: 1rem; */
+}
   .bidInfo span {
-    display: block;
     font-size: 0.8rem;
     color: #777;
+    margin-top: 0.25rem;
   }
-  
-  .amount {
-    background: #f4f400;
-    padding: 0.3rem 0.7rem;
-    border-radius: 12px;
-    font-weight: bold;
+  /* timestamp cell (middle column) */
+  .timestamp {
+    margin-left: auto;
+    margin-right: 1rem;     /* gap between time and amount */
+    font-size: 0.85rem;
+    color: #777;
   }
+
+/* amount pill (right column) */
+.amount {
+  flex: 0 0 auto;         /* don’t grow or shrink */
+  background: #FBFF00;
+  padding: 0.2rem 1.4rem;
+  border-radius: 18px;
+  font-weight: 600;
+}
   
   /* loading / error */
   .message {
