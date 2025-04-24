@@ -186,4 +186,26 @@
     padding: 2rem;
     font-size: 1.25rem;
   }
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* take up all remaining space under the heading */
+    height: calc(100% - 2rem); 
+    text-align: center;
+    color: #555;
+
+    margin: 5rem;
+    padding-bottom: 12rem;
+  }
   
+  .emptyState h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    color: #000;
+  }
+  
+  .emptyState p {
+    font-size: 0.9rem;
+  }

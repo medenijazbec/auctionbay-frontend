@@ -134,30 +134,39 @@ const AuctionDetailPage: React.FC = () => {
 
         <div className={grid.biddingHistory}>
           <h2>Bidding history&nbsp;({auction.bids.length})</h2>
-          {auction.bids.map((b, i) => (
-            <div className={grid.bidEntry} key={i}>
-              <img
-                src={`https://i.pravatar.cc/40?u=${b.userName ?? i}`}
-                alt={b.userName ?? 'Bidder'}
-              />
-              <div className={grid.bidInfo}>
-                <strong>{b.userName ?? 'Anonymous'}</strong>
-                {b.createdDateTime && (
-                  <span>
-                    {new Date(b.createdDateTime).toLocaleString(undefined, {
-                      hour:   '2-digit',
-                      minute: '2-digit',
-                      day:    'numeric',
-                      month:  'numeric',
-                      year:   'numeric',
-                    })}
-                  </span>
-                )}
-              </div>
-              <div className={grid.amount}>{b.amount.toFixed(0)} €</div>
+
+          {auction.bids.length === 0 ? (
+            <div className={grid.emptyState}>
+              <h3>No bids yet!</h3>
+              <p>Place your bid to have a chance to get this item.</p>
             </div>
-          ))}
+          ) : (
+            auction.bids.map((b, i) => (
+              <div className={grid.bidEntry} key={i}>
+                <img
+                  src={`https://i.pravatar.cc/40?u=${b.userName ?? i}`}
+                  alt={b.userName ?? 'Bidder'}
+                />
+                <div className={grid.bidInfo}>
+                  <strong>{b.userName ?? 'Anonymous'}</strong>
+                  {b.createdDateTime && (
+                    <span>
+                      {new Date(b.createdDateTime).toLocaleString(undefined, {
+                        hour:   '2-digit',
+                        minute: '2-digit',
+                        day:    'numeric',
+                        month:  'numeric',
+                        year:   'numeric',
+                      })}
+                    </span>
+                  )}
+                </div>
+                <div className={grid.amount}>{b.amount.toFixed(0)} €</div>
+              </div>
+            ))
+          )}
         </div>
+
       </div>
     </div>
   );
