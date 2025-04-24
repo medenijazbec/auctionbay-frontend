@@ -22,6 +22,9 @@ import trashIcon   from '../assets/trash.png';
 import clock15     from '../assets/15clock.png';
 import clock30     from '../assets/30clock.png';
 import clock45     from '../assets/45clock.png';
+import profileWhiteIcon   from '../assets/profile_white.png';
+import houseWhiteIcon     from '../assets/home_white.png';
+
 
 /* ───── Types & constants ────────────────────────────────── */
 interface Auction {
@@ -277,7 +280,7 @@ const AuctionsPage:React.FC = () => {
                 }`}
                 onClick={() => setActiveNav('auctions')}
               >
-                <img src={houseIcon} alt="" /> <span>Auctions</span>
+                <img src={activeNav === 'auctions'? houseWhiteIcon: houseIcon}alt="Auctions"/> <span>Auctions</span>
               </button>
               <button
                 className={`${styles['nav-btn']} ${
@@ -287,7 +290,7 @@ const AuctionsPage:React.FC = () => {
                 }`}
                 onClick={() => setActiveNav('profile')}
               >
-                <img src={profileIcon} alt="" />{" "}
+                <img src={activeNav === 'profile'?profileWhiteIcon: profileIcon}alt="Profile"/>{" "}
                 <span>Profile</span>
               </button>
             </div>

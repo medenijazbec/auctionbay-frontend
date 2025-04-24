@@ -15,6 +15,9 @@ import trashIcon   from '../assets/trash.png';
 import clock15     from '../assets/15clock.png';
 import clock30     from '../assets/30clock.png';
 import clock45     from '../assets/45clock.png';
+import profileWhiteIcon   from '../assets/profile_white.png';
+import houseWhiteIcon     from '../assets/home_white.png';
+
 
 /* ───── Types & constants ────────────────────────────────── */
 interface Auction {
@@ -247,11 +250,11 @@ const LandingPage:React.FC = () => {
               <div className="left-pill-container">
                 <button className={`nav-btn ${activeNav==='auctions'?'nav-btn-active':''}`}
                         onClick={()=>setActiveNav('auctions')}>
-                  <img src={houseIcon}/> <span>Auctions</span>
+                  <img src={activeNav === 'auctions'? houseWhiteIcon: houseIcon}alt="Auctions"/> <span>Auctions</span>
                 </button>
                 <button className={`nav-btn ${activeNav==='profile'?'nav-btn-active':''}`}
                         onClick={()=>setActiveNav('profile')}>
-                  <img src={profileIcon}/> <span>Profile</span>
+                  <img src={activeNav === 'profile'?profileWhiteIcon: profileIcon}alt="Profile"/>{" "} <span>Profile</span>
                 </button>
               </div>
             </div>

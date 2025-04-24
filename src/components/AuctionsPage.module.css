@@ -187,7 +187,7 @@ body, html {
     padding: 0 1.2rem;
     border-radius: 999px;
     border: none;
-    
+    margin-right: 0.5rem;
     cursor: pointer;
     font-weight: 500;
     font-size: 1.1rem;
@@ -199,7 +199,9 @@ body, html {
 .nav-btn:hover {
     background-color: #646464;
 }
-
+.nav-btn img {
+  margin-right: 4px;
+}
 .nav-btn-active {
     background-color: #272d2d;
     color: #ffffff;
