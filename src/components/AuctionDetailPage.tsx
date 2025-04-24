@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import grid from './AuctionDetailPage.module.css';
 
-// clock icons 
 import clock15 from '../assets/15clock.png';
 import clock30 from '../assets/30clock.png';
 import clock45 from '../assets/45clock.png';
@@ -14,30 +13,32 @@ export interface Bid {
 }
 
 export interface Auction {
-  auctionId:         number;
-  title:             string;
-  description:       string;
-  mainImageUrl:      string;
-  auctionState:      string;
-  endDateTime:       string;
+  auctionId: number;
+  title: string;
+  description: string;
+  mainImageUrl: string;
+  auctionState: 'outbid' | 'inProgress' | 'winning' | 'done';
+  endDateTime: string;
   currentHighestBid: number;
-  startingPrice?:    number;
-  bids:              Bid[];
+  startingPrice?: number;
+  bids: Bid[];
 }
+
+const getStateClass = (s: Auction['auctionState']) =>
+  s === 'inProgress' ? 'editable'
+    : s === 'winning' ? 'winning'
+      : s === 'done' ? 'done'
+        : 'outbid';
 
 const AuctionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [auction, setAuction] = useState<Auction | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
-  const [myBid, setMyBid]     = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
+  const [myBid, setMyBid] = useState(0);
 
   const fetchAuction = useCallback(async () => {
-    if (!id) {
-      setError('Invalid auction ID');
-      setLoading(false);
-      return;
-    }
+    if (!id) { setError('Invalid auction ID'); setLoading(false); return; }
     setLoading(true);
     setError(null);
 
@@ -47,32 +48,25 @@ const AuctionDetailPage: React.FC = () => {
       const data: Auction = await res.json();
       setAuction(data);
       setMyBid(data.currentHighestBid + 1);
-    } catch (e) {
-      console.error(e);
+    } catch {
       setError('Could not load auction. Please try again.');
     } finally {
       setLoading(false);
     }
   }, [id]);
 
-  useEffect(() => {
-    fetchAuction();
-  }, [fetchAuction]);
+  useEffect(() => { fetchAuction(); }, [fetchAuction]);
 
-  /** returns "42h" if ≤72h left, else "3 days" */
   const timeLeft = () => {
     if (!auction) return '';
     const ms = new Date(auction.endDateTime).getTime() - Date.now();
     if (ms <= 0) return '0h';
     const hrs = ms / 3_600_000;
-    return hrs <= 72
-      ? `${Math.ceil(hrs)}h`
-      : `${Math.ceil(hrs / 24)} days`;
+    return hrs <= 72 ? `${Math.ceil(hrs)}h` : `${Math.ceil(hrs / 24)} days`;
   };
 
-  /** choose same 15/30/45 icon logic as on the list page */
-  const getClockIcon = () => {
-    if (!auction) return '';
+  const pickClock = () => {
+    if (!auction) return clock45;
     const hrs = (new Date(auction.endDateTime).getTime() - Date.now()) / 3.6e6;
     return hrs <= 15 ? clock15 : hrs <= 30 ? clock30 : clock45;
   };
@@ -95,74 +89,77 @@ const AuctionDetailPage: React.FC = () => {
     }
   };
 
-  if (loading)  return <p className={grid.message}>Loading auction…</p>;
-  if (error)    return <p className={grid.message}>{error}</p>;
+  if (loading) return <p className={grid.message}>Loading auction…</p>;
+  if (error) return <p className={grid.message}>{error}</p>;
   if (!auction) return <p className={grid.message}>No auction found.</p>;
 
+  const stateCls = getStateClass(auction.auctionState);
+  //ensure first letter capitalized
+  const displayTitle = auction.title.charAt(0).toUpperCase() + auction.title.slice(1);
+
   return (
-    <section className={grid.wrapper}>
-      {/* LEFT – image */}
-      <div className={grid.imageCol}>
-        <img
-          src={auction.mainImageUrl}
-          alt={auction.title}
-          className={grid.image}
-        />
+    <div className={grid.container}>
+      <div className={grid.imageContainer}>
+        <img src={auction.mainImageUrl} alt={displayTitle} />
       </div>
 
-      {/* RIGHT – two stacked “cards” */}
-      <div className={grid.infoCol}>
-        {/* DETAILS CARD */}
-        <div className={grid.detailsCard}>
-          <div className={grid.tagsBar}>
-            <span className={grid.statusTag}>
+      <div className={grid.infoContainer}>
+        <div className={grid.topSection}>
+          <div className={grid.statusTime}>
+            <span className={`${grid.tag} ${grid[stateCls]}`}>
               {auction.auctionState}
             </span>
-            <span className={grid.timeTag}>
+            <span className={`${grid.tag} ${grid[stateCls]}`}>
               {timeLeft()}
-              <img
-                src={getClockIcon()}
-                alt="time left"
-                className={grid.clockIcon}
-              />
+              <img src={pickClock()} className={grid.clockIcon} alt="" />
             </span>
           </div>
-          <h1 className={grid.title}>{auction.title}</h1>
-          <p className={grid.desc}>{auction.description}</p>
-          <div className={grid.bidForm}>
-            <label htmlFor="myBid">Bid:</label>
+
+          <h1 className={grid.title}>{displayTitle}</h1>
+
+          <p className={grid.description}>{auction.description}</p>
+
+          <div className={grid.bidAction}>
+            <label htmlFor="bid">Bid:</label>
             <input
-              id="myBid"
+              id="bid"
               type="number"
               min={auction.currentHighestBid + 1}
               value={myBid}
-              onChange={e => setMyBid(+e.target.value)}
+              onChange={e => setMyBid(Number(e.target.value))}
             />
             <button onClick={submitBid}>Place bid</button>
           </div>
         </div>
 
-        {/* HISTORY CARD */}
-        <div className={grid.historyCard}>
+        <div className={grid.biddingHistory}>
           <h2>Bidding history&nbsp;({auction.bids.length})</h2>
-          <ul className={grid.historyList}>
-            {auction.bids.map((b, i) => (
-              <li key={i}>
-                <span className={grid.bidUser}>
-                  {b.userName ?? `Bidder #${i+1}`}
-                </span>
-                <span className={grid.bidTime}>
-                  {b.createdDateTime
-                    ? new Date(b.createdDateTime).toLocaleString()
-                    : ''}
-                </span>
-                <span className={grid.bidAmount}>{b.amount} €</span>
-              </li>
-            ))}
-          </ul>
+          {auction.bids.map((b, i) => (
+            <div className={grid.bidEntry} key={i}>
+              <img
+                src={`https://i.pravatar.cc/40?u=${b.userName ?? i}`}
+                alt={b.userName ?? 'Bidder'}
+              />
+              <div className={grid.bidInfo}>
+                <strong>{b.userName ?? 'Anonymous'}</strong>
+                {b.createdDateTime && (
+                  <span>
+                    {new Date(b.createdDateTime).toLocaleString(undefined, {
+                      hour:   '2-digit',
+                      minute: '2-digit',
+                      day:    'numeric',
+                      month:  'numeric',
+                      year:   'numeric',
+                    })}
+                  </span>
+                )}
+              </div>
+              <div className={grid.amount}>{b.amount.toFixed(0)} €</div>
+            </div>
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

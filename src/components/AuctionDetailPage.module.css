@@ -1,172 +1,189 @@
-/* reset */
-html, body, #root {
+/* ───────── Global reset (kept global, not scoped) ───────── */
+:global(*) {
     margin: 0;
     padding: 0;
-    height: 100%;
-    width: 100%;
-  }
-  
-  /* ─── wrapper: inset by 2rem all around ───────────────── */
-  .wrapper {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin: 2rem;
-    height: calc(100vh - 4rem);
     box-sizing: border-box;
   }
   
-  /* LEFT image column */
-  .imageCol {
-    overflow: hidden;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    height: 100%;
-  }
-  .image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  :global(body) {
+    font-family: Arial, sans-serif;
+    background: #f8f8f7;
+
   }
   
-  /* RIGHT: two stacked cards */
-  .infoCol {
-    display: grid;
-    grid-template-rows: 1fr 1fr;
+  /* ───────── Layout ───────── */
+
+
+
+  /*ful zajeban container*/
+  .container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    display: flex;
     gap: 2rem;
-    height: 100%;
+ 
+    margin-left: -15.8vw;
+    width: 95vw;  
+  }
+
+  .title {
+    text-align: left;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 1rem;
   }
   
-  /* DETAILS CARD */
-  .detailsCard {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  
+  .imageContainer {
+    flex: 1;
+  }
+  .imageContainer img {
+    width: 100%;
+    border-radius: 16px;
+    object-fit: cover;
+  }
+  
+  .infoContainer {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 1.5rem;
   }
   
-  /* HISTORY CARD */
-  .historyCard {
+  /* ───────── “top card” ───────── */
+  .topSection {
     background: #fff;
+    border-radius: 16px;
     padding: 1.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
   }
   
-  /* loading / error message */
-  .message {
-    font-size: 1.25rem;
-    color: #555;
-    text-align: left;
-    width: 100%;
-    margin-top: 2rem;
-  }
-  
-
-  .tagsBar {
+  .statusTime {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .status {
+    background: #fdd;
+    color: #a00;
+    padding: 0.3rem 0.7rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+  
+  .time {
+    display: flex;
+    align-items: left;
+    gap: 0.3rem;
+    background: #f66;
+    color: #fff;
+    padding: 0.3rem 0.7rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+  
+  .clockIcon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .description {
+    text-align: left;
+    color: #000;
+    word-break: break-word;
+    white-space: pre-wrap;
+    margin: 1rem 0 1.5rem;
+  }
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;          /* not bold */
+  }
+  .outbid   { background:#FFB3AB; color:#071015; }
+.editable { background:#FBFF00; color:#071015; }
+.winning  { background:#B2F0B2; color:#137513; }
+.done     { background:#333;    color:#fff;    }
+
+
+/* ---------- bid form ---------- */
+.bidAction {
+    display: flex;
+    justify-content: flex-end; /* push to the right */
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .bidAction input,
+  .bidAction button {
+    height: 46px;
+    border-radius: 18px;
+  }
+
+.bidAction button {
+  background: #FBFF00;
+  border: none;
+  padding: 0 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bidAction input {
+    width: 90px;
+  }
+  .bidAction button {
+    padding: 0 1.4rem;
+  }
+  /* ───────── bid history card ───────── */
+  .biddingHistory {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  }
+  .biddingHistory h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .bidEntry {
+    display: flex;
     align-items: center;
     margin-bottom: 1rem;
   }
-  .statusTag {
-    background: #ffb3ab;
-    color: #071015;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    text-transform: capitalize;
-  }
-  .timeTag {
-    background: #FBFF00;   /* bright yellow */
-    color: #071015;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 0.875rem;
-  }
-  .clockIcon {
-    width: 12px;
-    height: 12px;
-    margin-left: 4px;
+  .bidEntry img {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 1rem;
   }
   
-  .title {
-    font-size: 2rem;
-    text-align: left;
-    color: #000;
-    margin: 0 0 1rem;
+  .bidInfo {
+    flex-grow: 1;
   }
-  .desc {
-    text-align: left;
-    color: #000;
-    line-height: 1.6;
-    margin: 0 0 2rem;
-  }
-  
-  .bidForm {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .bidForm input,
-  .bidForm button {
-    width: 6rem;
-    height: 2.5rem;
-    border-radius: 18px;
-    font-size: 0.9rem;
-    box-sizing: border-box;
-  }
-  .bidForm input {
-    padding: 0.9rem;
-    border: 1px solid #ddd;
-  }
-  .bidForm button {
-    background: #FBFF00;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .bidForm button:hover {
-    background-color: #e0e633;
-  }
-  
-  .historyList {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .historyList li {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #eee;
-  }
-  .historyList li:last-child {
-    border-bottom: none;
-  }
-  .bidUser { font-weight: 500; }
-  .bidTime {
-    font-size: 0.875rem;
+  .bidInfo span {
+    display: block;
+    font-size: 0.8rem;
     color: #777;
-    margin: 0 1rem;
   }
-  .bidAmount {
-    background: #ffd400;
-    color: #071015;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-weight: 700;
+  
+  .amount {
+    background: #f4f400;
+    padding: 0.3rem 0.7rem;
+    border-radius: 12px;
+    font-weight: bold;
+  }
+  
+  /* loading / error */
+  .message {
+    text-align: left;
+    padding: 2rem;
+    font-size: 1.25rem;
   }
   

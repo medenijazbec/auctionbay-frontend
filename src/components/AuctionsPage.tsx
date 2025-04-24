@@ -5,8 +5,10 @@ import React, {
   ChangeEvent,
   FormEvent
 } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Outlet, useParams, useNavigate, Link } from 'react-router-dom';
 import styles from './AuctionsPage.module.css';
+
+
 
 /* ───── Assets ───────────────────────────────────────────── */
 import logo        from '../assets/logo.png';
@@ -80,6 +82,11 @@ const imgUrl = (u?:string) =>
 const AuctionsPage:React.FC = () => {
   const nav  = useNavigate();
   const jwt  = localStorage.getItem('token');
+
+  // ── recognise when we are on /auctions/:id ──────────────────
+  const { id }  = useParams();        // undefined on the list, string on details
+  const navigate = useNavigate();     // for the back button
+
 
   /* ─── greeting state ─────────────────────────────── */
   const [userName, setUserName] = useState<string>('there');
@@ -331,85 +338,124 @@ const AuctionsPage:React.FC = () => {
         </div>
       </header>
 
+      {/* ─── SINGLE DETAILED AUCTION ─────────────────────────────────── */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       {/* ─── PUBLIC AUCTIONS ─────────────────────────────────── */}
       {activeNav === 'auctions' && (
-        <div className={styles['auctions-container-wrapper']}>
-          <h2 className={styles['auctions-title']}>Auctions</h2>
-          <div className={styles['auctions-container']}>
-            <div className={styles['auction-grid']}>
-              {auctions.map(a => {
-                const status = getStatusClass(a.auctionState);
-                return (
-                  <Link
-                    to={`/auctions/${a.auctionId}`}
-                    key={a.auctionId}
-                    className={styles['auction-card']}
-                    style={{
-                      textDecoration: 'none',
-                      color: 'inherit'
-                    }}
-                  >
-                    <div className={styles['auction-card-header']}>
-                      <span
-                        className={`${styles['auction-tag']} ${styles[status]}`}
+        <>
+          {/* ① LIST — shown when there is **no** :id in the URL */}     
+          {!id && (
+            <div className={styles['auctions-container-wrapper']}>
+              <h2 className={styles['auctions-title']}>Auctions</h2>
+
+              <div className={styles['auctions-container']}>
+                <div className={styles['auction-grid']}>
+                  {auctions.map(a => {
+                    const status = getStatusClass(a.auctionState);
+                    return (
+                      <Link                      /* path is still /auctions/:id */
+                        to={`/auctions/${a.auctionId}`}
+                        key={a.auctionId}
+                        className={styles['auction-card']}
+                        style={{ textDecoration: 'none', color: 'inherit' }}
                       >
-                        {getTagText(a.auctionState)}
-                      </span>
-                      <span
-                        className={`${styles['time-tag']} ${styles[status]}`}
-                      >
-                        {getTimeText(a.endDateTime)}
-                        <img
-                          src={clock15}
-                          className={styles['clock-icon']}
-                          alt="time left"
-                        />
-                      </span>
-                    </div>
-                    <div className={styles['auction-card-info']}>
-                      <div className={styles['auction-title']}>
-                        {a.title}
-                      </div>
-                      <div className={styles['auction-price']}>
-                        {a.startingPrice} €
-                      </div>
-                    </div>
-                    <div
-                      className={
-                        styles['auction-card-image-container']
-                      }
+                        {/* 🔹 ORIGINAL CARD MARK-UP – UNCHANGED 🔹 */}
+                        <div className={styles['auction-card-header']}>
+                          <span
+                            className={`${styles['auction-tag']} ${styles[status]}`}
+                          >
+                            {getTagText(a.auctionState)}
+                          </span>
+                          <span
+                            className={`${styles['time-tag']} ${styles[status]}`}
+                          >
+                            {getTimeText(a.endDateTime)}
+                            <img
+                              src={clock15}
+                              className={styles['clock-icon']}
+                              alt="time left"
+                            />
+                          </span>
+                        </div>
+                        <div className={styles['auction-card-info']}>
+                          <div className={styles['auction-title']}>{a.title}</div>
+                          <div className={styles['auction-price']}>
+                            {a.startingPrice} €
+                          </div>
+                        </div>
+                        <div className={styles['auction-card-image-container']}>
+                          <img
+                            src={imgUrl(a.mainImageUrl)}
+                            className={styles['auction-card-image']}
+                            alt={a.title}
+                          />
+                        </div>
+                      </Link>
+                    );
+                  })}
+
+                  {!loading && auctions.length === 0 && (
+                    <p
+                      style={{
+                        gridColumn: '1 / -1',
+                        textAlign: 'center',
+                        color: '#777'
+                      }}
                     >
-                      <img
-                        src={imgUrl(a.mainImageUrl)}
-                        className={styles['auction-card-image']}
-                        alt={a.title}
-                      />
-                    </div>
-                  </Link>
-                );
-              })}
+                      No active auctions found.
+                    </p>
+                  )}
+                </div>
 
-              {!loading && auctions.length === 0 && (
-                <p
-                  style={{
-                    gridColumn: '1/-1',
-                    textAlign: 'center',
-                    color: '#777'
-                  }}
-                >
-                  No active auctions found.
-                </p>
-              )}
-            </div>
-
-            {loading && (
-              <div className={styles['loading-more']}>
-                Loading more auctions…
+                {loading && (
+                  <div className={styles['loading-more']}>Loading more auctions…</div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          )}
+
+          {/* ② DETAILS — shown when :id is present */}       
+          {id && (
+            <div className={styles['detail-wrapper']}>
+              <button
+                className={styles['back-btn']}
+                onClick={() => navigate('/auctions')}
+              >
+                ← Back to list
+              </button>
+
+              {/* <AuctionDetailPage /> is rendered here by React-Router */}
+              <Outlet />
+            </div>
+          )}
+        </>
       )}
+
+
+
+
+
+
+
+
+
+
+
 
       {/* ─── PROFILE VIEW ─────────────────────────────────────── */}
       {activeNav === 'profile' && (
