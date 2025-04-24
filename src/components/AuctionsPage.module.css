@@ -335,7 +335,6 @@ body, html {
   border-radius: 999px;
   padding: 2px 8px;
   font-size: 12px;
-  font-weight: bold;
   display: flex;
   align-items: center;
 }
