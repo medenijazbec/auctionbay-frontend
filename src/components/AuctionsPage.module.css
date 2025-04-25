@@ -426,33 +426,6 @@ align-items: center;
   object-fit: cover;
 }
 
-.auction-card-actions {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 8px;
-}
-
-.action-button {
-  border: none;
-  border-radius: 999px;
-  padding: 6px 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.delete-button {
-  background-color: #ff4d4d;
-  color: #fff;
-}
-
-.edit-button {
-  background-color: #333;
-  color: #fff;
-}
-
 .loading-more {
   text-align: center;
   padding: 1rem;
@@ -460,11 +433,6 @@ align-items: center;
 }
 
 
-/* Action Buttons */
-.auction-card-actions { display: flex; justify-content: space-around; margin-top: 8px; }
-.action-button { border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.delete-button { background-color: #ff4d4d; color: #fff; }
-.edit-button   { background-color: #333;    color: #fff; }
 
 /* Loading More */
 .loading-more { text-align: center; padding: 1rem; font-style: italic; }
@@ -475,10 +443,11 @@ align-items: center;
 /* =========================
  PROFILE VIEW STYLES
 ========================= */
-.profile-view {
-   /* padding: 0 2rem; */
-}
 
+.profile-view .auction-card {
+  width: 216px;      /* already fixed, but state it again */
+  max-height: 250px; /* <= requirement */
+}
 .profile-greeting {
   font-family: 'Inter', sans-serif;
   text-align: left; 
@@ -881,6 +850,87 @@ font-size:   0.75rem;
 .neutral    { background: transparent; color: #071015; }
 
 
+
+
+
+
+
+
+
+
+
+/*THIS ALSO UPDATED THE AUCTIONS PAGE AUCTIONS AND STYLE!!!!!!!!!!!*/
+
+/* ─── Allow cards to size exactly like public auctions ───────────────── */
+.profile-view .auction-card {
+  /* undo the old width/max-height */
+  width: auto;
+  max-height: none;
+}
+
+/* ─── Turn all cards into column flexes ─────────────────────────────── */
+.auction-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* image area grows to fill & push footer down */
+.auction-card-image-container {
+  flex: 1;
+  min-height: 0;     /* allow shrinking */
+  overflow: hidden;  /* clip overflow rather than overlap */
+}
+.auction-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* footer row sits at bottom */
+.auction-card-actions {
+  display: flex;
+  gap: 8px;
+  margin: 8px;
+  margin-top: auto;  /* pushes this row below image/info */
+}
+
+/* ─── Trash button ────────────────────────────────────────────────── */
+.delete-button {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border: 2px solid #272d2d;
+  border-radius: 50%;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.delete-button img {
+  width: 24px;
+  height: 24px;
+}
+
+/* ─── Edit pill ───────────────────────────────────────────────────── */
+.edit-button {
+  flex: 1;
+  height: 40px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+}
+.edit-button img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+/*THIS ALSO UPDATED THE AUCTIONS PAGE AUCTIONS AND STYLE!!!!!!!!!!!*/
 
 
 

@@ -173,6 +173,20 @@ const AuctionsPage:React.FC = () => {
   /* ─── greeting state ─────────────────────────────── */
   const [userName, setUserName] = useState<string>('there');
   const [avatar,   setAvatar]   = useState<string>(userPicIcon);
+  const [editAuction, setEditAuction] = useState<Auction|null>(null);
+
+/* ─── helper to open modal pre-filled ───────────────────────── */
+const openEdit = (a:Auction) => {
+  setPreview(imgUrl(a.mainImageUrl));  // existing picture
+  setFile(null);                       // nothing new yet
+  setTitle(a.title);
+  setDesc(a.description);
+  setPrice(String(a.startingPrice));
+  setEndDate(a.endDateTime.slice(0,16));   // YYYY-MM-DDTHH:mm
+  setEditAuction(a);
+  setAddOpen(true);                     // reuse the same modal
+};
+
 
   /* ─── fetch logged-in user once ────────────────────── */
   useEffect(() => {
@@ -332,26 +346,51 @@ const AuctionsPage:React.FC = () => {
 
   const submitAuction = async (e: FormEvent) => {
     e.preventDefault();
+  
+    /* build FormData either way */
     const fd = new FormData();
     if (file) fd.append("image", file);
     fd.append("title",         title);
     fd.append("description",   desc);
     fd.append("startingPrice", price);
+    fd.append("startDateTime", editAuction
+                                 ? editAuction.startDateTime
+                                 : new Date().toISOString());
     fd.append("endDateTime",   endDate);
-
-    const res = await fetch(`${BACKEND_BASE_URL}/api/Auctions`, {
-      method : "POST",
+    fd.append("existingImageUrl", editAuction?.mainImageUrl ?? "");
+  
+    const url    = editAuction
+                     ? `${BACKEND_BASE_URL}/api/Profile/auction/${editAuction.auctionId}`
+                     : `${BACKEND_BASE_URL}/api/Auctions`;
+    const method = editAuction ? "PUT" : "POST";
+  
+    const res = await fetch(url, {
+      method,
       headers: { Authorization: `Bearer ${jwt}` },
       body   : fd
     });
-    if (!res.ok) { alert("Failed to add auction."); return; }
-
-    /* reset + refresh */
-    setAuctions([]); setPage(1); setHasMore(true);
+  
+    if (!res.ok) { alert("Operation failed."); return; }
+  
+    /* reset UI */
     setAddOpen(false);
+    setEditAuction(null);
     setFile(null); setPreview(null);
-    setTitle(''); setDesc(''); setPrice(''); setEndDate('');
+    setTitle('');  setDesc(''); setPrice(''); setEndDate('');
+  
+    /* refresh my-auctions list when on profile,
+       otherwise refresh the public list               */
+    if (activeNav === 'profile')
+      fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+        headers: { Authorization: `Bearer ${jwt}` }
+      })
+        .then(r => r.json())
+        .then(setMyAuctions);
+    else {
+      setAuctions([]); setPage(1); setHasMore(true);
+    }
   };
+  
 
   return (
     <div className={styles['landing-container']}>
@@ -627,24 +666,28 @@ const AuctionsPage:React.FC = () => {
                 />
               </div>
 
-              {a.auctionState === 'inProgress' && (
-                <div className={styles['auction-card-actions']}>
-                  <button
-                    className={`${styles['action-button']} ${styles['delete-button']}`}
-                    onClick={e => {
-                      e.preventDefault();
-                      handleDelete(a.auctionId);
-                    }}
-                  >
-                    <img src={trashIcon} alt="Delete" />
-                  </button>
-                  <button
-                    className={`${styles['action-button']} ${styles['edit-button']}`}
-                  >
-                    Edit
-                  </button>
-                </div>
-              )}
+              {displayState === 'inProgress' && (
+        <div className={styles['auction-card-actions']}>
+          <button
+            className={`${styles['action-button']} ${styles['delete-button']}`}
+            onClick={e => {
+              e.preventDefault();
+              handleDelete(a.auctionId);
+            }}
+          >
+            <img src={trashIcon} alt="Delete" />
+          </button>
+          <button
+            className={`${styles['action-button']} ${styles['edit-button']}`}
+            onClick={e => {
+              e.preventDefault();
+              openEdit(a);
+            }}
+          >
+            Edit
+          </button>
+        </div>
+      )}
             </Link>
           );
         })}
