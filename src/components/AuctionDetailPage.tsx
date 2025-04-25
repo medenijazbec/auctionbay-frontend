@@ -2,9 +2,30 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import grid from './AuctionDetailPage.module.css';
 
-import clock15 from '../assets/15clock.png';
-import clock30 from '../assets/30clock.png';
-import clock45 from '../assets/45clock.png';
+import clock0   from '../assets/0clock.png';
+import clock7   from '../assets/7clock.png';
+import clock15  from '../assets/15clock.png';
+import clock25  from '../assets/25clock.png';
+import clock30  from '../assets/30clock.png';
+import clock37  from '../assets/37clock.png';
+import clock45  from '../assets/45clock.png';
+import clock53  from '../assets/53clock.png';
+import clock60  from '../assets/60clock.png';
+
+
+const CLOCKS = [
+  clock0, clock7, clock15, clock25,
+  clock30, clock37, clock45, clock53, clock60
+];
+
+function getClockIcon(start: string, end: string): string {
+  const now = Date.now();
+  const s   = new Date(start).getTime();
+  const e   = new Date(end).getTime();
+  const pct = Math.min(Math.max((now - s) / (e - s), 0), 1);
+  const idx = Math.round(pct * (CLOCKS.length - 1));
+  return CLOCKS[idx];
+}
 
 export interface Bid {
   amount: number;
@@ -19,6 +40,7 @@ export interface Auction {
   description: string;
   mainImageUrl: string;
   auctionState: 'outbid' | 'inProgress' | 'winning' | 'done';
+  startDateTime: string;
   endDateTime: string;
   currentHighestBid: number;
   startingPrice?: number;
@@ -178,9 +200,9 @@ const AuctionDetailPage: React.FC = () => {
             </span>
 
             {/* Time pill */}
-            <span className={`${grid.tag} ${getTimeTagClass(auction.endDateTime)}`}>
-              {timeLeft()}
-              <img src={pickClock()} className={grid.clockIcon} alt="" />
+            <span className={`${grid['time-tag']} ${getTimeTagClass(auction.endDateTime)}`}>
+            {timeLeft()}
+            <img src={getClockIcon(auction.startDateTime, auction.endDateTime)} className={grid.clockIcon} alt=""/>
             </span>
           </div>
 

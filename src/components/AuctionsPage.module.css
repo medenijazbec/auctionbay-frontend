@@ -829,12 +829,6 @@ body, html {
  ensures we can address them from TS with styles[state]   */
 .inProgress {}   /* uses defaults already set above */
 
-
-
-
-
-
-
 .detail-wrapper { margin: 0;}
 
 .back-btn {

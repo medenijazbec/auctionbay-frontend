@@ -84,17 +84,38 @@
 /* ─── NEUTRAL FOR TIME > 1h ───────────────────────────── */
 .neutral    { background: transparent; color: #071015; }
   
-  .time {
-    display: flex;
-    align-items: left;
-    gap: 0.3rem;
-    background: #FFB3AB;
-    color: black;
-    padding: 0.3rem 0.7rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: bold;
-  }
+/* ─── TAG BASE ───────────────────────────────────────── */
+.tag {
+  border-radius:   999px;
+  padding:         6px 12px;
+  font-size:       0.875rem;
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+}
+
+/* ─── STATE COLOURS ─────────────────────────────────── */
+.outbid     { background-color: #FFB3AB; color: #071015; }
+.inProgress { background-color: #f4ff47; color: #071015; }
+.winning    { background-color: #B2F0B2; color: #137513; }
+.done       { background-color: #333;    color: #fff;    }
+
+
+/* ─── TIME TAG BASE ─────────────────────────────────── */
+.time-tag {
+  border-radius:   999px;
+  padding:         1px 12px;
+  font-size:       0.875rem;
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+}
+
+/* ─── TIME TAG VARIANTS ────────────────────────────── */
+/* >1h left */
+.neutral { background: transparent; color: #071015; }
+/* ≤1h left */
+.urgent  { background-color: #FFB3AB; color: #071015; }
   
   .clockIcon {
     width: 16px;

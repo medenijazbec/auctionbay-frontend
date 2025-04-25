@@ -322,28 +322,43 @@ body, html {
 
 .auction-tag,
 .time-tag {
-    border-radius: 999px;
-    padding: 2px 8px;
-    font-size: 12px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-}
-
+    border-radius:   999px;
+    padding:         1px 12px;
+    font-size:       0.875rem;
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+  }
+/* >1h left */
+.time-tag.neutral {
+    background: transparent !important;
+    color: #000 !important;
+  }
+/* ≤1h left */
+.time-tag.urgent  { background-color: #FFB3AB;  color: #071015; }
 .auction-tag {
     background-color: #FFB3AB;
     color: #071015;
 }
 
 .time-tag {
-    background-color: #FFB3AB;
-    color: #071015;
-}
+    /* you may already have these, but just in case: */
+    border-radius: 999px;
+    padding: 1px 12px;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  
+    /* override any older rules */
+    background: transparent;
+    color: #000;
+  }
 
 .auction-tag.editable,
 .time-tag.editable {
-    background-color: #FFF5BA;
-    color: #8A7D00;
+  background-color: #FBFF00;  /* same as AuctionPage */
+  color: #071015;             /* dark text */
 }
 
 .auction-tag.winning,
@@ -790,3 +805,21 @@ body, html {
     background: #FBFF00;
     color: #000;
   }
+/* 1) Only auction‐tags stay yellow when inProgress */
+.auction-tag.editable {
+    background-color: #FBFF00;
+    color: #071015;
+  }
+  
+  /* 2) Never show a background on any time-tag in the “editable” state */
+  .time-tag.editable {
+    background: transparent !important;
+    color:      #000         !important;
+  }
+  
+  /* 3) And for any non-urgent time pill (>1h), make sure it’s neutral/black */
+  .time-tag.neutral {
+    background: transparent;
+    color:      #000;
+  }
+  

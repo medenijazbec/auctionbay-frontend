@@ -12,12 +12,22 @@ import plusIcon    from '../assets/plus.png';
 import userPicIcon from '../assets/userpic.png';
 import gearIcon    from '../assets/gear.png';
 import trashIcon   from '../assets/trash.png';
-import clock15     from '../assets/15clock.png';
-import clock30     from '../assets/30clock.png';
-import clock45     from '../assets/45clock.png';
+import clock0   from '../assets/0clock.png';
+import clock7   from '../assets/7clock.png';
+import clock15  from '../assets/15clock.png';
+import clock25  from '../assets/25clock.png';
+import clock30  from '../assets/30clock.png';
+import clock37  from '../assets/37clock.png';
+import clock45  from '../assets/45clock.png';
+import clock53  from '../assets/53clock.png';
+import clock60  from '../assets/60clock.png';
 import profileWhiteIcon   from '../assets/profile_white.png';
 import houseWhiteIcon     from '../assets/home_white.png';
 
+const CLOCKS = [
+  clock0, clock7, clock15, clock25,
+  clock30, clock37, clock45, clock53, clock60
+];
 
 /* ───── Types & constants ────────────────────────────────── */
 interface Auction {
@@ -57,10 +67,16 @@ const getStatusClass = (s:Auction['auctionState']) =>
   : s === 'winning'  ? 'winning'
   : s === 'done'     ? 'done'
   : '';
-const getClockIcon = (end:string) => {
-  const hrs = (new Date(end).getTime() - Date.now()) / 3.6e6;
-  return hrs <= 15 ? clock15 : hrs <= 30 ? clock30 : clock45;
-};
+
+
+  function getClockIcon(start: string, end: string): string {
+    const now = Date.now();
+    const s   = new Date(start).getTime();
+    const e   = new Date(end).getTime();
+    const pct = Math.min(Math.max((now - s) / (e - s), 0), 1);
+    const idx = Math.round(pct * (CLOCKS.length - 1));
+    return CLOCKS[idx];
+  }
 const imgUrl = (u?:string) => u?.startsWith('http') ? u : `${BACKEND_BASE_URL}${u ?? ''}`;
 
 /* ─────────────────────────────────────────────────────────── */
@@ -296,7 +312,7 @@ const LandingPage:React.FC = () => {
                         </span>
                         <span className={`time-tag ${getStatusClass(a.auctionState)}`}>
                           {getTimeText(a.auctionState)}
-                          <img src={getClockIcon(a.endDateTime)} className="clock-icon"/>
+                          <img src={getClockIcon(a.startDateTime, a.endDateTime)}className="clock-icon"alt=""/>
                         </span>
                       </div>
                       <div className="auction-card-info">
@@ -338,7 +354,7 @@ const LandingPage:React.FC = () => {
                           </span>
                           <span className={`time-tag ${getStatusClass(a.auctionState)}`}>
                             {getTimeText(a.auctionState)}
-                            <img src={getClockIcon(a.endDateTime)} className="clock-icon"/>
+                            <img src={getClockIcon(a.startDateTime, a.endDateTime)} className="clock-icon" alt=""/>
                           </span>
                         </div>
                         <div className="auction-card-info">
