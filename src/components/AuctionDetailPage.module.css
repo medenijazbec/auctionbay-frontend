@@ -275,4 +275,8 @@
 /* ─── NEUTRAL FOR TIME > 1h ───────────────────────────── */
 .neutral    { background: transparent; color: #071015; }
 
-
+.urgent     { background-color: #FFB3AB;  color: #071015; }
+.clockIcon  {
+  width: 16px;
+  height: 16px;
+}

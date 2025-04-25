@@ -449,95 +449,86 @@ const AuctionsPage:React.FC = () => {
 
 
       {/* ─── PUBLIC AUCTIONS ─────────────────────────────────── */}
-      {activeNav === 'auctions' && (
-        <>
-          {/* ① LIST — shown when there is **no** :id in the URL */}     
-          {!id && (
-            <div className={styles['auctions-container-wrapper']}>
-              <h2 className={styles['auctions-title']}>Auctions</h2>
+{activeNav === 'auctions' && (
+  <>
+    {/*LIST — shown when there is **no** :id in the URL */}
+    {!id && (
+      <div className={styles['auctions-container-wrapper']}>
+        <h2 className={styles['auctions-title']}>Auctions</h2>
 
-              <div className={styles['auctions-container']}>
-                <div className={styles['auction-grid']}>
-                  {auctions.map(a => {
-                    const status = getStatusClass(a.auctionState);
-                    return (
-                      <Link                      /* path is still /auctions/:id */
-                        to={`/auctions/${a.auctionId}`}
-                        key={a.auctionId}
-                        className={styles['auction-card']}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        {/* 🔹 ORIGINAL CARD MARK-UP – UNCHANGED 🔹 */}
-                        <div className={styles['auction-card-header']}>
-  {/* Status pill */}
-  <span className={`${styles['auction-tag']} ${styles[status]}`}>
-    {getTagText(a.auctionState)}
-  </span>
+        <div className={styles['auctions-container']}>
+          <div className={styles['auction-grid']}>
+            {auctions.map(a => {
+              const status = getStatusClass(a.auctionState);
+              return (
+                <Link
+                  to={`/auctions/${a.auctionId}`}
+                  key={a.auctionId}
+                  className={styles['auction-card']}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <div className={styles['auction-card-header']}>
+                    {/* Status pill */}
+                    <span className={`${styles['auction-tag']} ${styles[status]}`}>
+                      {getTagText(a.auctionState)}
+                    </span>
 
-  {/* Time-left pill */}
-  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
-    {formatTimeLeft(a.endDateTime)}
-    <img
-      src={getClockIcon(a.startDateTime, a.endDateTime)}
-      className={styles['clock-icon']}
-      alt=""
-    />
-  </span>
-</div>
+                    {/* Time‐left pill (hide when done) */}
+                    {a.auctionState !== 'done' && (
+                      <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
+                        {formatTimeLeft(a.endDateTime)}
+                        <img
+                          src={getClockIcon(a.startDateTime, a.endDateTime)}
+                          className={styles['clock-icon']}
+                          alt=""
+                        />
+                      </span>
+                    )}
+                  </div>
 
-                        <div className={styles['auction-card-info']}>
-                          <div className={styles['auction-title']}>{a.title}</div>
-                          <div className={styles['auction-price']}>
-                            {a.startingPrice} €
-                          </div>
-                        </div>
-                        <div className={styles['auction-card-image-container']}>
-                          <img
-                            src={imgUrl(a.mainImageUrl)}
-                            className={styles['auction-card-image']}
-                            alt={a.title}
-                          />
-                        </div>
-                      </Link>
-                    );
-                  })}
+                  <div className={styles['auction-card-info']}>
+                    <div className={styles['auction-title']}>{a.title}</div>
+                    <div className={styles['auction-price']}>
+                      {a.startingPrice} €
+                    </div>
+                  </div>
+                  <div className={styles['auction-card-image-container']}>
+                    <img
+                      src={imgUrl(a.mainImageUrl)}
+                      className={styles['auction-card-image']}
+                      alt={a.title}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
 
-                  {!loading && auctions.length === 0 && (
-                    <p
-                      style={{
-                        gridColumn: '1 / -1',
-                        textAlign: 'center',
-                        color: '#777'
-                      }}
-                    >
-                      No active auctions found.
-                    </p>
-                  )}
-                </div>
+            {!loading && auctions.length === 0 && (
+              <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#777' }}>
+                No active auctions found.
+              </p>
+            )}
+          </div>
 
-                {loading && (
-                  <div className={styles['loading-more']}>Loading more auctions…</div>
-                )}
-              </div>
-            </div>
+          {loading && (
+            <div className={styles['loading-more']}>Loading more auctions…</div>
           )}
+        </div>
+      </div>
+    )}
 
-          {/* ② DETAILS — shown when :id is present */}       
-          {id && (
-            <div className={styles['detail-wrapper']}>
-              <button
-                className={styles['back-btn']}
-                onClick={() => navigate('/auctions')}
-              >
-                ← Back to list
-              </button>
+    {/* DETAILS — shown when :id is present */}
+    {id && (
+      <div className={styles['detail-wrapper']}>
+        <button className={styles['back-btn']} onClick={() => navigate('/auctions')}>
+          ← Back to list
+        </button>
+        <Outlet />
+      </div>
+    )}
+  </>
+)}
 
-              {/* <AuctionDetailPage /> is rendered here by React-Router */}
-              <Outlet />
-            </div>
-          )}
-        </>
-      )}
 
 
 
@@ -577,125 +568,92 @@ const AuctionsPage:React.FC = () => {
           </div>
 
           <div className={styles['profile-content']}>
-            {subTab === 'myAuctions' && (
-              myAuctions.length ? (
-                <div className={styles['auction-grid-wrapper']}>
-                  <div className={styles['auction-grid']}>
-                    {myAuctions.map(a => {
-                      const displayState = a.auctionState === 'done'
-                      ? 'done'
-                      : 'inProgress';
-                      const status = getStatusClass(a.auctionState);
-                      return (
-                        <Link
-                          to={`/auctions/${a.auctionId}`}
-                          key={a.auctionId}
-                          className={styles['auction-card']}
-                          style={{
-                            textDecoration: 'none',
-                            color: 'inherit'
-                          }}
-                        >
-<div className={styles['auction-card-header']}>
-  {/* Status pill (uses our forced displayState) */}
-  <span
-    className={`${styles['status-tag']} ${styles[displayState]}`}
-  >
-    {getTagText(displayState)}
-  </span>
+          {subTab === 'myAuctions' && (
+  myAuctions.length ? (
+    <div className={styles['auction-grid-wrapper']}>
+      <div className={styles['auction-grid']}>
+        {myAuctions.map(a => {
+          const nowMs  = Date.now();
+          const endMs  = new Date(a.endDateTime).getTime();
+          const isDone = endMs <= nowMs;
+          const displayState: 'inProgress' | 'done' = isDone ? 'done' : 'inProgress';
 
-  {/* Time‐left pill */}
-  <span
-    className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}
-  >
-    {formatTimeLeft(a.endDateTime)}
-    <img
-      src={getClockIcon(a.startDateTime, a.endDateTime)}
-      className={styles['clock-icon']}
-      alt=""
-    />
-  </span>
-</div>
+          return (
+            <Link
+              to={`/auctions/${a.auctionId}`}
+              key={a.auctionId}
+              className={styles['auction-card']}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <div className={styles['auction-card-header']}>
+                {/* Status pill */}
+                <span className={`${styles['status-tag']} ${styles[displayState]}`}>
+                  {getTagText(displayState)}
+                </span>
 
+                {/* Time-left pill (hidden when done) */}
+                {!isDone && (
+                  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
+                    {formatTimeLeft(a.endDateTime)}
+                    <img
+                      src={getClockIcon(a.startDateTime, a.endDateTime)}
+                      className={styles['clock-icon']}
+                      alt=""
+                    />
+                  </span>
+                )}
+              </div>
 
+              <div className={styles['auction-card-info']}>
+                <div className={styles['auction-title']}>{a.title}</div>
+                <div className={styles['auction-price']}>{a.startingPrice} €</div>
+              </div>
 
-                          <div
-                            className={styles['auction-card-info']}
-                          >
-                            <div
-                              className={styles['auction-title']}
-                            >
-                              {a.title}
-                            </div>
-                            <div
-                              className={styles['auction-price']}
-                            >
-                              {a.startingPrice} €
-                            </div>
-                          </div>
-                          <div
-                            className={
-                              styles[
-                                'auction-card-image-container'
-                              ]
-                            }
-                          >
-                            <img
-                              src={imgUrl(a.mainImageUrl)}
-                              className={
-                                styles['auction-card-image']
-                              }
-                              alt={a.title}
-                            />
-                          </div>
-                          {a.auctionState === 'inProgress' && (
-                            <div
-                              className={
-                                styles['auction-card-actions']
-                              }
-                            >
-                              <button
-                                className={`${styles['action-button']} ${styles['delete-button']}`}
-                                onClick={e => {
-                                  e.preventDefault();
-                                  handleDelete(a.auctionId);
-                                }}
-                              >
-                                <img
-                                  src={trashIcon}
-                                  alt="Delete"
-                                />
-                              </button>
-                              <button
-                                className={`${styles['action-button']} ${styles['edit-button']}`}
-                              >
-                                Edit
-                              </button>
-                            </div>
-                          )}
-                        </Link>
-                      );
-                    })}
-                    {placeholders(
-                      (6 - (myAuctions.length % 6)) % 6
-                    )}
-                  </div>
+              <div className={styles['auction-card-image-container']}>
+                <img
+                  src={imgUrl(a.mainImageUrl)}
+                  className={styles['auction-card-image']}
+                  alt={a.title}
+                />
+              </div>
+
+              {a.auctionState === 'inProgress' && (
+                <div className={styles['auction-card-actions']}>
+                  <button
+                    className={`${styles['action-button']} ${styles['delete-button']}`}
+                    onClick={e => {
+                      e.preventDefault();
+                      handleDelete(a.auctionId);
+                    }}
+                  >
+                    <img src={trashIcon} alt="Delete" />
+                  </button>
+                  <button
+                    className={`${styles['action-button']} ${styles['edit-button']}`}
+                  >
+                    Edit
+                  </button>
                 </div>
-              ) : (
-                <>
-                  <div className={styles['auction-grid']}>
-                    {placeholders(6)}
-                  </div>
-                  <div className={styles['empty-state']}>
-                    <h3>Oh no, no auctions added!</h3>
-                    <p>
-                      Click “+” in the nav bar to add your first
-                      auction.
-                    </p>
-                  </div>
-                </>
-              )
-            )}
+              )}
+            </Link>
+          );
+        })}
+        {placeholders((6 - (myAuctions.length % 6)) % 6)}
+      </div>
+    </div>
+  ) : (
+    <>
+      <div className={styles['auction-grid']}>
+        {placeholders(6)}
+      </div>
+      <div className={styles['empty-state']}>
+        <h3>Oh no, no auctions added!</h3>
+        <p>Click “+” in the nav bar to add your first auction.</p>
+      </div>
+    </>
+  )
+)}
+
 
  
 
@@ -720,9 +678,18 @@ const AuctionsPage:React.FC = () => {
     {getTagText(a.auctionState)}
   </span>
 
-  {/* Time‐left pill */}
-  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
-    {formatTimeLeft(a.endDateTime)}
+  {/* Time-left pill */}
+  <span
+    className={`${styles['time-tag']} ${
+      a.auctionState === 'done'
+        ? styles.done
+        : styles[getTimeTagClass(a.endDateTime)]
+    }`}
+  >
+    {a.auctionState === 'done'
+      ? '0h'
+      : formatTimeLeft(a.endDateTime)
+    }
     <img
       src={getClockIcon(a.startDateTime, a.endDateTime)}
       className={styles['clock-icon']}
@@ -730,6 +697,7 @@ const AuctionsPage:React.FC = () => {
     />
   </span>
 </div>
+
 
 
                         <div
@@ -798,9 +766,18 @@ const AuctionsPage:React.FC = () => {
     {getTagText(a.auctionState)}
   </span>
 
-  {/* Time‐left pill */}
-  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
-    {formatTimeLeft(a.endDateTime)}
+  {/* Time-left pill */}
+  <span
+    className={`${styles['time-tag']} ${
+      a.auctionState === 'done'
+        ? styles.done
+        : styles[getTimeTagClass(a.endDateTime)]
+    }`}
+  >
+    {a.auctionState === 'done'
+      ? '0h'
+      : formatTimeLeft(a.endDateTime)
+    }
     <img
       src={getClockIcon(a.startDateTime, a.endDateTime)}
       className={styles['clock-icon']}
@@ -808,6 +785,7 @@ const AuctionsPage:React.FC = () => {
     />
   </span>
 </div>
+
 
 
 

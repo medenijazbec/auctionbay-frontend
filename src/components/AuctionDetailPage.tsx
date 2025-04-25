@@ -11,6 +11,7 @@ import clock37  from '../assets/37clock.png';
 import clock45  from '../assets/45clock.png';
 import clock53  from '../assets/53clock.png';
 import clock60  from '../assets/60clock.png';
+import { formatTimeLeft } from './timeHelpers';
 
 
 const CLOCKS = [
@@ -193,18 +194,36 @@ const AuctionDetailPage: React.FC = () => {
 
       <div className={grid.infoContainer}>
         <div className={grid.topSection}>
-          <div className={grid.statusTime}>
-            {/* Status pill */}
-            <span className={`${grid.tag} ${grid[getStateClass(auction.auctionState)]}`}>
-              {getTagText(auction.auctionState)}
-            </span>
 
-            {/* Time pill */}
-            <span className={`${grid['time-tag']} ${getTimeTagClass(auction.endDateTime)}`}>
-            {timeLeft()}
-            <img src={getClockIcon(auction.startDateTime, auction.endDateTime)} className={grid.clockIcon} alt=""/>
-            </span>
-          </div>
+
+
+        <div className={grid.statusTime}>
+  {/* Status pill */}
+  <span className={`${grid.tag} ${grid[getStateClass(auction.auctionState)]}`}>
+    {getTagText(auction.auctionState)}
+  </span>
+
+  {/* Time-left pill */}
+  <span
+    className={
+      auction.auctionState === 'done'
+        ? `${grid['time-tag']} ${grid.done}`
+        : `${grid['time-tag']} ${grid[getTimeTagClass(auction.endDateTime)]}`
+    }
+  >
+    {auction.auctionState === 'done'
+      ? '0h'
+      : formatTimeLeft(auction.endDateTime)
+    }
+    <img
+      src={getClockIcon(auction.startDateTime, auction.endDateTime)}
+      className={grid.clockIcon}
+      alt=""
+    />
+  </span>
+</div>
+
+
 
           <h1 className={grid.title}>{displayTitle}</h1>
           <p className={grid.description}>{auction.description}</p>
