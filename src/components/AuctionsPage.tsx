@@ -30,6 +30,7 @@ import clock53  from '../assets/53clock.png';
 import clock60  from '../assets/60clock.png';
 import profileWhiteIcon   from '../assets/profile_white.png';
 import houseWhiteIcon     from '../assets/home_white.png';
+import { formatTimeLeft } from './timeHelpers';
 
 const CLOCKS = [
   clock0, clock7, clock15, clock25,
@@ -472,29 +473,22 @@ const AuctionsPage:React.FC = () => {
                       >
                         {/* 🔹 ORIGINAL CARD MARK-UP – UNCHANGED 🔹 */}
                         <div className={styles['auction-card-header']}>
+  {/* Status pill */}
+  <span className={`${styles['auction-tag']} ${styles[status]}`}>
+    {getTagText(a.auctionState)}
+  </span>
 
+  {/* Time-left pill */}
+  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
+    {formatTimeLeft(a.endDateTime)}
+    <img
+      src={getClockIcon(a.startDateTime, a.endDateTime)}
+      className={styles['clock-icon']}
+      alt=""
+    />
+  </span>
+</div>
 
-
-
-
-
-
-                          
-                          <span
-                            className={`${styles['auction-tag']} ${styles[status]}`}
-                          >
-                            {getTagText(a.auctionState)}
-                          </span>
-                          
-{/* Time pill */}
-<span className={getTimeTagClass(a.endDateTime)}>
-  {getTimeText(a.endDateTime)}
-  <img src={getClockIcon(a.startDateTime, a.endDateTime)}className={styles['clock-icon']}
-    alt=""
-  />
-</span>
-
-                        </div>
                         <div className={styles['auction-card-info']}>
                           <div className={styles['auction-title']}>{a.title}</div>
                           <div className={styles['auction-price']}>
@@ -560,7 +554,7 @@ const AuctionsPage:React.FC = () => {
 
 
 
-      {/* ─── PROFILE VIEW ─────────────────────────────────────── */}
+      {/* ─── PROFILE VIEW MY AUCTIONS ─────────────────────────────────────── */}
       {activeNav === 'profile' && (
         <div className={styles['profile-view']}>
           <h2 className={styles['profile-greeting']}>
@@ -603,33 +597,35 @@ const AuctionsPage:React.FC = () => {
                             color: 'inherit'
                           }}
                         >
-                          <div className={styles['auction-card-header']}>
-{/* Status pill */}
-<span
-  className={[
-    styles['status-tag'],
-    styles[
-      getStatusClass(
-        a.auctionState,
-        /* only “mine” when we’re in Profile → My Auctions */
-        activeNav === 'profile' && subTab === 'myAuctions'
-      )
-    ]
-  ].join(' ')}
->
-  {getTagText(a.auctionState)}
-</span>
+<div className={styles['auction-card-header']}>
+  {/* Status pill */}
+  <span
+    className={[
+      styles['status-tag'],
+      styles[
+        getStatusClass(
+          a.auctionState,
+          /* only “mine” when we’re in Profile → My Auctions */
+          activeNav === 'profile' && subTab === 'myAuctions'
+        )
+      ]
+    ].join(' ')}
+  >
+    {getTagText(a.auctionState)}
+  </span>
 
-{/* Time pill */}
-<span className={getTimeTagClass(a.endDateTime)}>
-  {getTimeText(a.endDateTime)}
-  <img src={getClockIcon(a.startDateTime, a.endDateTime)}
-    alt=""
-  />
-</span>
+  {/* Time‐left pill */}
+  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
+    {formatTimeLeft(a.endDateTime)}
+    <img
+      src={getClockIcon(a.startDateTime, a.endDateTime)}
+      className={styles['clock-icon']}
+      alt=""
+    />
+  </span>
+</div>
 
 
-                          </div>
                           <div
                             className={styles['auction-card-info']}
                           >
@@ -708,6 +704,8 @@ const AuctionsPage:React.FC = () => {
               )
             )}
 
+ 
+
             {subTab === 'bidding' && (
               bidding.length ? (
                 <div className={styles['auction-grid']}>
@@ -723,21 +721,24 @@ const AuctionsPage:React.FC = () => {
                           color: 'inherit'
                         }}
                       >
-                        <div className={styles['auction-card-header']}>
-                          <span
-                            className={`${styles['auction-tag']} ${styles[status]}`}
-                          >
-                            {getTagText(a.auctionState)}
-                          </span>
-{/* Time pill */}
-<span className={getTimeTagClass(a.endDateTime)}>
-  {getTimeText(a.endDateTime)}
-  <img src={getClockIcon(a.startDateTime, a.endDateTime)}
-    alt=""
-  />
-</span>
+<div className={styles['auction-card-header']}>
+  {/* Status pill */}
+  <span className={`${styles['auction-tag']} ${styles[status]}`}>
+    {getTagText(a.auctionState)}
+  </span>
 
-                        </div>
+  {/* Time‐left pill */}
+  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
+    {formatTimeLeft(a.endDateTime)}
+    <img
+      src={getClockIcon(a.startDateTime, a.endDateTime)}
+      className={styles['clock-icon']}
+      alt=""
+    />
+  </span>
+</div>
+
+
                         <div
                           className={styles['auction-card-info']}
                         >
@@ -798,21 +799,25 @@ const AuctionsPage:React.FC = () => {
                           color: 'inherit'
                         }}
                       >
-                        <div className={styles['auction-card-header']}>
-                          <span
-                            className={`${styles['auction-tag']} ${styles[status]}`}
-                          >
-                            {getTagText(a.auctionState)}
-                          </span>
-{/* Time pill */}
-<span className={getTimeTagClass(a.endDateTime)}>
-  {getTimeText(a.endDateTime)}
-  <img src={getClockIcon(a.startDateTime, a.endDateTime)}
-    alt=""
-  />
-</span>
+<div className={styles['auction-card-header']}>
+  {/* Status pill */}
+  <span className={`${styles['auction-tag']} ${styles[status]}`}>
+    {getTagText(a.auctionState)}
+  </span>
 
-                        </div>
+  {/* Time‐left pill */}
+  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
+    {formatTimeLeft(a.endDateTime)}
+    <img
+      src={getClockIcon(a.startDateTime, a.endDateTime)}
+      className={styles['clock-icon']}
+      alt=""
+    />
+  </span>
+</div>
+
+
+
                         <div
                           className={styles['auction-card-info']}
                         >

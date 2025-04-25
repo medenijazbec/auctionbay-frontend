@@ -1,5 +1,5 @@
 // LandingPage.tsx
-import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent, FormEvent, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 
@@ -23,6 +23,7 @@ import clock53  from '../assets/53clock.png';
 import clock60  from '../assets/60clock.png';
 import profileWhiteIcon   from '../assets/profile_white.png';
 import houseWhiteIcon     from '../assets/home_white.png';
+import { getTimeTagClass } from './timeHelpers';
 
 const CLOCKS = [
   clock0, clock7, clock15, clock25,
@@ -57,11 +58,37 @@ const getTagText = (s:Auction['auctionState']) =>
   : s === 'winning'  ? 'Winning'
   : s === 'done'     ? 'Done'
   : 'Outbid';
-const getTimeText = (s:Auction['auctionState']) =>
-  s === 'inProgress' ? '30h'
-  : s === 'winning'  ? '20h'
-  : s === 'done'     ? '0h'
-  : '24h';
+/**
+ * @param endISO   endDateTime as ISO string
+ * @param nowMs    optional override of Date.now(), useful for testing
+ */
+function formatTimeLeft(endISO: string, nowMs = Date.now()): string {
+  const endMs = new Date(endISO).getTime();
+  let diff = Math.max(endMs - nowMs, 0);
+  const totalMinutes = Math.ceil(diff / 60_000);
+
+  if (totalMinutes === 0) return '0m';
+  if (totalMinutes < 60) {
+    return `${totalMinutes}m`;
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours < 12) {
+    return `${hours}h ${minutes}m`;
+  }
+
+  if (hours < 24) {
+    // round up if any leftover minutes, to match your old behavior
+    return `${hours + (minutes > 0 ? 1 : 0)}h`;
+  }
+
+  // 24+ hours → days
+  const days = Math.ceil(hours / 24);
+  return `${days} days`;
+}
+
 const getStatusClass = (s:Auction['auctionState']) =>
   s === 'inProgress' ? 'editable'
   : s === 'winning'  ? 'winning'
@@ -306,15 +333,24 @@ const LandingPage:React.FC = () => {
               {auctions.length
                 ? <div className="auction-grid">{auctions.map(a=>(
                     <div className="auction-card" key={a.auctionId}>
-                      <div className="auction-card-header">
-                        <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>
-                          {getTagText(a.auctionState)}
-                        </span>
-                        <span className={`time-tag ${getStatusClass(a.auctionState)}`}>
-                          {getTimeText(a.auctionState)}
-                          <img src={getClockIcon(a.startDateTime, a.endDateTime)}className="clock-icon"alt=""/>
-                        </span>
-                      </div>
+<div className="auction-card-header">
+  {/* status pill */}
+  <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>
+    {getTagText(a.auctionState)}
+  </span>
+
+  {/* time-left pill */}
+  <span className={`time-tag ${getTimeTagClass(a.endDateTime)}`}>
+    {formatTimeLeft(a.endDateTime)}
+    <img
+      src={getClockIcon(a.startDateTime, a.endDateTime)}
+      className="clock-icon"
+      alt=""
+    />
+  </span>
+</div>
+
+
                       <div className="auction-card-info">
                         <div className="auction-title">{a.title}</div>
                         <div className="auction-price">{a.startingPrice} €</div>
@@ -349,14 +385,22 @@ const LandingPage:React.FC = () => {
                   ? <div className="auction-grid">{myAuctions.map(a=>(
                       <div className="auction-card" key={a.auctionId}>
                         <div className="auction-card-header">
-                          <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>
-                            {getTagText(a.auctionState)}
-                          </span>
-                          <span className={`time-tag ${getStatusClass(a.auctionState)}`}>
-                            {getTimeText(a.auctionState)}
-                            <img src={getClockIcon(a.startDateTime, a.endDateTime)} className="clock-icon" alt=""/>
-                          </span>
-                        </div>
+  {/* status pill */}
+  <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>
+    {getTagText(a.auctionState)}
+  </span>
+
+  {/* time-left pill */}
+  <span className={`time-tag ${getTimeTagClass(a.endDateTime)}`}>
+    {formatTimeLeft(a.endDateTime)}
+    <img
+      src={getClockIcon(a.startDateTime, a.endDateTime)}
+      className="clock-icon"
+      alt=""
+    />
+  </span>
+</div>
+
                         <div className="auction-card-info">
                           <div className="auction-title">{a.title}</div>
                           <div className="auction-price">{a.startingPrice} €</div>
