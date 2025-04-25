@@ -87,13 +87,9 @@ const getTagText = (s: Auction['auctionState']) =>
     return <span className={cls}>{getTagText(state)}</span>
   }
 
-  /*
-eturns the state we should *show* to the current user 
-const displayState = (a: Auction): Auction['auctionState'] =>
-  a.userHasBid || a.auctionState === 'inProgress'
-    ? a.auctionState
-    : 'inProgress';     // hide Winning/Outbid/Done from strangers
-*/
+
+
+
 
     const getTimeText = (end:string) => {
       const h = hoursLeft(end)
@@ -586,6 +582,9 @@ const AuctionsPage:React.FC = () => {
                 <div className={styles['auction-grid-wrapper']}>
                   <div className={styles['auction-grid']}>
                     {myAuctions.map(a => {
+                      const displayState = a.auctionState === 'done'
+                      ? 'done'
+                      : 'inProgress';
                       const status = getStatusClass(a.auctionState);
                       return (
                         <Link
@@ -598,24 +597,17 @@ const AuctionsPage:React.FC = () => {
                           }}
                         >
 <div className={styles['auction-card-header']}>
-  {/* Status pill */}
+  {/* Status pill (uses our forced displayState) */}
   <span
-    className={[
-      styles['status-tag'],
-      styles[
-        getStatusClass(
-          a.auctionState,
-          /* only “mine” when we’re in Profile → My Auctions */
-          activeNav === 'profile' && subTab === 'myAuctions'
-        )
-      ]
-    ].join(' ')}
+    className={`${styles['status-tag']} ${styles[displayState]}`}
   >
-    {getTagText(a.auctionState)}
+    {getTagText(displayState)}
   </span>
 
   {/* Time‐left pill */}
-  <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
+  <span
+    className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}
+  >
     {formatTimeLeft(a.endDateTime)}
     <img
       src={getClockIcon(a.startDateTime, a.endDateTime)}
@@ -624,6 +616,7 @@ const AuctionsPage:React.FC = () => {
     />
   </span>
 </div>
+
 
 
                           <div
