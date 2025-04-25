@@ -819,7 +819,15 @@ body, html {
 }
 
 
+/* neutral (transparent) time pill – used while > 1 hour left */
+.time-tag.neutral {
+  background: transparent;
+  color: #071015;
+}
 
+/* coloured backgrounds already existed – this line just
+ ensures we can address them from TS with styles[state]   */
+.inProgress {}   /* uses defaults already set above */
 
 
 
@@ -841,6 +849,42 @@ body, html {
 .back-btn:hover { text-decoration: underline; }
 
 
+/* ─── TAG BASE ───────────────────────────────────────── */
+.status-tag {
+  border-radius:   999px;
+  padding:         6px 12px;
+  font-size:       0.875rem;
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+}
+.status-tag--small {
+  padding:     2px 6px;
+  font-size:   0.75rem;
+}
+
+/* ─── TIME TAG BASE ───────────────────────────────────── */
+.time-tag {
+  border-radius:   999px;
+  padding:         1px 12px;
+  font-size:       0.875rem;
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+}
+.time-tag--small {
+  padding:     2px 6px;
+  font-size:   0.75rem;
+}
+
+/* ─── STATE COLORS ────────────────────────────────────── */
+.outbid     { background-color: #FFB3AB; color: #071015; }
+.inProgress { background-color: #f4ff47; color: #071015; }
+.winning    { background-color: #B2F0B2; color: #137513; }
+.done       { background-color: #333;    color: #fff;    }
+
+/* ─── NEUTRAL FOR TIME > 1h ───────────────────────────── */
+.neutral    { background: transparent; color: #071015; }
 
 
 

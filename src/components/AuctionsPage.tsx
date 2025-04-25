@@ -37,6 +37,7 @@ interface Auction {
   auctionState:  'outbid' | 'inProgress' | 'winning' | 'done';
   createdBy:     string;
   mainImageUrl?: string;
+  userHasBid?:  boolean;
 }
 
 interface ProfileMeDto {
@@ -50,37 +51,103 @@ interface ProfileMeDto {
 const BACKEND_BASE_URL = 'https://localhost:7056';
 
 /* ───── Helpers ──────────────────────────────────────────── */
-const getTagText = (s:Auction['auctionState']) =>
-  s === 'inProgress' ? 'In progress'
-  : s === 'winning'  ? 'Winning'
-  : s === 'done'     ? 'Done'
-  : 'Outbid';
+const getTagText = (s: Auction['auctionState']) =>
+  s === 'inProgress' ? 'In Progress'
+  : s === 'winning'    ? 'Winning'
+  : s === 'done'       ? 'Done'
+  :                      'Outbid'
 
-const getTimeText = (end: string) => {
-  const diffMs = new Date(end).getTime() - Date.now();
-  if (diffMs <= 0) return '0h';
-  const hrs = diffMs / 3_600_000;
-  if (hrs < 24) return `${Math.ceil(hrs)}h`;
-  const days = diffMs / 86_400_000;
-  return `${Math.ceil(days)} days`;
-};
+  interface StatusTagProps {
+    state: Auction['auctionState']
+    mine?: boolean
+    size?: 'default' | 'small'
+  }
 
-const getStatusClass = (s:Auction['auctionState']) =>
+
+  const StatusTag: React.FC<StatusTagProps> = ({
+    state, mine = false, size = 'default'
+  }) => {
+    const cls = [
+      styles['status-tag'],
+      styles[getStatusClass(state, mine)],
+      size === 'small' ? styles['status-tag--small'] : ''
+    ].join(' ')
+    return <span className={cls}>{getTagText(state)}</span>
+  }
+
+  /*
+eturns the state we should *show* to the current user 
+const displayState = (a: Auction): Auction['auctionState'] =>
+  a.userHasBid || a.auctionState === 'inProgress'
+    ? a.auctionState
+    : 'inProgress';     // hide Winning/Outbid/Done from strangers
+*/
+
+    const getTimeText = (end:string) => {
+      const h = hoursLeft(end)
+      if (h <= 0) return '0h'
+      if (h < 24) return `${Math.ceil(h)}h`
+      return `${Math.ceil(h/24)} days`
+    }
+    
+
+/*const getStatusClass = (s:Auction['auctionState']) =>
   s === 'inProgress' ? 'editable'
   : s === 'winning'  ? 'winning'
   : s === 'done'     ? 'done'
-  : 'outbid';
+  : 'outbid';*/
 
-const getClockIcon = (end:string) => {
-  const hrs = (new Date(end).getTime() - Date.now()) / 3.6e6;
-  return hrs <= 15 ? clock15 : hrs <= 30 ? clock30 : clock45;
-};
+  const getStatusClass = (
+    s: Auction['auctionState'],
+    mine = false
+  ): TagClass =>
+    mine && s === 'inProgress' ? 'editable' : s
+  
+
+const getClockIcon = (end:string) =>
+      hoursLeft(end) <= 15 ? clock15
+        : hoursLeft(end) <= 30 ? clock30
+        : clock45
 
 const imgUrl = (u?:string) =>
   u?.startsWith('http')
     ? u
     : `${BACKEND_BASE_URL}${u ?? ''}`;
 
+const hoursLeft = (end:string) =>
+      Math.max(0, (new Date(end).getTime() - Date.now()) / 3_600_000)
+
+// colour the time-pill only when ≤1 h left; else use a “neutral” transparent style
+const getTimeTagClass = (end: string): string => {
+  return hoursLeft(end) <= 1
+    ? `${styles['time-tag']} ${styles['urgent']}`
+    : `${styles['time-tag']} ${styles['neutral']}`;
+};
+    
+    
+    // ensure we always map back to one of our 4 states
+const statusFromDto = (raw: string): Auction['auctionState'] =>
+  raw === 'winning'    ? 'winning'
+  : raw === 'outbid'     ? 'outbid'
+  : raw === 'done'       ? 'done'
+  :                        'inProgress';
+
+  type TagClass = keyof typeof styles
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 /* ─────────────────────────────────────────────────────────── */
 const AuctionsPage:React.FC = () => {
   const nav  = useNavigate();
@@ -152,20 +219,31 @@ const AuctionsPage:React.FC = () => {
   const [bidding,    setBidding]    = useState<Auction[]>([]);
   const [won,        setWon]        = useState<Auction[]>([]);
 
+
+
   /* Public auctions */
+
   useEffect(() => {
     if (activeNav !== 'auctions') return;
     setLoading(true);
-    fetch(
-      `${BACKEND_BASE_URL}/api/Auctions?page=${page}&pageSize=9`
-    )
-      .then(r => r.json())
-      .then((rows:Auction[]) => {
-        setAuctions(prev => [...prev, ...rows]);
+  
+    fetch(`${BACKEND_BASE_URL}/api/Auctions?page=${page}&pageSize=9`, {
+      headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined
+    })
+      .then(r => r.json() as Promise<Auction[]>)
+      .then(rows => {
+        // Always show the true state for everyone:
+        const mapped = rows.map(a => ({
+          ...a,
+          auctionState: statusFromDto(a.auctionState)
+        }));
+        setAuctions(prev => [...prev, ...mapped]);
         if (rows.length < 9) setHasMore(false);
       })
       .finally(() => setLoading(false));
   }, [page, activeNav]);
+  
+
 
   useEffect(() => {
     const onScroll = () => {
@@ -379,21 +457,30 @@ const AuctionsPage:React.FC = () => {
                       >
                         {/* 🔹 ORIGINAL CARD MARK-UP – UNCHANGED 🔹 */}
                         <div className={styles['auction-card-header']}>
+
+
+
+
+
+
+
+                          
                           <span
                             className={`${styles['auction-tag']} ${styles[status]}`}
                           >
                             {getTagText(a.auctionState)}
                           </span>
-                          <span
-                            className={`${styles['time-tag']} ${styles[status]}`}
-                          >
-                            {getTimeText(a.endDateTime)}
-                            <img
-                              src={clock15}
-                              className={styles['clock-icon']}
-                              alt="time left"
-                            />
-                          </span>
+                          
+{/* Time pill */}
+<span className={getTimeTagClass(a.endDateTime)}>
+  {getTimeText(a.endDateTime)}
+  <img
+    src={getClockIcon(a.endDateTime)}
+    className={styles['clock-icon']}
+    alt=""
+  />
+</span>
+
                         </div>
                         <div className={styles['auction-card-info']}>
                           <div className={styles['auction-title']}>{a.title}</div>
@@ -504,21 +591,33 @@ const AuctionsPage:React.FC = () => {
                           }}
                         >
                           <div className={styles['auction-card-header']}>
-                            <span
-                              className={`${styles['auction-tag']} ${styles[status]}`}
-                            >
-                              {getTagText(a.auctionState)}
-                            </span>
-                            <span
-                              className={`${styles['time-tag']} ${styles[status]}`}
-                            >
-                              {getTimeText(a.endDateTime)}
-                              <img
-                                src={getClockIcon(a.endDateTime)}
-                                className={styles['clock-icon']}
-                                alt=""
-                              />
-                            </span>
+{/* Status pill */}
+<span
+  className={[
+    styles['status-tag'],
+    styles[
+      getStatusClass(
+        a.auctionState,
+        /* only “mine” when we’re in Profile → My Auctions */
+        activeNav === 'profile' && subTab === 'myAuctions'
+      )
+    ]
+  ].join(' ')}
+>
+  {getTagText(a.auctionState)}
+</span>
+
+{/* Time pill */}
+<span className={getTimeTagClass(a.endDateTime)}>
+  {getTimeText(a.endDateTime)}
+  <img
+    src={getClockIcon(a.endDateTime)}
+    className={styles['clock-icon']}
+    alt=""
+  />
+</span>
+
+
                           </div>
                           <div
                             className={styles['auction-card-info']}
@@ -619,16 +718,16 @@ const AuctionsPage:React.FC = () => {
                           >
                             {getTagText(a.auctionState)}
                           </span>
-                          <span
-                            className={`${styles['time-tag']} ${styles[status]}`}
-                          >
-                            {getTimeText(a.endDateTime)}
-                            <img
-                              src={getClockIcon(a.endDateTime)}
-                              className={styles['clock-icon']}
-                              alt=""
-                            />
-                          </span>
+{/* Time pill */}
+<span className={getTimeTagClass(a.endDateTime)}>
+  {getTimeText(a.endDateTime)}
+  <img
+    src={getClockIcon(a.endDateTime)}
+    className={styles['clock-icon']}
+    alt=""
+  />
+</span>
+
                         </div>
                         <div
                           className={styles['auction-card-info']}
@@ -696,16 +795,16 @@ const AuctionsPage:React.FC = () => {
                           >
                             {getTagText(a.auctionState)}
                           </span>
-                          <span
-                            className={`${styles['time-tag']} ${styles[status]}`}
-                          >
-                            {getTimeText(a.endDateTime)}
-                            <img
-                              src={getClockIcon(a.endDateTime)}
-                              className={styles['clock-icon']}
-                              alt=""
-                            />
-                          </span>
+{/* Time pill */}
+<span className={getTimeTagClass(a.endDateTime)}>
+  {getTimeText(a.endDateTime)}
+  <img
+    src={getClockIcon(a.endDateTime)}
+    className={styles['clock-icon']}
+    alt=""
+  />
+</span>
+
                         </div>
                         <div
                           className={styles['auction-card-info']}
