@@ -67,19 +67,29 @@
   
   .status {
     background: #fdd;
-    color: #a00;
+    color: rgb(204, 106, 106);
     padding: 0.3rem 0.7rem;
     border-radius: 12px;
     font-size: 0.8rem;
     font-weight: bold;
   }
   
+
+/* ─── STATE COLORS ────────────────────────────────────── */
+.outbid     { background:#FFB3AB; color:#071015; }
+.editable   { background:#FBFF00; color:#071015; }
+.winning    { background:#B2F0B2; color:#137513; }
+.done       { background:#333;    color:#fff;    }
+
+/* ─── NEUTRAL FOR TIME > 1h ───────────────────────────── */
+.neutral    { background: transparent; color: #071015; }
+  
   .time {
     display: flex;
     align-items: left;
     gap: 0.3rem;
-    background: #f66;
-    color: #fff;
+    background: #FFB3AB;
+    color: black;
     padding: 0.3rem 0.7rem;
     border-radius: 12px;
     font-size: 0.8rem;
@@ -234,3 +244,14 @@
   .emptyState p {
     font-size: 0.9rem;
   }
+
+/* ─── STATE COLORS ────────────────────────────────────── */
+.outbid     { background:#FFB3AB; color:#071015; }
+.editable   { background:#FBFF00; color:#071015; }
+.winning    { background:#B2F0B2; color:#137513; }
+.done       { background:#333;    color:#fff;    }
+
+/* ─── NEUTRAL FOR TIME > 1h ───────────────────────────── */
+.neutral    { background: transparent; color: #071015; }
+
+

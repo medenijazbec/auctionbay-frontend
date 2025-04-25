@@ -25,6 +25,21 @@ export interface Auction {
   bids: Bid[];    //now should include userName & profilePictureUrl hopefully lmao
 }
 
+const getTagText = (s: Auction['auctionState']) =>
+  s === 'inProgress' ? 'In Progress'
+  : s === 'winning'    ? 'Winning'
+  : s === 'done'       ? 'Done'
+  :                      'Outbid';
+
+const getTimeTagClass = (end: string): string => {
+  const hrs = (new Date(end).getTime() - Date.now()) / 3_600_000;
+  return hrs <= 1
+    ? grid.time      // your “urgent” red style
+    : grid.neutral;  // new neutral style we’ll add below
+};
+
+
+
 const getStateClass = (s: Auction['auctionState']) =>
   s === 'inProgress' ? 'editable'
     : s === 'winning' ? 'winning'
@@ -157,10 +172,13 @@ const AuctionDetailPage: React.FC = () => {
       <div className={grid.infoContainer}>
         <div className={grid.topSection}>
           <div className={grid.statusTime}>
-            <span className={`${grid.tag} ${grid[stateCls]}`}>
-              {auction.auctionState}
+            {/* Status pill */}
+            <span className={`${grid.tag} ${grid[getStateClass(auction.auctionState)]}`}>
+              {getTagText(auction.auctionState)}
             </span>
-            <span className={`${grid.tag} ${grid[stateCls]}`}>
+
+            {/* Time pill */}
+            <span className={`${grid.tag} ${getTimeTagClass(auction.endDateTime)}`}>
               {timeLeft()}
               <img src={pickClock()} className={grid.clockIcon} alt="" />
             </span>
