@@ -13,7 +13,6 @@ import clock53  from '../assets/53clock.png';
 import clock60  from '../assets/60clock.png';
 import { formatTimeLeft } from './timeHelpers';
 
-
 const CLOCKS = [
   clock0, clock7, clock15, clock25,
   clock30, clock37, clock45, clock53, clock60
@@ -45,7 +44,7 @@ export interface Auction {
   endDateTime: string;
   currentHighestBid: number;
   startingPrice?: number;
-  bids: Bid[];    //now should include userName & profilePictureUrl hopefully lmao
+  bids: Bid[];
 }
 
 const getTagText = (s: Auction['auctionState']) =>
@@ -57,11 +56,9 @@ const getTagText = (s: Auction['auctionState']) =>
 const getTimeTagClass = (end: string): string => {
   const hrs = (new Date(end).getTime() - Date.now()) / 3_600_000;
   return hrs <= 1
-    ? grid.time      // your “urgent” red style
-    : grid.neutral;  // new neutral style we’ll add below
+    ? grid.time
+    : grid.neutral;
 };
-
-
 
 const getStateClass = (s: Auction['auctionState']) =>
   s === 'inProgress' ? 'editable'
@@ -73,13 +70,14 @@ const AuctionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const jwt = localStorage.getItem('token');
-
-  const [auction,     setAuction]     = useState<Auction | null>(null);
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState<string | null>(null);
-  const [myBid,       setMyBid]       = useState(0);
-  const [profileName, setProfileName] = useState('there');
   const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+  const [auction, setAuction] = useState<Auction | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState<string | null>(null);
+  const [myBid, setMyBid]     = useState(0);
+  const [profileName, setProfileName] = useState('there');
+
   // fetch current user’s name
   useEffect(() => {
     if (!jwt) return;
@@ -99,7 +97,7 @@ const AuctionDetailPage: React.FC = () => {
         setProfileName(name);
       })
       .catch(() => {
-        /* keep default “there” */
+        /* leave default */
       });
   }, [jwt, navigate]);
 
@@ -136,20 +134,6 @@ const AuctionDetailPage: React.FC = () => {
     fetchAuction();
   }, [fetchAuction]);
 
-  const timeLeft = () => {
-    if (!auction) return '';
-    const ms  = new Date(auction.endDateTime).getTime() - Date.now();
-    if (ms <= 0) return '0h';
-    const hrs = ms / 3_600_000;
-    return hrs <= 72 ? `${Math.ceil(hrs)}h` : `${Math.ceil(hrs / 24)} days`;
-  };
-
-  const pickClock = () => {
-    if (!auction) return clock45;
-    const hrs = (new Date(auction.endDateTime).getTime() - Date.now()) / 3.6e6;
-    return hrs <= 15 ? clock15 : hrs <= 30 ? clock30 : clock45;
-  };
-
   const submitBid = async () => {
     if (!auction) return;
     try {
@@ -182,7 +166,14 @@ const AuctionDetailPage: React.FC = () => {
   if (error)     return <p className={grid.message}>{error}</p>;
   if (!auction)  return <p className={grid.message}>No auction found.</p>;
 
-  const stateCls    = getStateClass(auction.auctionState);
+  // compute done vs inProgress
+  const nowMs  = Date.now();
+  const endMs  = new Date(auction.endDateTime).getTime();
+  const isDone = endMs <= nowMs;
+  const displayState: Auction['auctionState'] = isDone
+    ? 'done'
+    : auction.auctionState;
+
   const displayTitle =
     auction.title.charAt(0).toUpperCase() + auction.title.slice(1);
 
@@ -195,35 +186,32 @@ const AuctionDetailPage: React.FC = () => {
       <div className={grid.infoContainer}>
         <div className={grid.topSection}>
 
-
-
-        <div className={grid.statusTime}>
-  {/* Status pill */}
-  <span className={`${grid.tag} ${grid[getStateClass(auction.auctionState)]}`}>
-    {getTagText(auction.auctionState)}
-  </span>
-
-  {/* Time-left pill */}
-  <span
-    className={
-      auction.auctionState === 'done'
-        ? `${grid['time-tag']} ${grid.done}`
-        : `${grid['time-tag']} ${grid[getTimeTagClass(auction.endDateTime)]}`
-    }
-  >
-    {auction.auctionState === 'done'
-      ? '0h'
-      : formatTimeLeft(auction.endDateTime)
-    }
-    <img
-      src={getClockIcon(auction.startDateTime, auction.endDateTime)}
-      className={grid.clockIcon}
-      alt=""
-    />
-  </span>
-</div>
-
-
+          {/* ── STATUS & TIME ROW ─────────────────────────────── */}
+          <div className={grid.statusTime}>
+            <span
+              className={`${grid.tag} ${grid[getStateClass(displayState)]}`}
+            >
+              {getTagText(displayState)}
+            </span>
+            {!isDone && (
+              <span
+                className={`${grid['time-tag']} ${
+                  grid[getTimeTagClass(auction.endDateTime)]
+                }`}
+              >
+                {formatTimeLeft(auction.endDateTime)}
+                <img
+                  src={getClockIcon(
+                    auction.startDateTime,
+                    auction.endDateTime
+                  )}
+                  className={grid.clockIcon}
+                  alt=""
+                />
+              </span>
+            )}
+          </div>
+          {/* ─────────────────────────────────────────────────── */}
 
           <h1 className={grid.title}>{displayTitle}</h1>
           <p className={grid.description}>{auction.description}</p>
@@ -244,14 +232,13 @@ const AuctionDetailPage: React.FC = () => {
         <div className={grid.biddingHistory}>
           <h2>Bidding history ({auction.bids.length})</h2>
 
-          {auction.bids.length === 0
-            ? (
-              <div className={grid.emptyState}>
-                <h3>No bids yet!</h3>
-                <p>Place your bid to have a chance to get this item.</p>
-              </div>
-            )
-            : auction.bids.map((b, i) => (
+          {auction.bids.length === 0 ? (
+            <div className={grid.emptyState}>
+              <h3>No bids yet!</h3>
+              <p>Place your bid to have a chance to get this item.</p>
+            </div>
+          ) : (
+            auction.bids.map((b, i) => (
               <div className={grid.bidEntry} key={i}>
                 <img
                   className={grid.bidAvatar}
@@ -262,9 +249,7 @@ const AuctionDetailPage: React.FC = () => {
                   }
                   alt={b.userName}
                 />
-                <div className={grid.bidInfo}>
-                  {b.userName}
-                </div>
+                <div className={grid.bidInfo}>{b.userName}</div>
                 <div className={grid.timestamp}>
                   {new Date(b.createdDateTime).toLocaleString(undefined, {
                     hour:   '2-digit',
@@ -274,14 +259,11 @@ const AuctionDetailPage: React.FC = () => {
                     year:   'numeric',
                   })}
                 </div>
-                <div className={grid.amount}>
-                  {b.amount.toFixed(0)} €
-                </div>
+                <div className={grid.amount}>{b.amount.toFixed(0)} €</div>
               </div>
             ))
-          }
+          )}
         </div>
-
       </div>
     </div>
   );

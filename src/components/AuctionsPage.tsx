@@ -457,58 +457,68 @@ const AuctionsPage:React.FC = () => {
         <h2 className={styles['auctions-title']}>Auctions</h2>
 
         <div className={styles['auctions-container']}>
-          <div className={styles['auction-grid']}>
-            {auctions.map(a => {
-              const status = getStatusClass(a.auctionState);
-              return (
-                <Link
-                  to={`/auctions/${a.auctionId}`}
-                  key={a.auctionId}
-                  className={styles['auction-card']}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <div className={styles['auction-card-header']}>
-                    {/* Status pill */}
-                    <span className={`${styles['auction-tag']} ${styles[status]}`}>
-                      {getTagText(a.auctionState)}
-                    </span>
+        <div className={styles['auction-grid']}>
+  {auctions.map(a => {
+    // 1) determine whether this auction is over
+    const nowMs = Date.now()
+    const endMs = new Date(a.endDateTime).getTime()
+    const isDone = endMs <= nowMs
 
-                    {/* Time‐left pill (hide when done) */}
-                    {a.auctionState !== 'done' && (
-                      <span className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}>
-                        {formatTimeLeft(a.endDateTime)}
-                        <img
-                          src={getClockIcon(a.startDateTime, a.endDateTime)}
-                          className={styles['clock-icon']}
-                          alt=""
-                        />
-                      </span>
-                    )}
-                  </div>
+    // 2) force the pill to 'done' if time has passed
+    const displayState: Auction['auctionState'] = isDone
+      ? 'done'
+      : a.auctionState
 
-                  <div className={styles['auction-card-info']}>
-                    <div className={styles['auction-title']}>{a.title}</div>
-                    <div className={styles['auction-price']}>
-                      {a.startingPrice} €
-                    </div>
-                  </div>
-                  <div className={styles['auction-card-image-container']}>
-                    <img
-                      src={imgUrl(a.mainImageUrl)}
-                      className={styles['auction-card-image']}
-                      alt={a.title}
-                    />
-                  </div>
-                </Link>
-              );
-            })}
+    // 3) compute the CSS class for the status tag
+    const statusClass = getStatusClass(displayState)
 
-            {!loading && auctions.length === 0 && (
-              <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#777' }}>
-                No active auctions found.
-              </p>
-            )}
+    return (
+      <Link
+        to={`/auctions/${a.auctionId}`}
+        key={a.auctionId}
+        className={styles['auction-card']}
+        style={{ textDecoration: 'none', color: 'inherit' }}
+      >
+        <div className={styles['auction-card-header']}>
+          {/* Status pill */}
+          <span className={`${styles['auction-tag']} ${styles[statusClass]}`}>
+            {getTagText(displayState)}
+          </span>
+
+          {/* Only show the countdown if it’s not done */}
+          {!isDone && (
+            <span
+              className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}
+            >
+              {formatTimeLeft(a.endDateTime)}
+              <img
+                src={getClockIcon(a.startDateTime, a.endDateTime)}
+                className={styles['clock-icon']}
+                alt=""
+              />
+            </span>
+          )}
+        </div>
+
+        <div className={styles['auction-card-info']}>
+          <div className={styles['auction-title']}>{a.title}</div>
+          <div className={styles['auction-price']}>
+            {a.startingPrice} €
           </div>
+        </div>
+
+        <div className={styles['auction-card-image-container']}>
+          <img
+            src={imgUrl(a.mainImageUrl)}
+            className={styles['auction-card-image']}
+            alt={a.title}
+          />
+        </div>
+      </Link>
+    )
+  })}
+</div>
+
 
           {loading && (
             <div className={styles['loading-more']}>Loading more auctions…</div>

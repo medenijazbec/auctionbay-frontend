@@ -1,462 +1,462 @@
 /* Reset & Global Styles */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body, html {
-    width: 100%;
-    height: 100%;
-    font-family: 'Helvetica', 'Arial', sans-serif;
+  width: 100%;
+  height: 100%;
+  font-family: 'Helvetica', 'Arial', sans-serif;
 }
 
-  
+
 /* Container for Entire Landing Page */
 
 
 /* =========================================
-   TOP NAV (Outside the Thick Frame)
+ TOP NAV (Outside the Thick Frame)
 ========================================= */
 .top-nav {
-    width: 100%;
-    height: auto;
-    background-color: transparent;
-    padding: 2rem 3rem; 
-    padding-top: 1rem;
-    padding-bottom: 4rem;
+  width: 100%;
+  height: auto;
+  background-color: transparent;
+  padding: 2rem 3rem; 
+  padding-top: 1rem;
+  padding-bottom: 4rem;
 }
 
 .top-nav-left {
-    position: absolute;
-    top: 2rem;
-    left: 1.5rem;
+  position: absolute;
+  top: 2rem;
+  left: 1.5rem;
 }
 
 .top-nav-right {
-    position: absolute;
-    top: 2rem;
-    right: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0,7rem;
+  position: absolute;
+  top: 2rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0,7rem;
 }
 
 .nav-logo {
-    width: 65px; 
-    height: 65px;
-    border-radius: 50%;
-    object-fit: contain;
+  width: 65px; 
+  height: 65px;
+  border-radius: 50%;
+  object-fit: contain;
 }
 
 
 
 .top-nav-login {
-    font-family: 'Inter', sans-serif;
-    text-decoration: none;
-    background-color: transparent;
-    color: #272d2d;
-    font-weight: bold;
-    border-radius: 20px;
-    transition: background-color 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  background-color: transparent;
+  color: #272d2d;
+  font-weight: bold;
+  border-radius: 20px;
+  transition: background-color 0.2s ease;
 }
 
 .top-nav-login:hover {
-    background-color: #e9e9e9;
+  background-color: #e9e9e9;
 }
 
 .top-nav-signup {
-    font-family: 'Inter', sans-serif;
-    text-decoration: none;
-    background-color: #272d2d;
-    color: #ffffff;
-    padding: 0.6rem 1.2rem;
-    border-radius: 20px;
-    transition: background-color 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  background-color: #272d2d;
+  color: #ffffff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  transition: background-color 0.2s ease;
 }
 
 .top-nav-signup:hover {
-    background-color: #1e2323;
+  background-color: #1e2323;
 }
 
 /* =========================================
-   HERO SECTION
+ HERO SECTION
 ========================================= */
 .hero-section {
-    text-align: center;
-    padding: 60px 20px;
-    background-color: #e9e9e9;
-    margin-bottom: 1rem;
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #e9e9e9;
+  margin-bottom: 1rem;
 }
 
 .hero-title {
-    font-size: 3rem;
-    margin-bottom: 20px;
-    color: #111;
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #111;
 }
 
 .hero-subtitle {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    color: #555;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: #555;
 }
 
 .cta-button {
-    background-color: #f4ff47;
-    color: #000;
-    font-weight: bold;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1rem;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  background-color: #f4ff47;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .cta-button:hover {
-    background-color: #e0e633;
+  background-color: #e0e633;
 }
 
 /* =========================================
-   WRAPPER + AUCTIONS CONTAINER (Thick Frame)
+ WRAPPER + AUCTIONS CONTAINER (Thick Frame)
 ========================================= */
 .auctions-container-wrapper {
-    width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    box-sizing: border-box;
+  width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  box-sizing: border-box;
 }
 
 .auctions-container {
-    width: 100%;
-    background-color: transparent;
-    box-sizing: border-box;
-    margin: 0;
+  width: 100%;
+  background-color: transparent;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 
 
 /* =========================================
-   FRAME TOP BAR
+ FRAME TOP BAR
 ========================================= */
 .frame-topbar {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
 }
 
 .frame-topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .logo-circle {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background-color: #f4ff47;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: #f4ff47;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .topbar-logo {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
 
 .left-pill-container {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 4px;                   /* bumped up from 2px */
-    background-color: #fff;
-    border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 4px;                   /* bumped up from 2px */
+  background-color: #fff;
+  border-radius: 999px;
 }
 
 .nav-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.1rem;
-    height: 55px;
-    padding: 0 1.2rem;
-    border-radius: 999px;
-    border: none;
-    margin-right: 0.5rem;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 1.1rem;
-    background-color: #fff;
-    color: #272d2d;
-    transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  height: 55px;
+  padding: 0 1.2rem;
+  border-radius: 999px;
+  border: none;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1.1rem;
+  background-color: #fff;
+  color: #272d2d;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .nav-btn:hover {
-    background-color: #646464;
+  background-color: #646464;
 }
 .nav-btn img {
-  margin-right: 4px;
+margin-right: 4px;
 }
 .nav-btn-active {
-    background-color: #272d2d;
-    color: #ffffff;
+  background-color: #272d2d;
+  color: #ffffff;
 }
 
 .nav-btn img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .frame-topbar-right {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .right-pill-container {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 2px;
-    background-color: #fff;
-    border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2px;
+  background-color: #fff;
+  border-radius: 999px;
 }
 
 .icon-button {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background-color: #ccc;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #ccc;
 }
 
 .bell-btn {
-    background-color: #ccc;
+  background-color: #ccc;
 }
 
 .plus-btn {
-    background-color: #f4ff47;
+  background-color: #f4ff47;
 }
 
 .user-btn {
-    background-color: #ccc;
+  background-color: #ccc;
 }
 
 .icon-button img {
-    width: 21px;
-    height: 21px;
-    object-fit: cover;
+  width: 21px;
+  height: 21px;
+  object-fit: cover;
 }
 
 /* =========================================
-   AUCTIONS HEADER
+ AUCTIONS HEADER
 ========================================= */
 
 .auctions-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #071015;
-    text-align: left;
-    margin: 1.5rem 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #071015;
+  text-align: left;
+  margin: 1.5rem 0;
 }
 
 
 .auctions-container-wrapper {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  
-    /* full‑bleed hack */
-    position: absolute;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
-    width: 100vw;     
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 
-   /*container wrapper causing problems*/
-  }
-  
-  .auctions-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #071015;
-    text-align: left;
-    margin: 1.5rem 0;
-  }
-  
-  .auctions-container {
-    width: 100%;
-  }
-  
-  .auction-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(216px, 1fr));
-    gap: 1rem;
-  
-    /* padding: 0 2rem; */
-    justify-items: center;
-  }
+  /* full‑bleed hack */
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;     
+
+ /*container wrapper causing problems*/
+}
+
+.auctions-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #071015;
+  text-align: left;
+  margin: 1.5rem 0;
+}
+
+.auctions-container {
+  width: 100%;
+}
+
+.auction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(216px, 1fr));
+  gap: 1rem;
+
+  /* padding: 0 2rem; */
+  justify-items: center;
+}
 
 
 
 
 .auction-card {
-    background-color: #FFFFFF;
-    border-radius: 16px;
-    padding: 8px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  padding: 8px;
 
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    box-sizing: border-box;
-    width: 216px;
-    max-width:none;  
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  width: 216px;
+  max-width:none;  
 }
 
 .auction-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .auction-tag,
 .time-tag {
-  border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
+border-radius: 999px;
+padding: 2px 8px;
+font-size: 12px;
+display: flex;
+align-items: center;
 }
 
 .time-tag.outbid {
-    background-color: #FFB3AB;
-    color: #071015;
-  }
+  background-color: #FFB3AB;
+  color: #071015;
+}
 .auction-tag.outbid {
-    background-color: #FFB3AB;
-    color: #071015;
-  }
+  background-color: #FFB3AB;
+  color: #071015;
+}
 .auction-tag {
-    background-color: #FFB3AB;
-    color: #071015;
+  background-color: #FFB3AB;
+  color: #071015;
 }
 
 .time-tag {
-    background-color: #FFB3AB;
-    color: #071015;
+  background-color: #FFB3AB;
+  color: #071015;
 }
 
 .auction-tag.editable {
-    background-color: #f4ff47;
-    color: #071015;
-  }
-  .time-tag.editable {
-    background-color: #FFB3AB;
-    color: #071015;
-  }
-  .auction-tag.winning {
-    background-color: #B2F0B2;
-    color: #137513;
-  }
-  .time-tag.winning {
-    background-color: transparent;
-    color: #071015;
-  }
-  .auction-tag.done,
-  .time-tag.done {
-    background-color: #333;
-    color: #fff;
-  }
+  background-color: #f4ff47;
+  color: #071015;
+}
+.time-tag.editable {
+  background-color: #FFB3AB;
+  color: #071015;
+}
+.auction-tag.winning {
+  background-color: #B2F0B2;
+  color: #137513;
+}
+.time-tag.winning {
+  background-color: transparent;
+  color: #071015;
+}
+.auction-tag.done,
+.time-tag.done {
+  background-color: #333;
+  color: #fff;
+}
 
 .clock-icon {
-    width: 12px;
-    height: 12px;
-    margin-left: 4px;
+  width: 12px;
+  height: 12px;
+  margin-left: 4px;
 }
 
 .auction-card-info {
-    margin: 0 8px;
+  margin: 0 8px;
 }
 
 .auction-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    line-height: 24px;
-    font-weight: 500;
-    color: #071015;
-    margin-bottom: 8px;
-    text-align: left;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: #071015;
+  margin-bottom: 8px;
+  text-align: left;
 }
 
 .auction-price {
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    line-height: 24px;
-    font-weight: 600;
-    color: #071015;
-    text-align: left;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: #071015;
+  text-align: left;
 }
 
 .auction-card-image-container {
-    padding: 4px;
-    margin-top: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
+  padding: 4px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
 }
 
 .auction-card-image {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    object-fit: cover;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
 }
 
 .auction-card-actions {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 8px;
+  display: flex;
+  justify-content: space-around;
+  margin-top: 8px;
 }
 
 .action-button {
-    border: none;
-    border-radius: 999px;
-    padding: 6px 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }
 
 .delete-button {
-    background-color: #ff4d4d;
-    color: #fff;
+  background-color: #ff4d4d;
+  color: #fff;
 }
 
 .edit-button {
-    background-color: #333;
-    color: #fff;
+  background-color: #333;
+  color: #fff;
 }
 
 .loading-more {
-    text-align: center;
-    padding: 1rem;
-    font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  font-style: italic;
 }
 
 
@@ -473,402 +473,402 @@ body, html {
 
 
 /* =========================
-   PROFILE VIEW STYLES
+ PROFILE VIEW STYLES
 ========================= */
 .profile-view {
-     /* padding: 0 2rem; */
- }
+   /* padding: 0 2rem; */
+}
 
 .profile-greeting {
-    font-family: 'Inter', sans-serif;
-    text-align: left; 
-    font-size: 2rem;
-    font-weight: 700;
-    color: #071015;
-    margin-bottom: 1.5rem;
-    
+  font-family: 'Inter', sans-serif;
+  text-align: left; 
+  font-size: 2rem;
+  font-weight: 700;
+  color: #071015;
+  margin-bottom: 1.5rem;
+  
 }
 
 .profile-content .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;   
-    margin: 6rem auto;  
-    padding-bottom: 25rem;    
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;   
+  margin: 6rem auto;  
+  padding-bottom: 25rem;    
+}
 .profile-tabs {
-    display: flex;           
-    width: fit-content;     
-    margin: 0 auto 3rem;     
-    padding: 4px;             
-    background-color: #ECF7F5;
-    border-radius: 999px;
-    gap: 0.75rem;      
-    margin: 0 auto 10rem;      
-  }
+  display: flex;           
+  width: fit-content;     
+  margin: 0 auto 3rem;     
+  padding: 4px;             
+  background-color: #ECF7F5;
+  border-radius: 999px;
+  gap: 0.75rem;      
+  margin: 0 auto 10rem;      
+}
 
 .profile-tab {
-    background: transparent;
-    border: none;
-    height: 44px;
-    padding: 0 1.6rem;
-    border-radius: 999px;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #272d2d;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+  background: transparent;
+  border: none;
+  height: 44px;
+  padding: 0 1.6rem;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #272d2d;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .profile-tab:hover {
-    background-color: #D1ECE5;
+  background-color: #D1ECE5;
 }
 
 .profile-tab--active {
-    background-color: #272d2d;
-    color: #FFFFFF;
+  background-color: #272d2d;
+  color: #FFFFFF;
 }
 
 .profile-content { }
 
 
 .empty-state {
-    text-align: center;
-    width: 100%;
-    margin-top: 3rem;
-  }
+  text-align: center;
+  width: 100%;
+  margin-top: 3rem;
+}
 
 .empty-state h3 {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #071015;
-    margin-bottom: 0.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #071015;
+  margin-bottom: 0.5rem;
 }
 
 .empty-state p {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    color: #555;
-    line-height: 1.4;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.4;
 }
 /* invisible placeholders so the grid stays 6‑cols wide */
 .auction-card--placeholder {
-    /* all auction-card dimensions + padding, but hide it */
-    visibility: hidden;
-  }
+  /* all auction-card dimensions + padding, but hide it */
+  visibility: hidden;
+}
 /* only force the 6‑column width aka with no items in the profile page*/ 
 .auctions-container--fixed {
-    /* 6 × 216px cards + 5 × 1rem gaps + 2rem padding each side = 1296px + 5rem + 4rem = 1296px + 9rem */
-    min-width: calc(1296px + 9rem);
-  }
+  /* 6 × 216px cards + 5 × 1rem gaps + 2rem padding each side = 1296px + 5rem + 4rem = 1296px + 9rem */
+  min-width: calc(1296px + 9rem);
+}
 
 /* keep grid width with invisible placeholders */
 .auction-card--placeholder { visibility: hidden; }
 
 /* lock thick frame to 6‑card width when empty */
 .auctions-container--fixed {
-    /* 6 × 216 px + 5 × 1 rem gaps + 2 rem padding on each side */
-    min-width: calc(1296px + 9rem);
-  }
-  /* center the sub‑tab pill buttons */
+  /* 6 × 216 px + 5 × 1 rem gaps + 2 rem padding on each side */
+  min-width: calc(1296px + 9rem);
+}
+/* center the sub‑tab pill buttons */
 
 
 /* tiny drop‑down under avatar */
 .user-menu {
-    position: absolute;
-    top: 100%;            /* sit immediately below the button */
-    right: 0;             /* align with its right edge */
-    margin-top: 8px;      /* a little gap from the avatar */
-    
-    background: #fff;
-    border-radius: 12px;  /* slightly softer corners */
-    padding: 12px;        /* tighter padding all around */
-    min-width: 160px;     /* enough room for the content */
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 100%;            /* sit immediately below the button */
+  right: 0;             /* align with its right edge */
+  margin-top: 8px;      /* a little gap from the avatar */
   
-    display: flex;
-    flex-direction: column;
-    gap: 12px;            /* space between rows */
-    z-index: 100;
-  }
-  
+  background: #fff;
+  border-radius: 12px;  /* slightly softer corners */
+  padding: 12px;        /* tighter padding all around */
+  min-width: 160px;     /* enough room for the content */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;            /* space between rows */
+  z-index: 100;
+}
+
 /* the “Profile settings” link row */
 .menu-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;             /* space between icon & text */
-    font-size: 14px;
-    font-weight: 500;
-    color: #111;
-    text-decoration: none;
-  }
-  
+  display: flex;
+  align-items: center;
+  gap: 8px;             /* space between icon & text */
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+  text-decoration: none;
+}
+
 /*gear icon on profile popup*/
 .menu-gear-icon {
-    width: 20px !important;
-    height: 20px !important;
-    object-fit: contain;
-    margin-right: 4px;
-  }
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain;
+  margin-right: 4px;
+}
 /* the “Log out” button */
 .logout-btn {
-    padding: 8px 0;
-    width: 100%;          /* full width of the panel */
-    border: 1px solid #111;
-    border-radius: 8px;
-    background: transparent;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: center;
-    cursor: pointer;
-  }
-  
-  .logged-as {
-    font-family:'Inter',sans-serif;
-    font-size:16px;
-  }
+  padding: 8px 0;
+  width: 100%;          /* full width of the panel */
+  border: 1px solid #111;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.logged-as {
+  font-family:'Inter',sans-serif;
+  font-size:16px;
+}
 
 
 /*popup for avatar*/
 .icon-button.user-btn {
-    position: relative;
-  }
+  position: relative;
+}
 
 /* make the avatar a bit larger & cover */
 .icon-button.user-btn img,
 .user-avatar {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  object-fit: cover;
-  
+width: 55px;
+height: 55px;
+border-radius: 50%;
+object-fit: cover;
+
 }
 /* ─── Add auction popup overlay & body ───────────────── */
 .add-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  
-  .add-modal-body {
-    background: #fff;
-    border-radius: 16px;
-    padding: 32px;
-    width: 480px;
-    max-width: 90vw;
-    text-align: left;
-  }
-  
-  .add-modal-body h2 {
-    margin: 0 0 24px;
-    font-size: 24px;
-    font-weight: 700;
-  }
-  
-  /* ─── Form labels & fields ───────────────────────────────── */
-  .add-form label {
-    display: block;
-    margin: 16px 0 8px;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  
-  .add-form input,
-  .add-form textarea {
-    width: 100%;
-    border: 1px solid #d6d6d6;
-    border-radius: 12px;
-    padding: 12px;
-    font-size: 14px;
-    outline: none;
-    background: #fff;
-  }
-  
-  .add-form input::placeholder,
-  .add-form textarea::placeholder {
-    color: #a3a3a3;
-  }
-  
-  .add-form textarea {
-    resize: vertical;
-    height: 100px;
-  }
-  
-  /* ─── Image placeholder area ───────────────────────────── */
-  .add-image-area {
-    background: #E9E9E9;      /* warmer bone‑white */
-    border-radius: 20px;
-    height: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .add-image-area img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  /* “Add image” button in placeholder */
-  .add-image-btn {
-    border: 1px solid #20232A;
-    padding: 8px 16px;
-    border-radius: 18px;
-    cursor: pointer;
-    background: none;
-    font-size: 14px;
-  }
-  
-  /* trash icon button when image is present */
-  .trash-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: #333;
-    border: none;
-    border-radius: 8px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-  
-  .trash-btn img {
-    width: 16px;
-    height: 16px;
-  }
-  
-  /* ─── Price + Date row ─────────────────────────────────── */
-  .add-row {
-    display: flex;
-    gap: 16px;
-    margin-top: 16px;
-  }
-  
-  .add-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* euro symbol inside price input */
-  .price-input {
-    display: flex;
-    align-items: center;
-    border: 1px solid #d6d6d6;
-    border-radius: 12px;
-    padding: 0 12px;
-    background: #fff;
-  }
-  
-  .price-input input {
-    border: none;
-    flex: 1;
-    padding: 12px 0;
-    outline: none;
-  }
-  
-  .price-input span {
-    font-size: 14px;
-    margin-left: 8px;
-    color: #272D2D;
-  }
-  
-  /* ─── Footer buttons ───────────────────────────────────── */
-  .add-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
-    margin-top: 24px;
-  }
-  
-  .add-footer button {
-    padding: 10px 24px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    font-size: 14px;
-  }
-  
-  .add-footer button:first-child {
-    background: #e2e7e2;
-    color: #20232A;
-  }
-  
-  .add-footer button:last-child {
-    background: #FBFF00;
-    color: #000;
-  }
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.add-modal-body {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  width: 480px;
+  max-width: 90vw;
+  text-align: left;
+}
+
+.add-modal-body h2 {
+  margin: 0 0 24px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* ─── Form labels & fields ───────────────────────────────── */
+.add-form label {
+  display: block;
+  margin: 16px 0 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.add-form input,
+.add-form textarea {
+  width: 100%;
+  border: 1px solid #d6d6d6;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+
+.add-form input::placeholder,
+.add-form textarea::placeholder {
+  color: #a3a3a3;
+}
+
+.add-form textarea {
+  resize: vertical;
+  height: 100px;
+}
+
+/* ─── Image placeholder area ───────────────────────────── */
+.add-image-area {
+  background: #E9E9E9;      /* warmer bone‑white */
+  border-radius: 20px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.add-image-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* “Add image” button in placeholder */
+.add-image-btn {
+  border: 1px solid #20232A;
+  padding: 8px 16px;
+  border-radius: 18px;
+  cursor: pointer;
+  background: none;
+  font-size: 14px;
+}
+
+/* trash icon button when image is present */
+.trash-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #333;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.trash-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+/* ─── Price + Date row ─────────────────────────────────── */
+.add-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.add-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* euro symbol inside price input */
+.price-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d6d6d6;
+  border-radius: 12px;
+  padding: 0 12px;
+  background: #fff;
+}
+
+.price-input input {
+  border: none;
+  flex: 1;
+  padding: 12px 0;
+  outline: none;
+}
+
+.price-input span {
+  font-size: 14px;
+  margin-left: 8px;
+  color: #272D2D;
+}
+
+/* ─── Footer buttons ───────────────────────────────────── */
+.add-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.add-footer button {
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-size: 14px;
+}
+
+.add-footer button:first-child {
+  background: #e2e7e2;
+  color: #20232A;
+}
+
+.add-footer button:last-child {
+  background: #FBFF00;
+  color: #000;
+}
 
 
-  .auctions-container-wrapper{
-    padding-left:2rem !important;
-    padding-right:2rem !important;
+.auctions-container-wrapper{
+  padding-left:2rem !important;
+  padding-right:2rem !important;
 }
 
 
 /* neutral (transparent) time pill – used while > 1 hour left */
 .time-tag.neutral {
-  background: transparent;
-  color: #071015;
+background: transparent;
+color: #071015;
 }
 
 /* coloured backgrounds already existed – this line just
- ensures we can address them from TS with styles[state]   */
+ensures we can address them from TS with styles[state]   */
 .inProgress {}   /* uses defaults already set above */
 
 .detail-wrapper { margin: 0;}
 
 .back-btn {
-  background: transparent;
-  border: none;
-  color: #272d2d;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 1.5rem;
+background: transparent;
+border: none;
+color: #272d2d;
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+margin-bottom: 1.5rem;
 }
 .back-btn:hover { text-decoration: underline; }
 
 
 /* ─── TAG BASE ───────────────────────────────────────── */
 .status-tag {
-  border-radius:   999px;
-  padding:         1px 12px;
-  font-size:       0.875rem;
-  display:         inline-flex;
-  align-items:     center;
-  justify-content: center;
+border-radius:   999px;
+padding:         1px 12px;
+font-size:       0.875rem;
+display:         inline-flex;
+align-items:     center;
+justify-content: center;
 }
 .status-tag--small {
-  padding:     2px 6px;
-  font-size:   0.75rem;
+padding:     2px 6px;
+font-size:   0.75rem;
 }
 
 /* ─── TIME TAG BASE ───────────────────────────────────── */
 .time-tag {
-  border-radius:   999px;
-  padding:         1px 12px;
-  font-size:       0.875rem;
-  display:         inline-flex;
-  align-items:     center;
-  justify-content: center;
+border-radius:   999px;
+padding:         1px 12px;
+font-size:       0.875rem;
+display:         inline-flex;
+align-items:     center;
+justify-content: center;
 }
 .time-tag--small {
-  padding:     2px 6px;
-  font-size:   0.75rem;
+padding:     2px 6px;
+font-size:   0.75rem;
 }
 
 /* ─── STATE COLORS ────────────────────────────────────── */
@@ -879,7 +879,6 @@ body, html {
 
 /* ─── NEUTRAL FOR TIME > 1h ───────────────────────────── */
 .neutral    { background: transparent; color: #071015; }
-
 
 
 
