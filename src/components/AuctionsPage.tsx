@@ -295,8 +295,39 @@ const openEdit = (a:Auction) => {
     })
       .then(r => r.json())
       .then((rows:Auction[]) => setMyAuctions(rows));
-    /* TODO: fetch bidding & won when those tabs are active */
   }, [activeNav]);
+
+/* ─── “Bidding” & “Won” lists ───────────────────────────── */
+useEffect(() => {
+  if (activeNav !== 'profile') return;
+
+  const headers = { Authorization: `Bearer ${jwt}` };
+
+  if (subTab === 'bidding') {
+    fetch(`${BACKEND_BASE_URL}/api/Profile/bidding`, { headers })
+      .then(r => r.json())
+      .then((rows: Auction[]) =>
+        setBidding(rows.map(a => ({
+          ...a,
+          auctionState: statusFromDto(a.auctionState)   // normalise
+        })))
+      )
+      .catch(() => setBidding([]));
+  }
+
+  if (subTab === 'won') {
+    fetch(`${BACKEND_BASE_URL}/api/Profile/won`, { headers })
+      .then(r => r.json())
+      .then((rows: Auction[]) =>
+        setWon(rows.map(a => ({
+          ...a,
+          auctionState: statusFromDto(a.auctionState)
+        })))
+      )
+      .catch(() => setWon([]));
+  }
+}, [activeNav, subTab, jwt]);
+
 
   const handleDelete = (id:number) => {
     if (!confirm('Delete this auction?')) return;
