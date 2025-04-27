@@ -7,8 +7,8 @@ import React, {
 } from 'react';
 import { Outlet, useParams, useNavigate, Link } from 'react-router-dom';
 import styles from './AuctionsPage.module.css';
-
-
+import Cropper, { Area } from 'react-easy-crop'
+import getCroppedImg from '../utils/getCroppedImg'
 
 /* ───── Assets ───────────────────────────────────────────── */
 import logo        from '../assets/logo.png';
@@ -49,6 +49,7 @@ interface Auction {
   auctionState:  'outbid' | 'inProgress' | 'winning' | 'done';
   createdBy:     string;
   mainImageUrl?: string;
+  thumbnailUrl?:  string;
   userHasBid?:  boolean;
 }
 
@@ -187,6 +188,32 @@ const openEdit = (a:Auction) => {
   setAddOpen(true);                     // reuse the same modal
 };
 
+  // for cropping
+const [originalFile, setOriginalFile] = useState<File|null>(null)
+const [croppedFile,  setCroppedFile]  = useState<File|null>(null)
+const [crop,         setCrop]         = useState<{ x: number; y: number }>({ x:0, y:0 })
+const [zoom,         setZoom]         = useState<number>(1)
+const [croppedPixels, setCroppedPixels] = useState<Area|null>(null)
+const [showCropper,  setShowCropper]  = useState<boolean>(false)
+
+const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
+  setCroppedPixels(croppedAreaPixels)
+}
+
+const handleCrop = async () => {
+  if (!preview || !croppedPixels) return
+  try {
+    const { file: blobFile } = await getCroppedImg(preview, croppedPixels)
+    setPreview(URL.createObjectURL(blobFile))
+    setCroppedFile(blobFile)
+    setShowCropper(false)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+
+
 
   /* ─── fetch logged-in user once ────────────────────── */
   useEffect(() => {
@@ -261,7 +288,8 @@ const openEdit = (a:Auction) => {
         // Always show the true state for everyone:
         const mapped = rows.map(a => ({
           ...a,
-          auctionState: statusFromDto(a.auctionState)
+          auctionState: statusFromDto(a.auctionState),
+          thumbnailUrl:    a.thumbnailUrl   // pass it along
         }));
         setAuctions(prev => [...prev, ...mapped]);
         if (rows.length < 9) setHasMore(false);
@@ -370,8 +398,10 @@ useEffect(() => {
   const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
+    setOriginalFile(f)
+    setPreview(URL.createObjectURL(f))
+    setShowCropper(true)
+
   };
   const removeImage = () => { setFile(null); setPreview(null); };
 
@@ -380,7 +410,11 @@ useEffect(() => {
   
     /* build FormData either way */
     const fd = new FormData();
-    if (file) fd.append("image", file);
+
+    // always append the original full-size:
+    if (originalFile) fd.append("image", originalFile);
+    // append the cropped thumbnail if available:
+    if (croppedFile ) fd.append("thumbnail", croppedFile);
     fd.append("title",         title);
     fd.append("description",   desc);
     fd.append("startingPrice", price);
@@ -579,7 +613,7 @@ useEffect(() => {
 
         <div className={styles['auction-card-image-container']}>
           <img
-            src={imgUrl(a.mainImageUrl)}
+            src={imgUrl(a.thumbnailUrl || a.mainImageUrl)}
             className={styles['auction-card-image']}
             alt={a.title}
           />
@@ -691,7 +725,7 @@ useEffect(() => {
 
               <div className={styles['auction-card-image-container']}>
                 <img
-                  src={imgUrl(a.mainImageUrl)}
+                  src={imgUrl(a.thumbnailUrl || a.mainImageUrl)}
                   className={styles['auction-card-image']}
                   alt={a.title}
                 />
@@ -804,7 +838,7 @@ useEffect(() => {
                           }
                         >
                           <img
-                            src={imgUrl(a.mainImageUrl)}
+                            src={imgUrl(a.thumbnailUrl || a.mainImageUrl)}
                             className={
                               styles['auction-card-image']
                             }
@@ -893,7 +927,7 @@ useEffect(() => {
                           }
                         >
                           <img
-                            src={imgUrl(a.mainImageUrl)}
+                            src={imgUrl(a.thumbnailUrl || a.mainImageUrl)}
                             className={
                               styles['auction-card-image']
                             }
@@ -936,7 +970,25 @@ useEffect(() => {
               onSubmit={submitAuction}
             >
               <div className={styles['add-image-area']}>
-                {preview ? (
+                {showCropper && preview ? (
+                  <>
+                    <div className={styles['crop-container']}>
+                      <Cropper
+                        image={preview}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={4/3}
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                      />
+                    </div>
+                    <div className={styles['crop-controls']}>
+                      <button type="button" onClick={handleCrop}>Crop</button>
+                      <button type="button" onClick={() => setShowCropper(false)}>Cancel</button>
+                    </div>
+                  </>
+                ) : preview ? (
                   <>
                     <img src={preview} alt="preview" />
                     <button
@@ -965,6 +1017,7 @@ useEffect(() => {
                   </>
                 )}
               </div>
+
               <label>Title</label>
               <input
                 value={title}

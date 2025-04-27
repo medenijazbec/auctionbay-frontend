@@ -140,6 +140,24 @@ const LandingPage:React.FC = () => {
       });
   }, [jwt]);
 
+
+
+
+// if already authenticated, immediately send them to /auctions
+
+
+//WILL NEED TO CHANGE IF I DECIDE TO UP THE AUNTY AND LET THE USER VIEW THE LANDING PAGE, 
+// GET A POPUP FOR AUCTIONS BUT WHEN THEY CLICK THE 
+// BID BUTTON ->IF ONT LOGGED IN SEND TO LOGIN PAGE. 
+// AND HAVE THE START BIDDING BUTTON TO ROUTE TO THE 
+// AUCTIONS PAGE IF LOGGED IN AND TO LOGIN IF NOT
+useEffect(() => {
+  if (localStorage.getItem('token')) {
+    nav('/auctions');
+  }
+}, [nav]);
+
+
   /* ─── dropdown ───────────────────────────────────── */
   const [menuOpen, setMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -282,7 +300,17 @@ const LandingPage:React.FC = () => {
           Simple way for selling your unused products,<br />
           or getting a deal on a product you want!
         </p>
-        <button className="cta-button">Start bidding</button>
+        <button
+  className="cta-button"
+  onClick={() =>
+    jwt
+      ? nav('/auctions')  // logged in → go see auctions
+      : nav('/login')     // not yet → force login
+  }
+>
+  Start bidding
+</button>
+
       </section>
 
       <div className="auctions-container-wrapper">
