@@ -23,11 +23,18 @@ export default async function getCroppedImg(
   canvas.height = pixelCrop.height
   const ctx = canvas.getContext('2d')!
 
+  /* ─── allow negative offsets (= zoom-out / white borders) ─── */
+  ctx.clearRect(0, 0, canvas.width, canvas.height);          // transparent bg
+  const sx = Math.max(0, pixelCrop.x);
+  const sy = Math.max(0, pixelCrop.y);
+
+
+
   ctx.drawImage(
     image,
-    pixelCrop.x, pixelCrop.y,
+    sx,          sy, /* source start (clamped) */
     pixelCrop.width, pixelCrop.height,
-    0, 0,
+    sx - pixelCrop.x, sy - pixelCrop.y,/* dest start (may be <0) */
     pixelCrop.width, pixelCrop.height
   )
 

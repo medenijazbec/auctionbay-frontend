@@ -3,7 +3,8 @@ import React, {
   useEffect,
   useRef,
   ChangeEvent,
-  FormEvent
+  FormEvent,
+  useCallback
 } from 'react';
 import { Outlet, useParams, useNavigate, Link } from 'react-router-dom';
 import styles from './AuctionsPage.module.css';
@@ -160,11 +161,31 @@ const statusFromDto = (raw: string): Auction['auctionState'] =>
 
 
 
+
     
 /* ─────────────────────────────────────────────────────────── */
 const AuctionsPage:React.FC = () => {
+
+  const cropperRef = useRef<HTMLDivElement>(null);
+
+  const [zoom,    setZoom]    = useState(1);  // current zoom
+  const [minZoom, setMinZoom] = useState(1);  // “fit-to-screen” lower bound
+
+// handle the “fit to screen” logic
+const handleMediaLoaded = useCallback((media: { naturalWidth:number; naturalHeight:number }) => {
+  const { width: vpW, height: vpH } = cropperRef.current!.getBoundingClientRect();
+  const fit = Math.min(vpW / media.naturalWidth, vpH / media.naturalHeight);
+  setMinZoom(fit);
+  setZoom(fit);
+}, []);
+
   const nav  = useNavigate();
   const jwt  = localStorage.getItem('token');
+
+
+
+
+  
 
   // ── recognise when we are on /auctions/:id ──────────────────
   const { id }  = useParams();        // undefined on the list, string on details
@@ -192,7 +213,7 @@ const openEdit = (a:Auction) => {
 const [originalFile, setOriginalFile] = useState<File|null>(null)
 const [croppedFile,  setCroppedFile]  = useState<File|null>(null)
 const [crop,         setCrop]         = useState<{ x: number; y: number }>({ x:0, y:0 })
-const [zoom,         setZoom]         = useState<number>(1)
+
 const [croppedPixels, setCroppedPixels] = useState<Area|null>(null)
 const [showCropper,  setShowCropper]  = useState<boolean>(false)
 
@@ -200,17 +221,15 @@ const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
   setCroppedPixels(croppedAreaPixels)
 }
 
+// Only when they click “Crop” do we turn that region into our preview + thumbnail:
+// ── 1a. “Crop” button ─────────────────────────────────────────
 const handleCrop = async () => {
-  if (!preview || !croppedPixels) return
-  try {
-    const { file: blobFile } = await getCroppedImg(preview, croppedPixels)
-    setPreview(URL.createObjectURL(blobFile))
-    setCroppedFile(blobFile)
-    setShowCropper(false)
-  } catch (err) {
-    console.error(err)
-  }
-}
+  if (!imageSrc || !croppedPixels) return;          // imageSrc!
+  const { blob, file } = await getCroppedImg(imageSrc, croppedPixels);
+  setPreview(URL.createObjectURL(blob));            // show true crop
+  setCroppedFile(file);                             // save thumb
+  setShowCropper(false);
+};
 
 
 
@@ -387,74 +406,102 @@ useEffect(() => {
     activeNav === 'profile' && currentCount === 0;
 
   /* ─── ADD AUCTION POPUP STATE ─────────────────────── */
+  const [imageSrc, setImageSrc]   = useState<string|null>(null);  // full image
+  const [preview,  setPreview]    = useState<string|null>(null);  // cropped thumbnail
   const [addOpen, setAddOpen] = useState(false);
   const [file, setFile] = useState<File|null>(null);
-  const [preview, setPreview] = useState<string|null>(null);
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [price, setPrice] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setOriginalFile(f)
-    setPreview(URL.createObjectURL(f))
-    setShowCropper(true)
+// when the user selects a file
+const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
+  const f = e.target.files?.[0];
+  if (!f) return;
 
-  };
+  setOriginalFile(f);                //keep the file
+  const url = URL.createObjectURL(f);
+  setImageSrc(url);                  //full image Cropper
+  setPreview(null);                  //clear old crop
+  setShowCropper(true);
+};
+
   const removeImage = () => { setFile(null); setPreview(null); };
 
   const submitAuction = async (e: FormEvent) => {
     e.preventDefault();
   
-    /* build FormData either way */
     const fd = new FormData();
-
-    // always append the original full-size:
-    if (originalFile) fd.append("image", originalFile);
-    // append the cropped thumbnail if available:
-    if (croppedFile ) fd.append("thumbnail", croppedFile);
-    fd.append("title",         title);
-    fd.append("description",   desc);
+  
+    let thumb = croppedFile;
+    if (!thumb && imageSrc && croppedPixels) {
+      const { file } = await getCroppedImg(imageSrc, croppedPixels);
+      thumb = file;
+    }
+  
+    // Always append original full-size image if chosen
+    if (originalFile) {
+      fd.append("Image", originalFile);    // Matches backend DTO exactly
+    }
+  
+    // Append cropped thumbnail if available
+    if (thumb) {
+      fd.append("Thumbnail", thumb);       // Matches backend DTO exactly
+    }
+  
+    fd.append("title", title);
+    fd.append("description", desc);
     fd.append("startingPrice", price);
-    fd.append("startDateTime", editAuction
-                                 ? editAuction.startDateTime
-                                 : new Date().toISOString());
-    fd.append("endDateTime",   endDate);
+    fd.append(
+      "startDateTime",
+      editAuction ? editAuction.startDateTime : new Date().toISOString()
+    );
+    fd.append("endDateTime", endDate);
     fd.append("existingImageUrl", editAuction?.mainImageUrl ?? "");
   
-    const url    = editAuction
-                     ? `${BACKEND_BASE_URL}/api/Profile/auction/${editAuction.auctionId}`
-                     : `${BACKEND_BASE_URL}/api/Auctions`;
+    const url = editAuction
+      ? `${BACKEND_BASE_URL}/api/Profile/auction/${editAuction.auctionId}`
+      : `${BACKEND_BASE_URL}/api/Auctions`;
+  
     const method = editAuction ? "PUT" : "POST";
   
     const res = await fetch(url, {
       method,
       headers: { Authorization: `Bearer ${jwt}` },
-      body   : fd
+      body: fd,
     });
   
-    if (!res.ok) { alert("Operation failed."); return; }
+    if (!res.ok) {
+      alert("Operation failed.");
+      return;
+    }
   
     /* reset UI */
     setAddOpen(false);
     setEditAuction(null);
-    setFile(null); setPreview(null);
-    setTitle('');  setDesc(''); setPrice(''); setEndDate('');
+    setFile(null);
+    setPreview(null);
+    setTitle("");
+    setDesc("");
+    setPrice("");
+    setEndDate("");
   
     /* refresh my-auctions list when on profile,
        otherwise refresh the public list               */
-    if (activeNav === 'profile')
+    if (activeNav === "profile") {
       fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
-        headers: { Authorization: `Bearer ${jwt}` }
+        headers: { Authorization: `Bearer ${jwt}` },
       })
-        .then(r => r.json())
+        .then((r) => r.json())
         .then(setMyAuctions);
-    else {
-      setAuctions([]); setPage(1); setHasMore(true);
+    } else {
+      setAuctions([]);
+      setPage(1);
+      setHasMore(true);
     }
   };
+  
   
 
   return (
@@ -969,55 +1016,71 @@ useEffect(() => {
               className={styles['add-form']}
               onSubmit={submitAuction}
             >
-              <div className={styles['add-image-area']}>
-                {showCropper && preview ? (
-                  <>
-                    <div className={styles['crop-container']}>
-                      <Cropper
-                        image={preview}
-                        crop={crop}
-                        zoom={zoom}
-                        aspect={4/3}
-                        onCropChange={setCrop}
-                        onZoomChange={setZoom}
-                        onCropComplete={onCropComplete}
-                      />
-                    </div>
-                    <div className={styles['crop-controls']}>
-                      <button type="button" onClick={handleCrop}>Crop</button>
-                      <button type="button" onClick={() => setShowCropper(false)}>Cancel</button>
-                    </div>
-                  </>
-                ) : preview ? (
-                  <>
-                    <img src={preview} alt="preview" />
-                    <button
-                      type="button"
-                      className={styles['trash-btn']}
-                      onClick={removeImage}
-                    >
-                      <img src={trashIcon} alt="remove" />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <input
-                      id="addFile"
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={onAddSelect}
-                    />
-                    <label
-                      htmlFor="addFile"
-                      className={styles['add-image-btn']}
-                    >
-                      Add image
-                    </label>
-                  </>
-                )}
-              </div>
+            <div className={styles['add-image-area']}>
+              {showCropper && imageSrc ? (         /* imageSrc, not preview */
+                <>
+            <div ref={cropperRef} className={styles['crop-container']}>
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                minZoom={minZoom}
+                maxZoom={3}
+                aspect={4 / 3}
+                onMediaLoaded={(media) => {
+                  const { width: vpW, height: vpH } = cropperRef.current!.getBoundingClientRect();
+                  const fitWidth = vpW / media.naturalWidth;
+                  const fitHeight = vpH / media.naturalHeight;
 
+                  // Use the larger fit factor to ensure nothing is cut off initially
+                  const fit = Math.max(fitWidth, fitHeight);
+
+                  setMinZoom(fit);
+                  setZoom(fit);
+                  setCrop({ x: 0, y: 0 }); // center crop initially
+                }}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={(_, px) => setCroppedPixels(px)}
+                restrictPosition={false}
+                zoomWithScroll={true}
+                zoomSpeed={0.1}
+                objectFit="contain"  /* Ensures full image visibility without cropping */
+              />
+            </div>
+
+   
+            </>
+          ) : preview ? (
+            /* thumbnail after cropping */
+            <>
+              <img src={preview} alt="preview" className={styles.previewImg} />
+              <button type="button" className={styles['trash-btn']} onClick={removeImage}>
+                <img src={trashIcon} alt="remove" />
+              </button>
+            </>
+          ) : (
+            /* initial “Add image” button */
+            <>
+              <input
+                id="addFile"
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={onAddSelect}
+              />
+              <label htmlFor="addFile" className={styles['add-image-btn']}>
+                Add image
+              </label>
+            </>
+          )}
+        </div>
+
+
+              <div className={styles['crop-controls']}>
+                <button type="button" onClick={handleCrop}>Crop</button>
+                <button type="button" onClick={() => setShowCropper(false)}>Cancel</button>
+              </div>
               <label>Title</label>
               <input
                 value={title}
