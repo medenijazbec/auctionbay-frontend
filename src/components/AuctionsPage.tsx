@@ -216,7 +216,7 @@ const [crop,         setCrop]         = useState<{ x: number; y: number }>({ x:0
 
 const [croppedPixels, setCroppedPixels] = useState<Area|null>(null)
 const [showCropper,  setShowCropper]  = useState<boolean>(false)
-
+const [submitting, setSubmitting] = useState(false);
 const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
   setCroppedPixels(croppedAreaPixels)
 }
@@ -292,30 +292,61 @@ const handleCrop = async () => {
   const [won,        setWon]        = useState<Auction[]>([]);
 
 
+// utils – merge while keeping ids unique
+const mergeUnique = (oldRows: Auction[], newRows: Auction[]) => {
+  const seen = new Set<number>();
+  const result: Auction[] = [];
+
+  // first keep the existing order
+  for (const a of oldRows) {
+    if (!seen.has(a.auctionId)) {
+      seen.add(a.auctionId);
+      result.push(a);
+    }
+  }
+  // then add any truly new rows
+  for (const a of newRows) {
+    if (!seen.has(a.auctionId)) {
+      seen.add(a.auctionId);
+      result.push(a);
+    }
+  }
+  return result;
+};
 
   /* Public auctions */
 
   useEffect(() => {
-    if (activeNav !== 'auctions') return;
-    setLoading(true);
+    //  only when in the auctions tab
+    //  AND when we’re on the *list* view (no :id param)
+    if (activeNav !== 'auctions' || id) return;
   
+    setLoading(true);
     fetch(`${BACKEND_BASE_URL}/api/Auctions?page=${page}&pageSize=9`, {
       headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined
     })
       .then(r => r.json() as Promise<Auction[]>)
       .then(rows => {
-        // Always show the true state for everyone:
         const mapped = rows.map(a => ({
           ...a,
           auctionState: statusFromDto(a.auctionState),
-          thumbnailUrl:    a.thumbnailUrl   // pass it along
+          thumbnailUrl: a.thumbnailUrl
         }));
-        setAuctions(prev => [...prev, ...mapped]);
+        setAuctions(prev => mergeUnique(prev, mapped));//Fix: de-duplicate as you merge
         if (rows.length < 9) setHasMore(false);
       })
       .finally(() => setLoading(false));
-  }, [page, activeNav]);
+  }, [page, activeNav, id, jwt]);
   
+  
+// whenever we switch *into* the Auctions tab, clear out the old list
+useEffect(() => {
+  if (activeNav === 'auctions') {
+    setAuctions([]);
+    setPage(1);
+    setHasMore(true);
+  }
+}, [activeNav]);
 
 
   useEffect(() => {
@@ -429,78 +460,94 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
 
   const removeImage = () => { setFile(null); setPreview(null); };
 
+  
   const submitAuction = async (e: FormEvent) => {
     e.preventDefault();
-  
-    const fd = new FormData();
-  
-    let thumb = croppedFile;
-    if (!thumb && imageSrc && croppedPixels) {
-      const { file } = await getCroppedImg(imageSrc, croppedPixels);
-      thumb = file;
-    }
-  
-    // Always append original full-size image if chosen
-    if (originalFile) {
-      fd.append("Image", originalFile);    // Matches backend DTO exactly
-    }
-  
-    // Append cropped thumbnail if available
-    if (thumb) {
-      fd.append("Thumbnail", thumb);       // Matches backend DTO exactly
-    }
-  
-    fd.append("title", title);
-    fd.append("description", desc);
-    fd.append("startingPrice", price);
-    fd.append(
-      "startDateTime",
-      editAuction ? editAuction.startDateTime : new Date().toISOString()
-    );
-    fd.append("endDateTime", endDate);
-    fd.append("existingImageUrl", editAuction?.mainImageUrl ?? "");
-  
-    const url = editAuction
-      ? `${BACKEND_BASE_URL}/api/Profile/auction/${editAuction.auctionId}`
-      : `${BACKEND_BASE_URL}/api/Auctions`;
-  
-    const method = editAuction ? "PUT" : "POST";
-  
-    const res = await fetch(url, {
-      method,
-      headers: { Authorization: `Bearer ${jwt}` },
-      body: fd,
-    });
-  
-    if (!res.ok) {
-      alert("Operation failed.");
-      return;
-    }
-  
-    /* reset UI */
-    setAddOpen(false);
-    setEditAuction(null);
-    setFile(null);
-    setPreview(null);
-    setTitle("");
-    setDesc("");
-    setPrice("");
-    setEndDate("");
-  
-    /* refresh my-auctions list when on profile,
-       otherwise refresh the public list               */
-    if (activeNav === "profile") {
-      fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+    if (submitting) return;            // guard
+    setSubmitting(true);
+
+    try {
+      // build FormData
+      const fd = new FormData();
+      let thumb = croppedFile;
+      if (!thumb && imageSrc && croppedPixels) {
+        const { file } = await getCroppedImg(imageSrc, croppedPixels);
+        thumb = file;
+      }
+      if (originalFile)    fd.append("Image", originalFile);
+      if (thumb)           fd.append("Thumbnail", thumb);
+      fd.append("title", title);
+      fd.append("description", desc);
+      fd.append("startingPrice", price);
+      fd.append(
+        "startDateTime",
+        editAuction ? editAuction.startDateTime : new Date().toISOString()
+      );
+      fd.append("endDateTime", endDate);
+      fd.append("existingImageUrl", editAuction?.mainImageUrl ?? "");
+
+      const url    = editAuction
+                       ? `${BACKEND_BASE_URL}/api/Profile/auction/${editAuction.auctionId}`
+                       : `${BACKEND_BASE_URL}/api/Auctions`;
+      const method = editAuction ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { Authorization: `Bearer ${jwt}` },
-      })
-        .then((r) => r.json())
-        .then(setMyAuctions);
-    } else {
-      setAuctions([]);
-      setPage(1);
-      setHasMore(true);
+        body: fd,
+      });
+
+      if (!res.ok) {
+        alert("Operation failed.");
+        return;
+      }
+
+      // close modal & reset form
+      setAddOpen(false);
+      setEditAuction(null);
+      setOriginalFile(null);
+      setCroppedFile(null);
+      setPreview(null);
+      setTitle("");
+      setDesc("");
+      setPrice("");
+      setEndDate("");
+
+      // ─── if we’re on the public list, re-fetch page 1 ───
+      if (activeNav === "auctions") {
+        const pageSize = 9;
+        const r2 = await fetch(
+          `${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=${pageSize}`,
+          { headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined }
+        );
+        const rows: Auction[] = await r2.json();
+        const mapped = rows.map(a => ({
+          ...a,
+          auctionState: statusFromDto(a.auctionState),
+          thumbnailUrl: a.thumbnailUrl
+        }));
+        setAuctions(mapped);
+        setPage(1);
+        setHasMore(rows.length === pageSize);
+      }
+      // ─── otherwise (profile tab), just refresh “myAuctions” ───
+      else {
+        const r3 = await fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+          headers: { Authorization: `Bearer ${jwt}` },
+        });
+        const mine: Auction[] = await r3.json();
+        setMyAuctions(mine);
+      }
+    }
+    catch (err) {
+      console.error(err);
+      alert("Unexpected error");
+    }
+    finally {
+      setSubmitting(false);
     }
   };
+
   
   
 
@@ -1124,11 +1171,14 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
                 <button
                   type="button"
                   onClick={() => setAddOpen(false)}
+                  disabled={submitting}
                 >
                   Cancel
                 </button>
-                <button type="submit">Start auction</button>
-              </div>
+                <button type="submit" disabled={submitting}>
+                  {submitting ? "Starting…" : editAuction ? "Save changes" : "Start auction"}
+                </button>
+            </div>
             </form>
           </div>
         </div>

@@ -45,6 +45,7 @@ export interface Auction {
   currentHighestBid: number;
   startingPrice?: number;
   bids: Bid[];
+  createdBy: string;
 }
 
 const getTagText = (s: Auction['auctionState']) =>
@@ -77,8 +78,10 @@ const AuctionDetailPage: React.FC = () => {
   const [error, setError]     = useState<string | null>(null);
   const [myBid, setMyBid]     = useState(0);
   const [profileName, setProfileName] = useState('there');
-
+  const [myId,        setMyId]        = useState<string | null>(null); //tonot bid on own auction
   // fetch current user’s name
+  
+  
   useEffect(() => {
     if (!jwt) return;
     fetch('/api/Profile/me', {
@@ -91,11 +94,16 @@ const AuctionDetailPage: React.FC = () => {
         }
         return res.json();
       })
-      .then((p: { firstName?: string; lastName?: string; email: string }) => {
-        const name = `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim()
-          || p.email.split('@')[0];
-        setProfileName(name);
-      })
+      .then(
+        //include "id" in the type so TS is happy
+        (p: { id: string; firstName?: string; lastName?: string; email: string }) => {
+          setMyId(p.id);   //save user-id for owner checks later
+            const name =
+            `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() ||
+            p.email.split('@')[0];
+          setProfileName(name);
+        }
+      )
       .catch(() => {
         /* leave default */
       });
@@ -165,7 +173,7 @@ const AuctionDetailPage: React.FC = () => {
   if (loading)   return <p className={grid.message}>Loading auction…</p>;
   if (error)     return <p className={grid.message}>{error}</p>;
   if (!auction)  return <p className={grid.message}>No auction found.</p>;
-
+  const isOwner = myId !== null && auction.createdBy === myId;
   // compute done vs inProgress
   const nowMs  = Date.now();
   const endMs  = new Date(auction.endDateTime).getTime();
@@ -217,16 +225,30 @@ const AuctionDetailPage: React.FC = () => {
           <p className={grid.description}>{auction.description}</p>
 
           <div className={grid.bidAction}>
-            <label htmlFor="bid">Bid:</label>
-            <input
-              id="bid"
-              type="number"
-              min={auction.currentHighestBid + 1}
-              value={myBid}
-              onChange={e => setMyBid(Number(e.target.value))}
-            />
-            <button onClick={submitBid}>Place bid</button>
-          </div>
+  <label htmlFor="bid">Bid:</label>
+  <input
+    id="bid"
+    type="number"
+    min={auction.currentHighestBid + 1}
+    value={myBid}
+    onChange={e => setMyBid(Number(e.target.value))}
+    disabled={isOwner || isDone}             //disable for owner or finished auction
+  />
+  <button
+    onClick={submitBid}
+    disabled={isOwner || isDone}
+    title={
+      isOwner
+        ? "You can't bid on your own auction"
+        : isDone
+          ? "Auction has ended"
+          : undefined
+    }
+  >
+    Place bid
+  </button>
+</div>
+
         </div>
 
         <div className={grid.biddingHistory}>
