@@ -288,4 +288,21 @@
   *:disabled {
     cursor: not-allowed;
   }
-  
+/*  ───────────── cropper wrapper ─────────────  */
+.cropContainer {
+  margin: 0 auto 24px;         
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+
+  --react-easy-crop-mask-background: transparent;
+  border: 2px solid #3b3b3b;
+}
+
+.cropContainer .reactEasyCrop_CropArea,
+.cropContainer .reactEasyCrop_Media {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  object-fit: cover;
+}

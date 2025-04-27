@@ -1,10 +1,20 @@
-import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  ChangeEvent,
+  FormEvent
+} from 'react';
 import { useNavigate } from 'react-router-dom';
+import Cropper, { Area } from 'react-easy-crop';
+import getCroppedImg from '../utils/getCroppedImg';
 import styles from './ProfilePage.module.css';
 
 const API = 'https://localhost:7056';
+const CROP_PX   = 180;
 
-/* ─── DTOs ──────────────────────────────────────────────── */
+
+
 interface UserMe {
   id: string;
   firstName: string;
@@ -13,52 +23,58 @@ interface UserMe {
   profilePictureUrl?: string;
 }
 
-/* ─── tiny modal helper ─────────────────────────────────── */
-type ModalProps = { open: boolean; onClose: () => void; children: React.ReactNode };
+type ModalProps = {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+};
 const Modal: React.FC<ModalProps> = ({ open, onClose, children }) =>
   !open ? null : (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalBody} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.modalBody} onClick={e => e.stopPropagation()}>
         {children}
       </div>
     </div>
   );
 
-
-
-
-  
-/* ─── main component ────────────────────────────────────── */
 const ProfilePage: React.FC = () => {
   const nav = useNavigate();
   const token = localStorage.getItem('token');
   const auth = { headers: { Authorization: `Bearer ${token}` } };
 
-  /* state */
+  // ─── state ─────────────────────────────────────────
   const [me, setMe] = useState<UserMe | null>(null);
   const [first, setFirst] = useState('');
   const [last, setLast] = useState('');
   const [mail, setMail] = useState('');
   const [loading, setLoading] = useState(true);
-  const [flash, setFlash] = useState<{ ok: boolean; text: string } | null>(null);
+  const [flash, setFlash] = useState<{ ok: boolean; text: string } | null>(
+    null
+  );
 
-  /* modal state */
+  // ─── modal state ───────────────────────────────────
   const [pwOpen, setPwOpen] = useState(false);
   const [picOpen, setPicOpen] = useState(false);
 
-  /* picture helpers */
+  // ─── cropping state ────────────────────────────────
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(
+    null
+  );
+  const cropperRef = useRef<HTMLDivElement>(null);
 
-
-  /* ─── fetch profile once ─────────────────────────────── */
+  // ─── fetch profile once ─────────────────────────────
   useEffect(() => {
     if (!token) {
       nav('/login');
       return;
     }
     fetch(`${API}/api/Profile/me`, auth)
-      .then((r) => {
+      .then(r => {
         if (!r.ok) throw new Error();
         return r.json();
       })
@@ -68,11 +84,12 @@ const ProfilePage: React.FC = () => {
         setLast(u.lastName);
         setMail(u.email);
       })
-      .catch(() => setFlash({ ok: false, text: 'Could not load profile.' }))
+      .catch(() =>
+        setFlash({ ok: false, text: 'Could not load profile.' })
+      )
       .finally(() => setLoading(false));
   }, [token, nav]);
 
-  /* ─── empty / error state ────────────────────────────── */
   if (loading)
     return (
       <div className={styles.emptyState}>
@@ -86,41 +103,42 @@ const ProfilePage: React.FC = () => {
         <p className={styles.emptyStateDesc}>
           We couldn’t fetch your profile. Please try again.
         </p>
-        <button className={styles.retryBtn} onClick={() => window.location.reload()}>
+        <button
+          className={styles.retryBtn}
+          onClick={() => window.location.reload()}
+        >
           Retry
         </button>
       </div>
     );
 
-  /* ─── save basic profile ─────────────────────────────── */
+  // ─── save basic profile ─────────────────────────────
   const saveProfile = async () => {
     setFlash(null);
-
     try {
       const resp = await fetch(`${API}/api/Profile/me`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...auth.headers },
-        body: JSON.stringify({ firstName: first, lastName: last, email: mail }),
+        body: JSON.stringify({
+          firstName: first,
+          lastName: last,
+          email: mail
+        })
       });
-
       if (!resp.ok) {
-        /* try to read {error:"…"} or Identity errors array */
         const data = await resp.json().catch(() => ({}));
         const msg =
-          data.error ??
-          data[0]?.description ?? /* IdentityError[] */
-          'Could not save profile.';
+          data.error ?? data[0]?.description ?? 'Could not save profile.';
         setFlash({ ok: false, text: msg });
         return;
       }
-
       setFlash({ ok: true, text: 'Profile saved.' });
     } catch {
       setFlash({ ok: false, text: 'Network error. Please try again.' });
     }
   };
 
-  /* ─── password change ───────────────────────────────── */
+  // ─── password change ─────────────────────────────────
   const changePw = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
@@ -131,8 +149,8 @@ const ProfilePage: React.FC = () => {
         body: JSON.stringify({
           currentPassword: d.get('current'),
           newPassword: d.get('new'),
-          confirmNewPassword: d.get('confirm'),
-        }),
+          confirmNewPassword: d.get('confirm')
+        })
       });
       if (!r.ok) throw new Error();
       setPwOpen(false);
@@ -142,59 +160,64 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  /* ─── picture select & upload ───────────────────────── */
+  // ─── picture select ──────────────────────────────────
   const onSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
     setFile(f);
     setPreview(URL.createObjectURL(f));
+    setShowCropper(true);
   };
+
+  const onCropComplete = (_: Area, areaPixels: Area) => {
+    setCroppedAreaPixels(areaPixels);
+  };
+
+  const handleCrop = async () => {
+    if (!preview || !croppedAreaPixels) return;
+    const { blob, file } = await getCroppedImg(preview, croppedAreaPixels);
+    setFile(file);
+    setPreview(URL.createObjectURL(blob));
+    setShowCropper(false);
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+  };
+
+  // ─── picture upload ──────────────────────────────────
   const savePic = async () => {
     if (!file) return;
-  
     const fd = new FormData();
     fd.append('file', file);
-  
     try {
-      /** 1. upload the blob */
       const up = await fetch(`${API}/api/ImageUpload`, {
-        method : 'POST',
-        headers: { Authorization: `Bearer ${token}` },   // ← keep token
-        body   : fd
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd
       });
       if (!up.ok) throw new Error('upload');
-  
-      const { url } = await up.json();                  // { "/images/xxxx.jpg" }
-  
-      /** 2. patch user profile with the new URL */
+      const { url } = await up.json();
       await fetch(`${API}/api/Profile/me`, {
-        method : 'PUT',
+        method: 'PUT',
         headers: {
-          ...auth.headers,                              // Authorization + JSON
+          ...auth.headers,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ profilePictureUrl: url })
       });
-  
-      /** 3. reflect UI */
-      setMe(m => m ? { ...m, profilePictureUrl: url } : m);
+      setMe(m => (m ? { ...m, profilePictureUrl: url } : m));
       setPicOpen(false);
       setFile(null);
       setPreview(null);
-    }
-    catch {
-      setFlash({ ok:false, text:'Upload failed.' });
+    } catch {
+      setFlash({ ok: false, text: 'Upload failed.' });
     }
   };
-  
 
-  /* ─── logout ────────────────────────────────────────── */
   const logout = () => {
     localStorage.removeItem('token');
     nav('/login', { replace: true });
   };
 
-  /* ─── JSX ───────────────────────────────────────────── */
   return (
     <div className={styles.container}>
       <h1 className={styles.heading}>Profile settings</h1>
@@ -203,43 +226,71 @@ const ProfilePage: React.FC = () => {
       <div className={styles.formRow}>
         <div className={styles.formGroup}>
           <label>Name</label>
-          <input value={first} onChange={(e) => setFirst(e.target.value)} required />
+          <input
+            value={first}
+            onChange={e => setFirst(e.target.value)}
+            required
+          />
         </div>
         <div className={styles.formGroup}>
           <label>Surname</label>
-          <input value={last} onChange={(e) => setLast(e.target.value)} required />
+          <input
+            value={last}
+            onChange={e => setLast(e.target.value)}
+            required
+          />
         </div>
       </div>
-
       <div className={styles.formCol}>
         <label>Email</label>
-        <input value={mail} onChange={(e) => setMail(e.target.value)} required />
+        <input
+          value={mail}
+          onChange={e => setMail(e.target.value)}
+          required
+        />
       </div>
 
-      <button className={styles.linkBtn} onClick={() => setPwOpen(true)}>
+      <button
+        className={styles.linkBtn}
+        onClick={() => setPwOpen(true)}
+      >
         Change password
       </button>
-      <button className={styles.linkBtn} onClick={() => setPicOpen(true)}>
+      <button
+        className={styles.linkBtn}
+        onClick={() => setPicOpen(true)}
+      >
         Change profile picture
       </button>
 
       <div className={styles.footer}>
-        <button className={styles.cancelBtn} onClick={() => nav(-1)}>
+        <button
+          className={styles.cancelBtn}
+          onClick={() => nav(-1)}
+        >
           Cancel
         </button>
-        <button className={styles.saveBtn} onClick={saveProfile}>
+        <button
+          className={styles.saveBtn}
+          onClick={saveProfile}
+        >
           Save changes
         </button>
       </div>
 
       {flash && (
-        <p className={flash.ok ? styles.okMsg : styles.errMsg}>{flash.text}</p>
+        <p className={flash.ok ? styles.okMsg : styles.errMsg}>
+          {flash.text}
+        </p>
       )}
 
       {/* password modal */}
       <Modal open={pwOpen} onClose={() => setPwOpen(false)}>
         <h2 className={styles.modalTitle}>Change password</h2>
-        <form onSubmit={changePw} className={styles.modalForm}>
+        <form
+          onSubmit={changePw}
+          className={styles.modalForm}
+        >
           <label>Current password</label>
           <input name="current" type="password" required />
           <label>New password</label>
@@ -254,7 +305,9 @@ const ProfilePage: React.FC = () => {
             >
               Cancel
             </button>
-            <button className={styles.saveBtn}>Save changes</button>
+            <button className={styles.saveBtn}>
+              Save changes
+            </button>
           </div>
         </form>
       </Modal>
@@ -266,17 +319,48 @@ const ProfilePage: React.FC = () => {
           setPicOpen(false);
           setFile(null);
           setPreview(null);
+          setShowCropper(false);
         }}
       >
-        <h2 className={styles.modalTitle}>Change profile picture</h2>
-        <img
-          className={styles.avatar}
-          src={
-            preview ??
-            (me.profilePictureUrl ? `${API}${me.profilePictureUrl}` : '/placeholder.png')
-          }
-          alt="preview"
-        />
+        <h2 className={styles.modalTitle}>
+          Change profile picture
+        </h2>
+
+                {showCropper && preview ? (
+                  <div  ref={cropperRef}  className={styles.cropContainer}  style={{ width: CROP_PX, height: CROP_PX }}   /* <- add explicit size */
+                  >
+                    <Cropper
+                      image={preview}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={1}
+
+                      /*make crop area = wrapper & round */
+                      cropShape="round"
+                      cropSize={{ width: CROP_PX, height: CROP_PX }}
+
+                      showGrid={false}
+                      restrictPosition={false}
+                      zoomWithScroll
+                      zoomSpeed={0.2}
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={onCropComplete}
+                    />
+                  </div>
+            ) : (
+          <img
+            className={styles.avatar}
+            src={
+              preview ??
+              (me.profilePictureUrl
+                ? `${API}${me.profilePictureUrl}`
+                : '/placeholder.png')
+            }
+            alt="preview"
+          />
+        )}
+
         <input
           id="fileInput"
           type="file"
@@ -284,25 +368,58 @@ const ProfilePage: React.FC = () => {
           hidden
           onChange={onSelect}
         />
-        <label htmlFor="fileInput" className={styles.uploadBtn}>
-          Upload new picture
+        <label
+          htmlFor="fileInput"
+          className={styles.uploadBtn}
+        >
+          {showCropper
+            ? 'Choose a different file'
+            : 'Upload new picture'}
         </label>
+
         <div className={styles.modalFooter}>
-          <button className={styles.cancelBtn} onClick={() => setPicOpen(false)}>
+          <button
+            className={styles.cancelBtn}
+            onClick={() => {
+              setPicOpen(false);
+              setFile(null);
+              setPreview(null);
+              setShowCropper(false);
+            }}
+          >
             Cancel
           </button>
-          <button className={styles.saveBtn} disabled={!file} onClick={savePic}>
-            Save changes
-          </button>
+          {showCropper ? (
+            <button
+              className={styles.saveBtn}
+              disabled={!croppedAreaPixels}
+              onClick={handleCrop}
+            >
+              Crop
+            </button>
+          ) : (
+            <button
+              className={styles.saveBtn}
+              disabled={!file}
+              onClick={savePic}
+            >
+              Save changes
+            </button>
+          )}
         </div>
       </Modal>
 
-      {/* bottom buttons */}
       <div className={styles.bottomRow}>
-        <button className={styles.logout} onClick={logout}>
+        <button
+          className={styles.logout}
+          onClick={logout}
+        >
           Log out
         </button>
-        <button className={styles.logout} onClick={() => nav('/')}>
+        <button
+          className={styles.logout}
+          onClick={() => nav('/')}
+        >
           Back to homepage
         </button>
       </div>
