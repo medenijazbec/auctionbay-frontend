@@ -4,9 +4,8 @@ import React, {
   useRef,
   ChangeEvent,
   FormEvent,
-  useCallback
-} from 'react';
-import { Outlet, useParams, useNavigate, Link } from 'react-router-dom';
+  useCallback} from 'react';
+import { Outlet, useParams, useNavigate, Link, useLocation} from 'react-router-dom';
 import styles from './AuctionsPage.module.css';
 import Cropper, { Area } from 'react-easy-crop'
 import getCroppedImg from '../utils/getCroppedImg'
@@ -181,6 +180,7 @@ const handleMediaLoaded = useCallback((media: { naturalWidth:number; naturalHeig
 
   const nav  = useNavigate();
   const jwt  = localStorage.getItem('token');
+  const location = useLocation();      //current URL is now in scope
 
 
 
@@ -646,92 +646,103 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
 
 
 
-      {/* ─── PUBLIC AUCTIONS ─────────────────────────────────── */}
-{activeNav === 'auctions' && (
+{/* ─────────────── DETAIL (opens from any tab) ─────────────── */}
+{id && (
+  <div className={styles['detail-wrapper']}>
+
+    {/* left gutter that hosts the button */}
+    <div className={styles['back-column']}>
+      <button
+        className={styles['back-btn']}
+        onClick={() => navigate(-1)}   /* pop history */
+      >
+        ← Back
+      </button>
+    </div>
+
+    {/* AuctionDetailPage */}
+    <Outlet />
+  </div>
+)}
+
+
+{/* ─────────── PUBLIC AUCTIONS LIST ──────────────────────────── */}
+{ activeNav === 'auctions' && (
   <>
-    {/*LIST — shown when there is **no** :id in the URL */}
-    {!id && (
+    {/* LIST — shown when there is **no** :id in the URL */}
+    { !id && (
       <div className={styles['auctions-container-wrapper']}>
         <h2 className={styles['auctions-title']}>Auctions</h2>
 
         <div className={styles['auctions-container']}>
-        <div className={styles['auction-grid']}>
-  {auctions.map(a => {
-    // 1) determine whether this auction is over
-    const nowMs = Date.now()
-    const endMs = new Date(a.endDateTime).getTime()
-    const isDone = endMs <= nowMs
+          <div className={styles['auction-grid']}>
 
-    // 2) force the pill to 'done' if time has passed
-    const displayState: Auction['auctionState'] = isDone
-      ? 'done'
-      : a.auctionState
+            { auctions.map(a => {
+              /* 1. is the auction done? */
+              const isDone = new Date(a.endDateTime).getTime() <= Date.now();
+              /* 2. status to show */
+              const displayState = isDone ? 'done' : a.auctionState;
+              const statusClass  = getStatusClass(displayState);
 
-    // 3) compute the CSS class for the status tag
-    const statusClass = getStatusClass(displayState)
+              return (
+                <Link
+                  key={a.auctionId}
+                  to   ={`/auctions/${a.auctionId}`}
+                  state={{ from: location }}         /* remember view */
+                  className={styles['auction-card']}
+                  style={{ textDecoration:'none', color:'inherit' }}
+                >
+                  <div className={styles['auction-card-header']}>
+                    {/* status pill */}
+                    <span
+                      className={`${styles['auction-tag']} ${styles[statusClass]}`}
+                    >
+                      {getTagText(displayState)}
+                    </span>
 
-    return (
-      <Link
-        to={`/auctions/${a.auctionId}`}
-        key={a.auctionId}
-        className={styles['auction-card']}
-        style={{ textDecoration: 'none', color: 'inherit' }}
-      >
-        <div className={styles['auction-card-header']}>
-          {/* Status pill */}
-          <span className={`${styles['auction-tag']} ${styles[statusClass]}`}>
-            {getTagText(displayState)}
-          </span>
+                    {/* time-left pill (hide when done) */}
+                    {!isDone && (
+                      <span
+                        className={`${styles['time-tag']} ${
+                          styles[getTimeTagClass(a.endDateTime)]
+                        }`}
+                      >
+                        {formatTimeLeft(a.endDateTime)}
+                        <img
+                          src={getClockIcon(a.startDateTime, a.endDateTime)}
+                          className={styles['clock-icon']}
+                          alt=""
+                        />
+                      </span>
+                    )}
+                  </div>
 
-          {/* Only show the countdown if it’s not done */}
-          {!isDone && (
-            <span
-              className={`${styles['time-tag']} ${styles[getTimeTagClass(a.endDateTime)]}`}
-            >
-              {formatTimeLeft(a.endDateTime)}
-              <img
-                src={getClockIcon(a.startDateTime, a.endDateTime)}
-                className={styles['clock-icon']}
-                alt=""
-              />
-            </span>
-          )}
-        </div>
+                  <div className={styles['auction-card-info']}>
+                    <div className={styles['auction-title']}>{a.title}</div>
+                    <div className={styles['auction-price']}>
+                      {a.startingPrice} €
+                    </div>
+                  </div>
 
-        <div className={styles['auction-card-info']}>
-          <div className={styles['auction-title']}>{a.title}</div>
-          <div className={styles['auction-price']}>
-            {a.startingPrice} €
+                  <div className={styles['auction-card-image-container']}>
+                    <img
+                      src={imgUrl(a.thumbnailUrl || a.mainImageUrl)}
+                      className={styles['auction-card-image']}
+                      alt={a.title}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
+
           </div>
-        </div>
-
-        <div className={styles['auction-card-image-container']}>
-          <img
-            src={imgUrl(a.thumbnailUrl || a.mainImageUrl)}
-            className={styles['auction-card-image']}
-            alt={a.title}
-          />
-        </div>
-      </Link>
-    )
-  })}
-</div>
-
 
           {loading && (
-            <div className={styles['loading-more']}>Loading more auctions…</div>
+            <div className={styles['loading-more']}>
+              Loading more auctions…
+            </div>
           )}
         </div>
-      </div>
-    )}
-
-    {/* DETAILS — shown when :id is present */}
-    {id && (
-      <div className={styles['detail-wrapper']}>
-        <button className={styles['back-btn']} onClick={() => navigate('/auctions')}>
-          ← Back to list
-        </button>
-        <Outlet />
       </div>
     )}
   </>
@@ -789,6 +800,7 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
           return (
             <Link
               to={`/auctions/${a.auctionId}`}
+              state={{ from: location }} 
               key={a.auctionId}
               className={styles['auction-card']}
               style={{ textDecoration: 'none', color: 'inherit' }}
@@ -877,6 +889,7 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
                     return (
                       <Link
                         to={`/auctions/${a.auctionId}`}
+                        state={{ from: location }} 
                         key={a.auctionId}
                         className={styles['auction-card']}
                         style={{
@@ -965,6 +978,7 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
                     return (
                       <Link
                         to={`/auctions/${a.auctionId}`}
+                        state={{ from: location }} 
                         key={a.auctionId}
                         className={styles['auction-card']}
                         style={{

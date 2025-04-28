@@ -308,6 +308,48 @@ margin-right: 4px;
   justify-items: center;
 }
 
+.detail-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, .35);
+  overflow-y: auto;
+
+  display: flex;                 
+  justify-content: center;       
+  align-items: flex-start;        /* start at top */
+  padding: 3rem 2rem;
+}
+
+/* 2 — new column that reserves space for the button */
+.back-column {
+  flex: 0 0 180px;                /* 180 px wide – adjust to taste */
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+/* 3 — the bright-yellow back button */
+.back-btn {
+  width: 100%;                /* fills the column */
+  background: #FBFF00;        /* base yellow */
+  color: #000;
+  border: none;
+  border-radius: 999px;
+  padding: 1.1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  line-height: 1;
+  transition: background-color .2s ease, box-shadow .2s ease;
+  margin-left: auto;
+}
+
+.back-btn:hover {
+  background: #F4E600;       
+  box-shadow: 0 0 0 3px rgba(0,0,0,.12);
+}
 
 
 
@@ -801,18 +843,38 @@ color: #071015;
 ensures we can address them from TS with styles[state]   */
 .inProgress {}   /* uses defaults already set above */
 
-.detail-wrapper { margin: 0;}
+.detail-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
 
-.back-btn {
-background: transparent;
-border: none;
-color: #272d2d;
-font-size: 1rem;
-font-weight: 600;
-cursor: pointer;
-margin-bottom: 1.5rem;
+  /* backdrop */
+  background: rgba(0, 0, 0, .35);
+
+  /* let the page behind scroll, not the overlay itself */
+  overflow-y: auto;
+
+  /* NEW ↓ ─────────────── */
+  display: flex;            /* centre the content block */
+  justify-content: center;
+  align-items: flex-start;  /* start at top, not perfect centre */
+  padding: 3rem 2rem;       /* side gutters that also shrink on mobile */
 }
-.back-btn:hover { text-decoration: underline; }
+
+/* ─── 2. the actual detail card container inside the overlay ──── */
+.container {
+  display: flex;
+  flex-wrap: wrap;          /* stack on very narrow screens */
+  gap: 2rem;
+
+  /* NEW ↓ ───────────────────────── */
+  width: 100%;              /* stretch to fill… but no more than: */
+  max-width: 1200px;        /* …this fixed ceiling (adjust to taste) */
+  margin: 0 auto;           /* equal left / right gaps */
+  padding: 0;               /* you already have outer padding */
+}
+
+
 
 
 /* ─── TAG BASE ───────────────────────────────────────── */

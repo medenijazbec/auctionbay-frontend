@@ -13,17 +13,14 @@
   
   /* ───────── Layout ───────── */
 
-
-
-  /*ful zajeban container*/
   .container {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
     display: flex;
+    flex-wrap: wrap;
     gap: 2rem;
- 
-    margin-left: -15.8vw;
-    width: 95vw;  
+  
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .title {
