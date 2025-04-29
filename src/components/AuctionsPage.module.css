@@ -1025,25 +1025,29 @@ body, html {
 /*each item*/
 .notificationItem {
   padding: 8px 12px;
-  border-bottom: 1px solid #eee;
+  border: 1px solid #ddd;        /* light gray border all around */
+  border-radius: 4px;
+  margin: 4px 8px;               /* small gap between cards */
   font-size: 0.9rem;
   color: #071015;
+  background: #fafafa;           /* subtle off-white bg */
   cursor: default;
+  display: flex;
+  flex-direction: column;
 }
-.notificationItem:last-child {
-  border-bottom: none;
-}
-.notificationItemKind {
-  font-weight: bold;
-  text-transform: capitalize;
-  margin-right: 4px;
+
+.notificationItemKind,
+.notificationItemTime {
+  display: inline-block;
 }
 .notificationItemTime {
   float: right;
   font-size: 0.75rem;
   color: #999;
 }
-
+.notificationItem:last-child {
+  /* nothing needed here now */
+}
 
 
 

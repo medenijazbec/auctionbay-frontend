@@ -159,10 +159,25 @@ type TagClass = keyof typeof styles;
 
 
 
-type Notification =
-  | { id: number; kind: "outbid"      ; title: string; ts: number; read?: boolean }
-  | { id: number; kind: "bid-finished"; title: string; ts: number; read?: boolean }
-  | { id: number; kind: "my-finished" ; title: string; ts: number; read?: boolean };
+/*type Notification =
+  | { id: number; kind: "outbid"      ; title: string; ts: string; read?: boolean }
+  | { id: number; kind: "bid-finished"; title: string; ts: string; read?: boolean }
+  | { id: number; kind: "my-finished" ; title: string; ts: string; read?: boolean };
+*/
+
+interface Notification {
+  notificationId: number;
+  auctionId:      number;
+  userId:         string;
+  kind:           "outbid" | "bid-finished" | "my-finished";
+  title:          string;
+  timestamp:      string;  // ISO datetime from backend
+  isRead:         boolean;
+}
+
+
+
+
 
 /* ─────────────────────────────────────────────────────────── */
 const AuctionsPage: React.FC = () => {
@@ -172,7 +187,7 @@ const AuctionsPage: React.FC = () => {
 const [notifications, setNotifications] = useState<Notification[]>([]);
 const [unread, setUnread] = useState(0);
 
-
+const [userId, setUserId] = useState<string>("");
 const prevBidding    = useRef<Auction[]>([]);
 const prevMyAuctions = useRef<Auction[]>([]);
 
@@ -182,7 +197,8 @@ const [showNotifs, setShowNotifs] = useState(false);
 const saveNotifs = (items: Notification[]) => {
   localStorage.setItem("notifications", JSON.stringify(items));
   setNotifications(items);
-  setUnread(items.filter(n => !n.read).length);
+  setUnread(notifications.filter(n => !n.isRead).length);
+
 };
 
 const openNotifications = () => {
@@ -277,6 +293,7 @@ const openNotifications = () => {
       .then(async (r) => {
         if (!r.ok) throw new Error("unauthorised");
         const p: ProfileMeDto = await r.json();
+        setUserId(p.id);  
         setUserName(
           `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() ||
             p.email.split("@")[0] ||
@@ -474,47 +491,75 @@ const openNotifications = () => {
       : won.length;
 
   const isProfileFixed = activeNav === "profile" && currentCount === 0;
-  useEffect(() => {
-    if (!jwt) return;
-  
-    const now = Date.now();
-    const newNotifs: Notification[] = [];
-    const prevBidMap  = new Map(prevBidding.current.map(a => [a.auctionId, a.auctionState]));
-    const prevMineMap = new Map(prevMyAuctions.current.map(a => [a.auctionId, a.auctionState]));
-  
-    // 1) out-bid
-    bidding.forEach(a => {
-      const was = prevBidMap.get(a.auctionId);
-      if (a.auctionState === "outbid" && was && was !== "outbid") {
-        newNotifs.push({ id: a.auctionId, kind: "outbid", title: a.title, ts: now });
-      }
-      console.log(`Auction ${a.auctionId} was ${was}, now ${a.auctionState}`);
-    });
-  
-    // 2) bidding-auction ended
-    bidding.forEach(a => {
-      const was = prevBidMap.get(a.auctionId);
-      if (a.auctionState === "done" && was && was !== "done") {
-        newNotifs.push({ id: a.auctionId, kind: "bid-finished", title: a.title, ts: now });
-      }
-    });
-  
-    // 3) your auction ended
-    myAuctions.forEach(a => {
-      const was = prevMineMap.get(a.auctionId);
-      if (a.auctionState === "done" && was && was !== "done") {
-        newNotifs.push({ id: a.auctionId, kind: "my-finished", title: a.title, ts: now });
-      }
-    });
-  
-    if (newNotifs.length) {
-      const stored: Notification[] = JSON.parse(localStorage.getItem("notifications") || "[]");
-      saveNotifs([...newNotifs, ...stored]);
+
+
+useEffect(() => {
+  if (!jwt) return;
+  const now = new Date().toISOString();  // ISO string
+
+  const newNotifs: Notification[] = [];
+  const prevBidMap  = new Map(prevBidding.current.map(a => [a.auctionId, a.auctionState]));
+  const prevMineMap = new Map(prevMyAuctions.current.map(a => [a.auctionId, a.auctionState]));
+
+  // 1) out-bid
+  bidding.forEach(a => {
+    const was = prevBidMap.get(a.auctionId);
+    if (a.auctionState === "outbid" && was && was !== "outbid") {
+      newNotifs.push({
+        notificationId: a.auctionId,
+        auctionId:      a.auctionId,
+        userId:         userId,       // now provided
+        kind:           "outbid",
+        title:          a.title,
+        timestamp:      now,
+        isRead:         false
+      });
     }
-  
-    prevBidding.current    = bidding;
-    prevMyAuctions.current = myAuctions;
-  }, [bidding, myAuctions, jwt]);
+  });
+
+  // 2) bidding-auction ended
+  bidding.forEach(a => {
+    const was = prevBidMap.get(a.auctionId);
+    if (a.auctionState === "done" && was && was !== "done") {
+      newNotifs.push({
+        notificationId: a.auctionId,
+        auctionId:      a.auctionId,
+        userId:         userId,
+        kind:           "bid-finished",
+        title:          a.title,
+        timestamp:      now,
+        isRead:         false
+      });
+    }
+  });
+
+  // 3) your auction ended
+  myAuctions.forEach(a => {
+    const was = prevMineMap.get(a.auctionId);
+    if (a.auctionState === "done" && was && was !== "done") {
+      newNotifs.push({
+        notificationId: a.auctionId,
+        auctionId:      a.auctionId,
+        userId:         userId,
+        kind:           "my-finished",
+        title:          a.title,
+        timestamp:      now,
+        isRead:         false
+      });
+    }
+  });
+
+  if (newNotifs.length) {
+    const stored: Notification[] = JSON.parse(
+      localStorage.getItem("notifications") || "[]"
+    );
+    saveNotifs([...newNotifs, ...stored]);
+  }
+
+  prevBidding.current    = bidding;
+  prevMyAuctions.current = myAuctions;
+}, [bidding, myAuctions, jwt, userId]);
+
   
   /**
    * Poll the server every 30s for updates to
@@ -533,7 +578,8 @@ const openNotifications = () => {
     .then((res) => res.json())
     .then((data: Notification[]) => {
       setNotifications(data);
-      setUnread(data.filter((n) => !n.read).length);
+      setUnread(notifications.filter(n => !n.isRead).length);
+
     })
     .catch((err) => console.error("Failed fetching notifications:", err));
   }, [jwt]);
@@ -550,7 +596,8 @@ const openNotifications = () => {
       .then((res) => res.json())
       .then((data: Notification[]) => {
         setNotifications(data);
-        setUnread(data.filter((n) => !n.read).length);
+        setUnread(notifications.filter(n => !n.isRead).length);
+
       })
       .catch((err) => console.error("Polling notifications failed:", err));
     };
@@ -737,16 +784,17 @@ const openNotifications = () => {
                     </div>
                   )}
                   {notifications.map((n) => (
-                    <div key={`${n.kind}-${n.id}-${n.ts}`} className={styles.notificationItem}>
+                    <div key={`${n.kind}-${n.notificationId}-${n.timestamp}`} className={styles.notificationItem}>
                       <span className={styles.notificationItemKind}>
                         {n.kind.replace(/-/g, " ")}
                       </span>
                       <span className={styles.notificationItemTime}>
-                        {new Date(n.ts).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+                      {new Date(n.timestamp).toLocaleTimeString([], {
+                        hour:   "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+
                       <div>{n.title}</div>
                     </div>
                   ))}
