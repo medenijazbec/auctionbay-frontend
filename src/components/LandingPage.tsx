@@ -1,6 +1,6 @@
 // LandingPage.tsx
 import React, { useState, useEffect, useRef, ChangeEvent, FormEvent, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation  } from 'react-router-dom';
 import './LandingPage.css';
 
 /* ───── Assets ───────────────────────────────────────────── */
@@ -41,7 +41,9 @@ interface Auction {
   auctionState:  'outbid' | 'inProgress' | 'winning' | 'done';
   createdBy:     string;
   mainImageUrl?: string;
+  thumbnailUrl?: string;
 }
+
 interface ProfileMeDto {
   firstName?: string;
   lastName?:  string;
@@ -104,11 +106,13 @@ const getStatusClass = (s:Auction['auctionState']) =>
     const idx = Math.round(pct * (CLOCKS.length - 1));
     return CLOCKS[idx];
   }
-const imgUrl = (u?:string) => u?.startsWith('http') ? u : `${BACKEND_BASE_URL}${u ?? ''}`;
+  const imgUrl = (u?: string) =>
+    u?.startsWith('http') ? u : `${BACKEND_BASE_URL}${u ?? ''}`;
 
 /* ─────────────────────────────────────────────────────────── */
 const LandingPage:React.FC = () => {
   const nav  = useNavigate();
+  const location = useLocation();
   const jwt  = localStorage.getItem('token');
 
   /* ─── greeting state ─────────────────────────────── */
@@ -378,49 +382,64 @@ useEffect(() => {
             </div>
           </div>
 
-          {activeNav==='auctions' && (
-            <>
-              <header className="auctions-header">
-                <h2 className="auctions-title">Auctions</h2>
-              </header>
-              {auctions.length
-                ? <div className="auction-grid">{auctions.map(a=>(
-                    <div className="auction-card" key={a.auctionId}>
-<div className="auction-card-header">
-  {/* status pill */}
-  <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>
-    {getTagText(a.auctionState)}
-  </span>
+          {activeNav === 'auctions' && (
+  <>
+    <header className="auctions-header">
+      <h2 className="auctions-title">Auctions</h2>
+    </header>
 
-  {/* time-left pill */}
-  <span className={`time-tag ${getTimeTagClass(a.endDateTime)}`}>
-    {formatTimeLeft(a.endDateTime)}
-    <img
-      src={getClockIcon(a.startDateTime, a.endDateTime)}
-      className="clock-icon"
-      alt=""
-    />
-  </span>
-</div>
+    {auctions.length ? (
+      <div className="auction-grid">
+        {auctions.map(a => (
+          <Link
+            key={a.auctionId}
+            to={`/auctions/${a.auctionId}`}
+            state={{ from: location }}
+            className="auction-card"
+          >
+            <div className="auction-card-header">
+              {/* status pill */}
+              <span className={`auction-tag ${getStatusClass(a.auctionState)}`}>
+                {getTagText(a.auctionState)}
+              </span>
 
+              {/* time-left pill */}
+              <span className={`time-tag ${getTimeTagClass(a.endDateTime)}`}>
+                {formatTimeLeft(a.endDateTime)}
+                <img
+                  src={getClockIcon(a.startDateTime, a.endDateTime)}
+                  className="clock-icon"
+                  alt=""
+                />
+              </span>
+            </div>
 
-                      <div className="auction-card-info">
-                        <div className="auction-title">{a.title}</div>
-                        <div className="auction-price">{a.startingPrice} €</div>
-                      </div>
-                      <div className="auction-card-image-container">
-                        <img src={imgUrl(a.mainImageUrl)} className="auction-card-image"/>
-                      </div>
-                    </div>
-                  ))}</div>
-                : <div className="empty-state">
-                    <h3>Oh no, no auctions yet!</h3>
-                    <p>Click “+” in the nav bar to create a new auction.</p>
-                  </div>
-              }
-              {loading && hasMore && <div className="loading-more">Loading more…</div>}
-            </>
-          )}
+            <div className="auction-card-info">
+              <div className="auction-title">{a.title}</div>
+              <div className="auction-price">{a.startingPrice} €</div>
+            </div>
+
+            <div className="auction-card-image-container">
+              <img
+                src={imgUrl(a.thumbnailUrl || a.mainImageUrl)}
+                className="auction-card-image"
+                alt={a.title}
+              />
+            </div>
+          </Link>
+        ))}
+      </div>
+    ) : (
+      <div className="empty-state">
+        <h3>Oh no, no auctions yet!</h3>
+        <p>Click “+” in the nav bar to create a new auction.</p>
+      </div>
+    )}
+
+    {loading && hasMore && <div className="loading-more">Loading more…</div>}
+  </>
+)}
+
 
           {activeNav==='profile' && (
             <div className="profile-view">

@@ -246,6 +246,7 @@ body, html {
  }
 }
 .auction-card {
+  text-decoration: none;
   width: 216px;
   background-color: #FFFFFF;
   border-radius: 16px;
