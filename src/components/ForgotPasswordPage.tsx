@@ -1,234 +1,207 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+/*  src/pages/ForgotPasswordPage.tsx  */
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './ForgotPasswordPage.module.css';
 
-import logo from '../assets/logo.png';
-import backarrow from '../assets/backarrow.png';
+import logo      from '../assets/logo.png';
+import backArrow from '../assets/backarrow.png';
 
-// Images / icons for auction cards and clock icons
+/* ⬇  clocks that match AuctionsPage */
+import clock0  from '../assets/0clock.png';
+import clock7  from '../assets/7clock.png';
 import clock15 from '../assets/15clock.png';
+import clock25 from '../assets/25clock.png';
 import clock30 from '../assets/30clock.png';
+import clock37 from '../assets/37clock.png';
 import clock45 from '../assets/45clock.png';
+import clock53 from '../assets/53clock.png';
+import clock60 from '../assets/60clock.png';
 
-const BACKEND_BASE_URL = 'https://localhost:7056';
+const CLOCKS = [
+  clock0, clock7, clock15, clock25,
+  clock30, clock37, clock45, clock53, clock60,
+];
 
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7056';
+
+/* ─── Types ───────────────────────────────────────────── */
 interface Auction {
-  auctionId: number;
-  title: string;
-  description: string;
+  auctionId:     number;
+  title:         string;
+  description:   string;
   startingPrice: number;
   startDateTime: string;
-  endDateTime: string;
-  auctionState: string; //"outbid", "inProgress", "winning", "done"
-  createdAt: string;
+  endDateTime:   string;
+  auctionState:  'outbid' | 'inProgress' | 'winning' | 'done';
+  createdAt:     string;
   mainImageUrl?: string;
+  thumbnailUrl?: string;   
 }
 
-//Helper Functions
-function getTagText(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return 'In progress';
-    case 'winning':
-      return 'Winning';
-    case 'done':
-      return 'Done';
-    default:
-      return 'Outbid';
-  }
+/* ─── Helpers copied from AuctionsPage ─────────────────── */
+const getTagText = (s: Auction['auctionState']) =>
+  s === 'inProgress' ? 'In progress'
+: s === 'winning'    ? 'Winning'
+: s === 'done'       ? 'Done'
+:                      'Outbid';
+
+const getStatusClass = (s: Auction['auctionState']) =>
+  s === 'inProgress' ? 'editable'
+: s === 'winning'    ? 'winning'
+: s === 'done'       ? 'done'
+:                      'outbid';
+
+const hoursLeft = (end: string) =>
+  Math.max(0, (new Date(end).getTime() - Date.now()) / 3_600_000);
+
+/* neutral vs urgent (≤1 h) */
+const getTimeTagClass = (end: string) =>
+  hoursLeft(end) <= 1 ? 'urgent' : 'neutral';
+
+function formatTimeLeft(endISO: string): string {
+  const ms   = Math.max(new Date(endISO).getTime() - Date.now(), 0);
+  const mins = Math.ceil(ms / 60_000);
+
+  if (mins === 0) return '0m';
+  if (mins < 60)  return `${mins}m`;
+
+  const h = Math.floor(mins / 60);
+  if (h < 24) return `${h}h`;
+
+  return `${Math.ceil(h / 24)} days`;
 }
 
-function getTimeText(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return '30h';
-    case 'winning':
-      return '20h';
-    case 'done':
-      return '0h';
-    default:
-      return '24h';
-  }
+function getClockIcon(start: string, end: string): string {
+  const pct = Math.min(
+    Math.max((Date.now() - new Date(start).getTime()) /
+             (new Date(end).getTime()   - new Date(start).getTime()), 0),
+    1
+  );
+  const idx = Math.round(pct * (CLOCKS.length - 1));
+  return CLOCKS[idx];
 }
 
-function getStatusClass(state: string): string {
-  switch (state) {
-    case 'inProgress':
-      return 'editable';
-    case 'winning':
-      return 'winning';
-    case 'done':
-      return 'done';
-    default:
-      return '';
-  }
-}
+const imgUrl = (thumb?: string, full?: string) =>
+  (thumb || full)
+    ? (/^https?:/.test(thumb ?? full!)
+        ? (thumb ?? full)!
+        : `${BACKEND_BASE_URL}${thumb ?? full}`)
+    : `${BACKEND_BASE_URL}/placeholder.png`;
 
-function getClockIcon(endDateTime: string): string {
-  const now = new Date();
-  const end = new Date(endDateTime);
-  const diffHours = (end.getTime() - now.getTime()) / (1000 * 60 * 60);
-  if (diffHours <= 15) {
-    return clock15;
-  } else if (diffHours <= 30) {
-    return clock30;
-  } else {
-    return clock45;
-  }
-}
-
+/* ─── Component ────────────────────────────────────────── */
 const ForgotPasswordPage: React.FC = () => {
-  const navigate = useNavigate();
+  const nav = useNavigate();
 
-  //State for auctions (left side)
+  /* promo auctions (max 4) */
   const [auctions, setAuctions] = useState<Auction[]>([]);
 
-  //Forgot password form states
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  /* form state */
+  const [email,    setEmail]    = useState('');
+  const [error,    setError]    = useState('');
+  const [success,  setSuccess]  = useState('');
 
-  //Fetch auctions from the backend
-  const fetchAuctions = async () => {
-    try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=20`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch auctions');
-      }
-      const data = await response.json();
-      setAuctions(data);
-    } catch (err) {
-      console.error('Error fetching auctions:', err);
-    }
-  };
-
+  /* fetch once */
   useEffect(() => {
-    fetchAuctions();
+    fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=4`)
+      .then(r => r.json())
+      .then((rows: Auction[]) => setAuctions(
+        rows.slice(0, 4).map(a => ({      // clamp and normalise state
+          ...a,
+          auctionState: (a.auctionState ?? 'inProgress') as Auction['auctionState'],
+        }))
+      ))
+      .catch(() => {/* ignore promo errors */});
   }, []);
 
-  //Select up to 4 random auctions if more than 4 are available
-  const selectedAuctions: Auction[] =
-    auctions.length > 4 ? [...auctions].sort(() => Math.random() - 0.5).slice(0, 4) : auctions;
-
-  //Handle forgot password form submission
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  /* submit */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError(''); setSuccess('');
 
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}/api/Auth/forgot-password`, {
-        method: 'POST',
+      const resp = await fetch(`${BACKEND_BASE_URL}/api/Auth/forgot-password`, {
+        method : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body   : JSON.stringify({ email }),
       });
+      const data = await resp.json();
 
-      const data = await response.json();
-      if (!response.ok) {
+      if (!resp.ok) {
         setError(
-          data.Errors
-            ? data.Errors[0].Description
-            : data.Message || 'Could not send reset instructions. Please try again.'
+          data.Errors?.[0]?.Description ||
+          data.Message ||
+          'Could not send reset instructions.'
         );
         return;
       }
 
-      setSuccess(data.Message || 'Reset instructions have been sent to your email.');
-      /*
-      stuff za navigation gre tle sm pol k bm figuro out ka naj z tem nardim, mail server?
-      
-      
-      */ 
-
-
-
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-    } catch (err) {
-      setError('An error occurred while sending reset instructions.');
+      setSuccess(data.Message || 'Instructions sent ✔');
+      setTimeout(() => nav('/login', { replace:true }), 1800);
+    } catch {
+      setError('Network error. Please try again.');
     }
   };
 
+  /* ─── JSX ────────────────────────────────────────────── */
   return (
     <div className={styles.registerPageContainer}>
-      {/* Left Column: Auction Grid */}
+      {/* LEFT – promo grid */}
       <div className={styles.auctionGridContainer}>
         <div className={styles.auctionGrid}>
-          {selectedAuctions.map((auction) => {
-            const tagText = getTagText(auction.auctionState);
-            const timeText = getTimeText(auction.auctionState);
-            const statusClass = getStatusClass(auction.auctionState);
-            const clockImg = getClockIcon(auction.endDateTime);
-
-            return (
-              <div key={auction.auctionId} className={styles.auctionCard}>
-                <div className={styles.auctionCardHeader}>
-                  <span className={`${styles.auctionTag} ${styles[statusClass]}`}>
-                    {tagText}
-                  </span>
-                  <span className={`${styles.timeTag} ${styles[statusClass]}`}>
-                    {timeText}
-                    <img src={clockImg} alt="Clock Icon" className={styles.clockIcon} />
-                  </span>
-                </div>
-                <div className={styles.auctionCardInfo}>
-                  <div className={styles.auctionTitle}>{auction.title}</div>
-                  <div className={styles.auctionPrice}>{auction.startingPrice} €</div>
-                </div>
-                <div className={styles.auctionCardImageContainer}>
-                  <img
-                    className={styles.auctionCardImage}
-                    src={
-                      auction.mainImageUrl
-                        ? `${BACKEND_BASE_URL}${auction.mainImageUrl}`
-                        : `${BACKEND_BASE_URL}/placeholder.png`
-                    }
-                    alt={auction.title}
-                  />
-                </div>
+          {auctions.map(a => (
+            <div key={a.auctionId} className={styles.auctionCard}>
+              <div className={styles.auctionCardHeader}>
+                <span className={`${styles.auctionTag} ${styles[getStatusClass(a.auctionState)]}`}>
+                  {getTagText(a.auctionState)}
+                </span>
+                <span className={`
+                  ${styles.timeTag}
+                  ${styles[getTimeTagClass(a.endDateTime)]}
+                `}>
+                  {formatTimeLeft(a.endDateTime)}
+                  <img src={getClockIcon(a.startDateTime, a.endDateTime)}
+                       className={styles.clockIcon} />
+                </span>
               </div>
-            );
-          })}
+
+              <div className={styles.auctionCardInfo}>
+                <div className={styles.auctionTitle}>{a.title}</div>
+                <div className={styles.auctionPrice}>{a.startingPrice} €</div>
+              </div>
+
+              <div className={styles.auctionCardImageContainer}>
+               <img
+   className={styles.auctionCardImage}
+   src={imgUrl(a.thumbnailUrl, a.mainImageUrl)}
+   alt={a.title}
+    />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Right Column: Forgot Password Form */}
+      {/* RIGHT – form */}
       <div className={styles.registerFormContainer}>
-        <div className={styles.brandIcon}>
-          <img src={logo} alt="Main Logo" className={styles.logoImage} />
-        </div>
+        <div className={styles.brandIcon}><img src={logo} className={styles.logoImage} /></div>
 
         <h2 className={styles.formTitle}>Forgot password?</h2>
-        <p className={styles.formSubtitle}>
-          No worries, we will send you reset instructions
-        </p>
+        <p  className={styles.formSubtitle}>No worries – we’ll email you reset instructions</p>
 
-        {error && <p className={styles.errorMsg}>{error}</p>}
+        {error   && <p className={styles.errorMsg}>{error}</p>}
         {success && <p className={styles.successMsg}>{success}</p>}
 
-        <form onSubmit={handleForgotPassword} className={styles.registerForm}>
+        <form onSubmit={handleSubmit} className={styles.registerForm}>
           <label className={styles.inputLabel}>E-mail</label>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <input type="email" placeholder="Enter your email"
+                 value={email} onChange={e => setEmail(e.target.value)} required />
 
-          <button type="submit" className={styles.registerButton}>
-            Reset password
-          </button>
+          <button type="submit" className={styles.registerButton}>Reset password</button>
         </form>
 
         <div className={styles.backLinkContainer}>
           <Link to="/login" className={styles.backLink}>
-            <img src={backarrow} alt="Back arrow" className={styles.backArrow} />
-            <span>Back to login</span>
+            <img src={backArrow} className={styles.backArrow} /> Back to login
           </Link>
         </div>
       </div>
