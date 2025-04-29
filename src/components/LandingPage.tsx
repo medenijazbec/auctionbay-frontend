@@ -331,10 +331,35 @@ useEffect(() => {
             </div>
             <div className="frame-topbar-right">
               <div className="right-pill-container">
-                <button className="icon-button bell-btn"><img src={bellIcon}/></button>
-                <button className="icon-button plus-btn" onClick={()=>setAddOpen(true)}>
-                  <img src={plusIcon}/>
-                </button>
+{/* Notifications button */}
+<button
+        className="icon-button bell-btn"
+        onClick={() => {
+          if (!jwt) {
+            nav('/login', { replace: true });
+          } else {
+            // TODO: open your notification pane
+          }
+        }}
+      >
+        <img src={bellIcon} alt="Notifications" />
+      </button>
+
+      {/* “Add auction” button */}
+      <button
+   className="icon-button plus-btn"
+   onClick={() => {
+     if (!jwt) {
+       // not logged in → force login
+       nav("/login", { replace: true });
+       return;
+     }
+     // only if we *are* logged in do we actually open the modal
+     setAddOpen(true);
+   }}
+ >
+        <img src={plusIcon} alt="Add auction" />
+      </button>
                 <div className="icon-button user-btn"
                      ref={userMenuRef}
                      onClick={()=>setMenuOpen(o=>!o)}
@@ -481,7 +506,7 @@ useEffect(() => {
         </div>
       </div>
 
-      {addOpen && (
+      {jwt && addOpen && (
         <div className="add-modal-overlay" onClick={()=>setAddOpen(false)}>
           <div className="add-modal-body" onClick={e=>e.stopPropagation()}>
             <h2>Add auction</h2>

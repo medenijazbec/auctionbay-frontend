@@ -788,7 +788,13 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
 
           <div className={styles['profile-content']}>
           {subTab === 'myAuctions' && (
-  myAuctions.length ? (
+   //GUARD: if not logged in, short-circuit with a prompt
+   !jwt ? (
+     <div className={styles.emptyState}>
+       <h3>Please log in to see “My auctions.”</h3>
+       <p><button onClick={() => nav('/login')}>Go to login →</button></p>
+     </div>
+   ) : myAuctions.length ? (
     <div className={styles['auction-grid-wrapper']}>
       <div className={styles['auction-grid']}>
         {myAuctions.map(a => {
@@ -882,7 +888,12 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
  
 
             {subTab === 'bidding' && (
-              bidding.length ? (
+   !jwt ? (
+       <div className={styles.emptyState}>
+         <h3>Please log in to see auctions you’re bidding on.</h3>
+         <p><button onClick={() => nav('/login')}>Go to login →</button></p>
+       </div>
+     ) : bidding.length ? (
                 <div className={styles['auction-grid']}>
                   {bidding.map(a => {
                     const status = getStatusClass(a.auctionState);
@@ -971,7 +982,12 @@ const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
             )}
 
             {subTab === 'won' && (
-              won.length ? (
+   !jwt ? (
+       <div className={styles.emptyState}>
+         <h3>Please log in to see auctions you’ve won.</h3>
+         <p><button onClick={() => nav('/login')}>Go to login →</button></p>
+       </div>
+     ) : won.length ? (
                 <div className={styles['auction-grid']}>
                   {won.map(a => {
                     const status = getStatusClass(a.auctionState);
