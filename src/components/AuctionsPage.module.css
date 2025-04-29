@@ -960,3 +960,90 @@ body, html {
  /* no more inadvertent cropping */
   border-radius: 12px;
 }
+
+
+/*notificaitons*/
+.bell-btn {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #f84;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 0 4px;
+  border-radius: 999px;
+  line-height: 1.2;
+  min-width: 16px;
+  text-align: center;
+}
+
+
+/* ─── in AuctionsPage.module.css ───────────────────────────────── */
+
+/* wrap bell & badge*/
+.notificationWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/*little red pill*/
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #f44336;
+  color: white;
+  border-radius: 12px;
+  padding: 0 6px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  line-height: 1.2;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* the popup itself*/
+.notificationPopup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 260px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  margin-top: 8px;
+  z-index: 2000;
+}
+
+/*each item*/
+.notificationItem {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+  color: #071015;
+  cursor: default;
+}
+.notificationItem:last-child {
+  border-bottom: none;
+}
+.notificationItemKind {
+  font-weight: bold;
+  text-transform: capitalize;
+  margin-right: 4px;
+}
+.notificationItemTime {
+  float: right;
+  font-size: 0.75rem;
+  color: #999;
+}
+
+
+
+

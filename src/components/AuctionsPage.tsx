@@ -154,9 +154,56 @@ const statusFromDto = (raw: string): Auction["auctionState"] =>
     : "inProgress";
 
 type TagClass = keyof typeof styles;
+/* ─── Notifications type ───────────────────────────────── */
+
+
+
+
+type Notification =
+  | { id: number; kind: "outbid"      ; title: string; ts: number; read?: boolean }
+  | { id: number; kind: "bid-finished"; title: string; ts: number; read?: boolean }
+  | { id: number; kind: "my-finished" ; title: string; ts: number; read?: boolean };
 
 /* ─────────────────────────────────────────────────────────── */
 const AuctionsPage: React.FC = () => {
+
+
+// ─── Notifications support ─────────────────────────────────
+const [notifications, setNotifications] = useState<Notification[]>([]);
+const [unread, setUnread] = useState(0);
+
+
+const prevBidding    = useRef<Auction[]>([]);
+const prevMyAuctions = useRef<Auction[]>([]);
+
+
+const [showNotifs, setShowNotifs] = useState(false);
+
+const saveNotifs = (items: Notification[]) => {
+  localStorage.setItem("notifications", JSON.stringify(items));
+  setNotifications(items);
+  setUnread(items.filter(n => !n.read).length);
+};
+
+const openNotifications = () => {
+  setShowNotifs((open) => !open);
+
+  if (!showNotifs && unread > 0) {
+    fetch(`${BACKEND_BASE_URL}/api/Profile/notifications/markAllRead`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${jwt}` },
+    })
+    .then(() => {
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnread(0);
+    })
+    .catch((err) => console.error("Failed to mark notifications read:", err));
+  }
+};
+
+
+
+
   const cropperRef = useRef<HTMLDivElement>(null);
 
   const [zoom, setZoom] = useState(1); // current zoom
@@ -356,8 +403,14 @@ const AuctionsPage: React.FC = () => {
     fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
-      .then((r) => r.json())
-      .then((rows: Auction[]) => setMyAuctions(rows));
+    .then(r => r.json())
+    .then((rows: Auction[]) => {
+      setMyAuctions(rows);
+      
+      prevMyAuctions.current = rows;//for notifications
+    });
+
+      
   }, [activeNav]);
 
   /* ─── “Bidding” & “Won” lists ───────────────────────────── */
@@ -368,16 +421,16 @@ const AuctionsPage: React.FC = () => {
 
     if (subTab === "bidding") {
       fetch(`${BACKEND_BASE_URL}/api/Profile/bidding`, { headers })
-        .then((r) => r.json())
-        .then((rows: Auction[]) =>
-          setBidding(
-            rows.map((a) => ({
-              ...a,
-              auctionState: statusFromDto(a.auctionState), // normalise
-            }))
-          )
-        )
-        .catch(() => setBidding([]));
+      .then(r => r.json())
+      .then((rows: Auction[]) => {
+        const mapped = rows.map(a => ({
+          ...a,
+          auctionState: statusFromDto(a.auctionState),
+        }));
+        setBidding(mapped);
+        // ← and add this line:
+        prevBidding.current = mapped;
+      });
     }
 
     if (subTab === "won") {
@@ -421,6 +474,96 @@ const AuctionsPage: React.FC = () => {
       : won.length;
 
   const isProfileFixed = activeNav === "profile" && currentCount === 0;
+  useEffect(() => {
+    if (!jwt) return;
+  
+    const now = Date.now();
+    const newNotifs: Notification[] = [];
+    const prevBidMap  = new Map(prevBidding.current.map(a => [a.auctionId, a.auctionState]));
+    const prevMineMap = new Map(prevMyAuctions.current.map(a => [a.auctionId, a.auctionState]));
+  
+    // 1) out-bid
+    bidding.forEach(a => {
+      const was = prevBidMap.get(a.auctionId);
+      if (a.auctionState === "outbid" && was && was !== "outbid") {
+        newNotifs.push({ id: a.auctionId, kind: "outbid", title: a.title, ts: now });
+      }
+      console.log(`Auction ${a.auctionId} was ${was}, now ${a.auctionState}`);
+    });
+  
+    // 2) bidding-auction ended
+    bidding.forEach(a => {
+      const was = prevBidMap.get(a.auctionId);
+      if (a.auctionState === "done" && was && was !== "done") {
+        newNotifs.push({ id: a.auctionId, kind: "bid-finished", title: a.title, ts: now });
+      }
+    });
+  
+    // 3) your auction ended
+    myAuctions.forEach(a => {
+      const was = prevMineMap.get(a.auctionId);
+      if (a.auctionState === "done" && was && was !== "done") {
+        newNotifs.push({ id: a.auctionId, kind: "my-finished", title: a.title, ts: now });
+      }
+    });
+  
+    if (newNotifs.length) {
+      const stored: Notification[] = JSON.parse(localStorage.getItem("notifications") || "[]");
+      saveNotifs([...newNotifs, ...stored]);
+    }
+  
+    prevBidding.current    = bidding;
+    prevMyAuctions.current = myAuctions;
+  }, [bidding, myAuctions, jwt]);
+  
+  /**
+   * Poll the server every 30s for updates to
+   *   – the auctions you’re bidding on
+   *   – the auctions you’ve created
+   * so that our “outbid” / “bid-finished” / “my-finished”
+   * detector (above) will run even if you’re on the detail page.
+   */
+
+  useEffect(() => {
+    if (!jwt) return;
+    
+    fetch(`${BACKEND_BASE_URL}/api/Profile/notifications`, {
+      headers: { Authorization: `Bearer ${jwt}` },
+    })
+    .then((res) => res.json())
+    .then((data: Notification[]) => {
+      setNotifications(data);
+      setUnread(data.filter((n) => !n.read).length);
+    })
+    .catch((err) => console.error("Failed fetching notifications:", err));
+  }, [jwt]);
+  
+
+
+  useEffect(() => {
+    if (!jwt) return;
+  
+    const fetchNotifications = () => {
+      fetch(`${BACKEND_BASE_URL}/api/Profile/notifications`, {
+        headers: { Authorization: `Bearer ${jwt}` },
+      })
+      .then((res) => res.json())
+      .then((data: Notification[]) => {
+        setNotifications(data);
+        setUnread(data.filter((n) => !n.read).length);
+      })
+      .catch((err) => console.error("Polling notifications failed:", err));
+    };
+  
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+  
+    return () => clearInterval(interval);
+  }, [jwt]);
+  
+
+  
+
 
   /* ─── ADD AUCTION POPUP STATE ─────────────────────── */
   const [imageSrc, setImageSrc] = useState<string | null>(null); // full image
@@ -572,11 +715,45 @@ const AuctionsPage: React.FC = () => {
         </div>
         <div className={styles["top-nav-right"]}>
           <div className={styles["right-pill-container"]}>
-            <button
-              className={`${styles["icon-button"]} ${styles["bell-btn"]}`}
-            >
-              <img src={bellIcon} alt="" />
-            </button>
+{/* ─── NOTIFICATION WRAPPER ────────────────────── */}
+<div className={styles.notificationWrapper}>
+              <button
+                className={`${styles["icon-button"]} ${styles["bell-btn"]}`}
+                onClick={openNotifications}
+                aria-label={`Notifications (${unread})`}
+              >
+                <img src={bellIcon} alt="" />
+              </button>
+              {unread > 0 && (
+                <span className={styles.badge}>
+                  {unread > 99 ? "99+" : unread}
+                </span>
+              )}
+              {showNotifs && (
+                <div className={styles.notificationPopup}>
+                  {notifications.length === 0 && (
+                    <div className={styles.notificationItem}>
+                      No notifications
+                    </div>
+                  )}
+                  {notifications.map((n) => (
+                    <div key={`${n.kind}-${n.id}-${n.ts}`} className={styles.notificationItem}>
+                      <span className={styles.notificationItemKind}>
+                        {n.kind.replace(/-/g, " ")}
+                      </span>
+                      <span className={styles.notificationItemTime}>
+                        {new Date(n.ts).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      <div>{n.title}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button
               className={`${styles["icon-button"]} ${styles["plus-btn"]}`}
               onClick={() => setAddOpen(true)}
