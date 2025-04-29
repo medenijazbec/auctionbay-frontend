@@ -12,58 +12,58 @@
 }
 /* ── 2. Page layout – two columns ─────────────────────── */
 .registerPageContainer{
-   display:grid;
-   grid-template-columns:1fr 480px;
-   gap:48px;
-   padding:48px;
+  display:grid;
+  grid-template-columns:1fr 480px;
+  gap:48px;
+  padding:48px;
 }
 /* left-hand “promo” grid */
 .auctionGridContainer{
   padding-left:48px;
 }
 .auctionGrid{
-   display:grid;
-   grid-template-columns:repeat(2,216px);
-   gap:24px;
+  display:grid;
+  grid-template-columns:repeat(2,216px);
+  gap:24px;
 }
 /* ── 3. Auction-card (identical to /auctions list) ────── */
 .auctionCard{
-   width:216px;
-   background:#fff;
-   border-radius:16px;
-   padding:8px;
-   display:flex;
-   flex-direction:column;
-   position:relative;
-   box-shadow:0 2px 4px rgba(0,0,0,.1);
+  width:216px;
+  background:#fff;
+  border-radius:16px;
+  padding:8px;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  box-shadow:0 2px 4px rgba(0,0,0,.1);
 }
 .auctionCard::before{
-   content:"";
-   position:absolute;
+  content:"";
+  position:absolute;
   top:100%;
   left:50%;
-   transform:translate(-50%,-50%);
-   width:180%;
+  transform:translate(-50%,-50%);
+  width:180%;
   height:40px;
-   background:radial-gradient(ellipse at center,rgba(0,0,0,.3) 0%,transparent 60%);
-   filter:blur(10px);
+  background:radial-gradient(ellipse at center,rgba(0,0,0,.3) 0%,transparent 60%);
+  filter:blur(10px);
   z-index:-1;
 }
 .auctionCardHeader{
-   display:flex;
-   justify-content:space-between;
-   align-items:center;
-   margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
 }
 /* —— pill bases —— */
 .auctionTag, .timeTag{
-   border-radius:999px;
-   padding:2px 8px;
-   font-size:12px;
-   font-weight:500;
-  /* NOT bold */
-   display:inline-flex;
-   align-items:center;
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:12px;
+  font-weight:500;
+ /* NOT bold */
+  display:inline-flex;
+  align-items:center;
 }
 /* time pill state */
 .timeTag.neutral{
@@ -92,9 +92,9 @@
   color:#fff;
 }
 .clockIcon{
-   width:12px;
-   height:12px;
-   margin-left:4px;
+  width:12px;
+  height:12px;
+  margin-left:4px;
 }
 /* card body */
 .auctionCardInfo{
@@ -112,41 +112,41 @@
   text-align:left;
 }
 .auctionCardImageContainer{
-   padding:4px;
-   margin-top:4px;
-   display:flex;
-   align-items:center;
-   justify-content:center;
-   flex-grow:1;
+  padding:4px;
+  margin-top:4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-grow:1;
 }
 .auctionCardImage{
   width:100%;
-   height:auto;
-   border-radius:12px;
-   object-fit:cover;
+  height:auto;
+  border-radius:12px;
+  object-fit:cover;
 }
 /* ── 4. Form panel (right column) ─────────────────────── */
 .registerFormContainer{
-   width:480px;
-   background:#fff;
-   padding:64px 48px;
-   border-radius:24px;
-   display:flex;
-   flex-direction:column;
-   align-items:center;
-   position:absolute;
-   top:10px;
-   right:10px;
-   bottom:10px;
+  width:480px;
+  background:#fff;
+  padding:64px 48px;
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:absolute;
+  top:10px;
+  right:10px;
+  bottom:10px;
 }
 .brandIcon{
   width:80px;
-   height:80px;
-   border-radius:50%;
-   background:#f4ff47;
-   display:flex;
-   align-items:center;
-   justify-content:center;
+  height:80px;
+  border-radius:50%;
+  background:#f4ff47;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   margin-bottom:24px;
 }
 .logoImage{
@@ -180,7 +180,7 @@
   text-align:left;
 }
 .registerForm input[type="email"], .registerForm input[type="password"]{
-   width:100%;
+  width:100%;
   padding:12px;
   font-size:14px;
   border:1px solid #e2e4e9;
@@ -188,12 +188,12 @@
   margin-bottom:16px;
 }
 .registerButton{
-   width:100%;
+  width:100%;
   height:48px;
   background:#f4ff47;
   border:none;
   border-radius:18px;
-   font:600 14px 'Inter',sans-serif;
+  font:600 14px 'Inter',sans-serif;
   color:#000;
   cursor:pointer;
   transition:background .3s;
@@ -229,22 +229,22 @@ a{
 }
 /* ── 5. Responsive tweaks ─────────────────────────────── */
 @media(max-width:1200px){
-   .registerPageContainer{
+  .registerPageContainer{
       grid-template-columns:1fr 420px;
       gap:24px;
       padding:24px;
-  }
+ }
 }
 @media(max-width:768px){
-   .registerPageContainer{
+  .registerPageContainer{
       grid-template-columns:1fr;
       gap:24px;
       padding:24px;
-  }
-   .registerFormContainer{
+ }
+  .registerFormContainer{
       position:static;
       width:100%;
       height:auto;
       margin:0;
-  }
+ }
 }

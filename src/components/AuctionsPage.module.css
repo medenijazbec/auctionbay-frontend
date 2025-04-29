@@ -4,35 +4,26 @@
   padding: 0;
   box-sizing: border-box;
 }
-
 body, html {
   width: 100%;
   height: 100%;
   font-family: 'Helvetica', 'Arial', sans-serif;
 }
-
-
 /* Container for Entire Landing Page */
-
-
-/* =========================================
- TOP NAV (Outside the Thick Frame)
-========================================= */
+/* ========================================= TOP NAV (Outside the Thick Frame) ========================================= */
 .top-nav {
   width: 100%;
   height: auto;
   background-color: transparent;
-  padding: 2rem 3rem; 
+  padding: 2rem 3rem;
   padding-top: 1rem;
   padding-bottom: 4rem;
 }
-
 .top-nav-left {
   position: absolute;
   top: 2rem;
   left: 1.5rem;
 }
-
 .top-nav-right {
   position: absolute;
   top: 2rem;
@@ -41,16 +32,12 @@ body, html {
   align-items: center;
   gap: 0,7rem;
 }
-
 .nav-logo {
-  width: 65px; 
+  width: 65px;
   height: 65px;
   border-radius: 50%;
   object-fit: contain;
 }
-
-
-
 .top-nav-login {
   font-family: 'Inter', sans-serif;
   text-decoration: none;
@@ -60,11 +47,9 @@ body, html {
   border-radius: 20px;
   transition: background-color 0.2s ease;
 }
-
 .top-nav-login:hover {
   background-color: #e9e9e9;
 }
-
 .top-nav-signup {
   font-family: 'Inter', sans-serif;
   text-decoration: none;
@@ -74,33 +59,26 @@ body, html {
   border-radius: 20px;
   transition: background-color 0.2s ease;
 }
-
 .top-nav-signup:hover {
   background-color: #1e2323;
 }
-
-/* =========================================
- HERO SECTION
-========================================= */
+/* ========================================= HERO SECTION ========================================= */
 .hero-section {
   text-align: center;
   padding: 60px 20px;
   background-color: #e9e9e9;
   margin-bottom: 1rem;
 }
-
 .hero-title {
   font-size: 3rem;
   margin-bottom: 20px;
   color: #111;
 }
-
 .hero-subtitle {
   font-size: 1.2rem;
   margin-bottom: 30px;
   color: #555;
 }
-
 .cta-button {
   background-color: #f4ff47;
   color: #000;
@@ -112,33 +90,23 @@ body, html {
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
 .cta-button:hover {
   background-color: #e0e633;
 }
-
-/* =========================================
- WRAPPER + AUCTIONS CONTAINER (Thick Frame)
-========================================= */
+/* ========================================= WRAPPER + AUCTIONS CONTAINER (Thick Frame) ========================================= */
 .auctions-container-wrapper {
   width: 100%;
   padding-left: 2rem;
   padding-right: 2rem;
   box-sizing: border-box;
 }
-
 .auctions-container {
   width: 100%;
   background-color: transparent;
   box-sizing: border-box;
   margin: 0;
 }
-
-
-
-/* =========================================
- FRAME TOP BAR
-========================================= */
+/* ========================================= FRAME TOP BAR ========================================= */
 .frame-topbar {
   width: 100%;
   display: flex;
@@ -146,13 +114,11 @@ body, html {
   justify-content: space-between;
   margin-bottom: 1.5rem;
 }
-
 .frame-topbar-left {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
-
 .logo-circle {
   width: 70px;
   height: 70px;
@@ -162,22 +128,20 @@ body, html {
   align-items: center;
   justify-content: center;
 }
-
 .topbar-logo {
   width: 50px;
   height: 50px;
   object-fit: contain;
 }
-
 .left-pill-container {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 4px;                   /* bumped up from 2px */
+  padding: 4px;
+ /* bumped up from 2px */
   background-color: #fff;
   border-radius: 999px;
 }
-
 .nav-btn {
   display: flex;
   align-items: center;
@@ -195,29 +159,25 @@ body, html {
   color: #272d2d;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
-
 .nav-btn:hover {
   background-color: #646464;
 }
 .nav-btn img {
-margin-right: 4px;
+  margin-right: 4px;
 }
 .nav-btn-active {
   background-color: #272d2d;
   color: #ffffff;
 }
-
 .nav-btn img {
   width: 16px;
   height: 16px;
   object-fit: contain;
 }
-
 .frame-topbar-right {
   display: flex;
   align-items: center;
 }
-
 .right-pill-container {
   display: flex;
   align-items: center;
@@ -226,7 +186,6 @@ margin-right: 4px;
   background-color: #fff;
   border-radius: 999px;
 }
-
 .icon-button {
   width: 55px;
   height: 55px;
@@ -238,29 +197,21 @@ margin-right: 4px;
   cursor: pointer;
   background-color: #ccc;
 }
-
 .bell-btn {
   background-color: #ccc;
 }
-
 .plus-btn {
   background-color: #f4ff47;
 }
-
 .user-btn {
   background-color: #ccc;
 }
-
 .icon-button img {
   width: 21px;
   height: 21px;
   object-fit: cover;
 }
-
-/* =========================================
- AUCTIONS HEADER
-========================================= */
-
+/* ========================================= AUCTIONS HEADER ========================================= */
 .auctions-title {
   font-family: 'Inter', sans-serif;
   font-size: 2rem;
@@ -269,23 +220,18 @@ margin-right: 4px;
   text-align: left;
   margin: 1.5rem 0;
 }
-
-
 .auctions-container-wrapper {
   padding-left: 0 !important;
   padding-right: 0 !important;
-
-  /* full‑bleed hack */
+ /* full‑bleed hack */
   position: absolute;
   left: 50%;
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  width: 100vw;     
-
+  width: 100vw;
  /*container wrapper causing problems*/
 }
-
 .auctions-title {
   font-family: 'Inter', sans-serif;
   font-size: 2rem;
@@ -294,45 +240,43 @@ margin-right: 4px;
   text-align: left;
   margin: 1.5rem 0;
 }
-
 .auctions-container {
   width: 100%;
 }
-
 .auction-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(216px, 1fr));
   gap: 1rem;
-
-  /* padding: 0 2rem; */
+ /* padding: 0 2rem;
+  */
   justify-items: center;
 }
-
 .detail-wrapper {
   position: fixed;
   inset: 0;
   z-index: 1200;
   background: rgba(0, 0, 0, .35);
   overflow-y: auto;
-
-  display: flex;                 
-  justify-content: center;       
-  align-items: flex-start;        /* start at top */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+ /* start at top */
   padding: 3rem 2rem;
 }
-
-/* 2 — new column that reserves space for the button */
+/* 2 — new column that reserves space for the button */
 .back-column {
-  flex: 0 0 180px;                /* 180 px wide – adjust to taste */
+  flex: 0 0 180px;
+ /* 180 px wide – adjust to taste */
   display: flex;
   justify-content: center;
   padding-top: 1rem;
 }
-
-/* 3 — the bright-yellow back button */
+/* 3 — the bright-yellow back button */
 .back-btn {
-  width: 100%;                /* fills the column */
-  background: #FBFF00;        /* base yellow */
+  width: 100%;
+ /* fills the column */
+  background: #FBFF00;
+ /* base yellow */
   color: #000;
   border: none;
   border-radius: 999px;
@@ -345,44 +289,35 @@ margin-right: 4px;
   transition: background-color .2s ease, box-shadow .2s ease;
   margin-left: auto;
 }
-
 .back-btn:hover {
-  background: #F4E600;       
+  background: #F4E600;
   box-shadow: 0 0 0 3px rgba(0,0,0,.12);
 }
-
-
-
 .auction-card {
   background-color: #FFFFFF;
   border-radius: 16px;
   padding: 8px;
-
   display: flex;
   flex-direction: column;
   position: relative;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   box-sizing: border-box;
   width: 216px;
-  max-width:none;  
+  max-width:none;
 }
-
 .auction-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
-
-.auction-tag,
-.time-tag {
-border-radius: 999px;
-padding: 2px 8px;
-font-size: 12px;
-display: flex;
-align-items: center;
+.auction-tag, .time-tag {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
 }
-
 .time-tag.outbid {
   background-color: #FFB3AB;
   color: #071015;
@@ -395,12 +330,10 @@ align-items: center;
   background-color: #FFB3AB;
   color: #071015;
 }
-
 .time-tag {
   background-color: #FFB3AB;
   color: #071015;
 }
-
 .auction-tag.editable {
   background-color: #f4ff47;
   color: #071015;
@@ -417,11 +350,9 @@ align-items: center;
   background-color: transparent;
   color: #071015;
 }
-.auction-tag.done,
-.time-tag.done {
+.auction-tag.done, .time-tag.done {
   background-color: #333;
   color: #fff;
-  
 }
 .time-tag.done {
   display: none;
@@ -431,11 +362,9 @@ align-items: center;
   height: 12px;
   margin-left: 4px;
 }
-
 .auction-card-info {
   margin: 0 8px;
 }
-
 .auction-title {
   font-family: 'Inter', sans-serif;
   font-size: 16px;
@@ -445,7 +374,6 @@ align-items: center;
   margin-bottom: 8px;
   text-align: left;
 }
-
 .auction-price {
   font-family: 'Inter', sans-serif;
   font-size: 16px;
@@ -454,7 +382,6 @@ align-items: center;
   color: #071015;
   text-align: left;
 }
-
 .auction-card-image-container {
   padding: 4px;
   margin-top: 4px;
@@ -463,64 +390,55 @@ align-items: center;
   justify-content: center;
   flex-grow: 1;
 }
-
 .auction-card-image {
   width: 100%;
   height: auto;
   border-radius: 12px;
   object-fit: cover;
 }
-
 .loading-more {
   text-align: center;
   padding: 1rem;
   font-style: italic;
 }
-
-
-
 /* Loading More */
-.loading-more { text-align: center; padding: 1rem; font-style: italic; }
-
-
-
-
-/* =========================
- PROFILE VIEW STYLES
-========================= */
-
+.loading-more {
+  text-align: center;
+  padding: 1rem;
+  font-style: italic;
+}
+/* ========================= PROFILE VIEW STYLES ========================= */
 .profile-view .auction-card {
-  width: 216px;      /* already fixed, but state it again */
-  max-height: 250px; /* <= requirement */
+  width: 216px;
+ /* already fixed, but state it again */
+  max-height: 250px;
+ /* <= requirement */
 }
 .profile-greeting {
   font-family: 'Inter', sans-serif;
-  text-align: left; 
+  text-align: left;
   font-size: 2rem;
   font-weight: 700;
   color: #071015;
   margin-bottom: 1.5rem;
-  
 }
-
 .profile-content .empty-state {
   display: flex;
   flex-direction: column;
-  align-items: center;   
-  margin: 6rem auto;  
-  padding-bottom: 25rem;    
+  align-items: center;
+  margin: 6rem auto;
+  padding-bottom: 25rem;
 }
 .profile-tabs {
-  display: flex;           
-  width: fit-content;     
-  margin: 0 auto 3rem;     
-  padding: 4px;             
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 3rem;
+  padding: 4px;
   background-color: #ECF7F5;
   border-radius: 999px;
-  gap: 0.75rem;      
-  margin: 0 auto 10rem;      
+  gap: 0.75rem;
+  margin: 0 auto 10rem;
 }
-
 .profile-tab {
   background: transparent;
   border: none;
@@ -534,25 +452,20 @@ align-items: center;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
-
 .profile-tab:hover {
   background-color: #D1ECE5;
 }
-
 .profile-tab--active {
   background-color: #272d2d;
   color: #FFFFFF;
 }
-
-.profile-content { }
-
-
+.profile-content {
+}
 .empty-state {
   text-align: center;
   width: 100%;
   margin-top: 3rem;
 }
-
 .empty-state h3 {
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
@@ -560,7 +473,6 @@ align-items: center;
   color: #071015;
   margin-bottom: 0.5rem;
 }
-
 .empty-state p {
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
@@ -569,56 +481,58 @@ align-items: center;
 }
 /* invisible placeholders so the grid stays 6‑cols wide */
 .auction-card--placeholder {
-  /* all auction-card dimensions + padding, but hide it */
+ /* all auction-card dimensions + padding, but hide it */
   visibility: hidden;
 }
-/* only force the 6‑column width aka with no items in the profile page*/ 
+/* only force the 6‑column width aka with no items in the profile page*/
 .auctions-container--fixed {
-  /* 6 × 216px cards + 5 × 1rem gaps + 2rem padding each side = 1296px + 5rem + 4rem = 1296px + 9rem */
+ /* 6 × 216px cards + 5 × 1rem gaps + 2rem padding each side = 1296px + 5rem + 4rem = 1296px + 9rem */
   min-width: calc(1296px + 9rem);
 }
-
 /* keep grid width with invisible placeholders */
-.auction-card--placeholder { visibility: hidden; }
-
+.auction-card--placeholder {
+  visibility: hidden;
+}
 /* lock thick frame to 6‑card width when empty */
 .auctions-container--fixed {
-  /* 6 × 216 px + 5 × 1 rem gaps + 2 rem padding on each side */
+ /* 6 × 216 px + 5 × 1 rem gaps + 2 rem padding on each side */
   min-width: calc(1296px + 9rem);
 }
 /* center the sub‑tab pill buttons */
-
-
 /* tiny drop‑down under avatar */
 .user-menu {
   position: absolute;
-  top: 100%;            /* sit immediately below the button */
-  right: 0;             /* align with its right edge */
-  margin-top: 8px;      /* a little gap from the avatar */
-  
+  top: 100%;
+ /* sit immediately below the button */
+  right: 0;
+ /* align with its right edge */
+  margin-top: 8px;
+ /* a little gap from the avatar */
   background: #fff;
-  border-radius: 12px;  /* slightly softer corners */
-  padding: 12px;        /* tighter padding all around */
-  min-width: 160px;     /* enough room for the content */
+  border-radius: 12px;
+ /* slightly softer corners */
+  padding: 12px;
+ /* tighter padding all around */
+  min-width: 160px;
+ /* enough room for the content */
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-
   display: flex;
   flex-direction: column;
-  gap: 12px;            /* space between rows */
+  gap: 12px;
+ /* space between rows */
   z-index: 100;
 }
-
 /* the “Profile settings” link row */
 .menu-link {
   display: flex;
   align-items: center;
-  gap: 8px;             /* space between icon & text */
+  gap: 8px;
+ /* space between icon & text */
   font-size: 14px;
   font-weight: 500;
   color: #111;
   text-decoration: none;
 }
-
 /*gear icon on profile popup*/
 .menu-gear-icon {
   width: 20px !important;
@@ -629,7 +543,8 @@ align-items: center;
 /* the “Log out” button */
 .logout-btn {
   padding: 8px 0;
-  width: 100%;          /* full width of the panel */
+  width: 100%;
+ /* full width of the panel */
   border: 1px solid #111;
   border-radius: 8px;
   background: transparent;
@@ -638,26 +553,20 @@ align-items: center;
   text-align: center;
   cursor: pointer;
 }
-
 .logged-as {
   font-family:'Inter',sans-serif;
   font-size:16px;
 }
-
-
 /*popup for avatar*/
 .icon-button.user-btn {
   position: relative;
 }
-
 /* make the avatar a bit larger & cover */
-.icon-button.user-btn img,
-.user-avatar {
-width: 55px;
-height: 55px;
-border-radius: 50%;
-object-fit: cover;
-
+.icon-button.user-btn img, .user-avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 /* ─── Add auction popup overlay & body ───────────────── */
 .add-modal-overlay {
@@ -669,7 +578,6 @@ object-fit: cover;
   justify-content: center;
   z-index: 1000;
 }
-
 .add-modal-body {
   background: #fff;
   border-radius: 16px;
@@ -678,13 +586,11 @@ object-fit: cover;
   max-width: 90vw;
   text-align: left;
 }
-
 .add-modal-body h2 {
   margin: 0 0 24px;
   font-size: 24px;
   font-weight: 700;
 }
-
 /* ─── Form labels & fields ───────────────────────────────── */
 .add-form label {
   display: block;
@@ -692,9 +598,7 @@ object-fit: cover;
   font-size: 14px;
   font-weight: 500;
 }
-
-.add-form input,
-.add-form textarea {
+.add-form input, .add-form textarea {
   width: 100%;
   border: 1px solid #d6d6d6;
   border-radius: 12px;
@@ -703,20 +607,17 @@ object-fit: cover;
   outline: none;
   background: #fff;
 }
-
-.add-form input::placeholder,
-.add-form textarea::placeholder {
+.add-form input::placeholder, .add-form textarea::placeholder {
   color: #a3a3a3;
 }
-
 .add-form textarea {
   resize: vertical;
   height: 100px;
 }
-
 /* ─── Image placeholder area ───────────────────────────── */
 .add-image-area {
-  background: #E9E9E9;      /* warmer bone‑white */
+  background: #E9E9E9;
+ /* warmer bone‑white */
   border-radius: 20px;
   height: 250px;
   display: flex;
@@ -725,13 +626,11 @@ object-fit: cover;
   position: relative;
   overflow: hidden;
 }
-
 .add-image-area img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 /* “Add image” button in placeholder */
 .add-image-btn {
   border: 1px solid #20232A;
@@ -741,7 +640,6 @@ object-fit: cover;
   background: none;
   font-size: 14px;
 }
-
 /* trash icon button when image is present */
 .trash-btn {
   position: absolute;
@@ -757,75 +655,67 @@ object-fit: cover;
   justify-content: center;
   cursor: pointer;
 }
-
 .trash-btn img {
   width: 16px;
   height: 16px;
 }
-
 /* ─── Price + Date row ─────────────────────────────────── */
 .add-row {
   display: flex;
   gap: 16px;
   margin-top: 16px;
 }
-
 .add-col {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
-
 /* ───── Price pill ───────────────────────────────────────────── */
 .price-input {
   display: flex;
   align-items: center;
-
-  /* space *inside* the pill -- doesn’t affect the outer focus ring */
-  gap: 8px;                 /* between number field & € */
-  padding-right: 12px;      /* pushes the € in from the edge */
-
+ /* space *inside* the pill -- doesn’t affect the outer focus ring */
+  gap: 8px;
+ /* between number field & € */
+  padding-right: 12px;
+ /* pushes the € in from the edge */
   border: 1px solid #d6d6d6;
   border-radius: 12px;
   background: #fff;
-
-  /* smooth focus transition */
+ /* smooth focus transition */
   transition: border-color .2s ease, box-shadow .2s ease;
 }
-
 /* focus outline */
 .price-input:focus-within {
   border-color: #272d2d;
   box-shadow: 0 0 0 2px rgba(0,0,0,.10);
 }
-
 /* ── numeric field ───────────────────────────────────────────── */
 .price-input input {
   flex: 1;
-  padding: 12px 0 12px 16px;   /* left-inset aligns with placeholder */
-
+  padding: 12px 0 12px 16px;
+ /* left-inset aligns with placeholder */
   border: none;
   background: transparent;
   outline: none;
   font: inherit;
   caret-color: #272d2d;
-
-  /* nuke browsers’ built-in ornaments */
-  -webkit-appearance: none;    /* Chrome / Edge */
-  -moz-appearance: textfield;  /* Firefox */
-  box-shadow: none !important; /* kills Chrome’s inner focus ring */
+ /* nuke browsers’ built-in ornaments */
+  -webkit-appearance: none;
+ /* Chrome / Edge */
+  -moz-appearance: textfield;
+ /* Firefox */
+  box-shadow: none !important;
+ /* kills Chrome’s inner focus ring */
 }
-
 /* ── € symbol ────────────────────────────────────────────────── */
 .price-input span {
   font-size: 0.95rem;
   font-weight: 600;
   color: #272d2d;
 }
-
 /* hide WebKit spin buttons just in case */
-.price-input input::-webkit-outer-spin-button,
-.price-input input::-webkit-inner-spin-button {
+.price-input input::-webkit-outer-spin-button, .price-input input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
@@ -836,7 +726,6 @@ object-fit: cover;
   gap: 16px;
   margin-top: 24px;
 }
-
 .add-footer button {
   padding: 10px 24px;
   border-radius: 12px;
@@ -845,150 +734,141 @@ object-fit: cover;
   border: none;
   font-size: 14px;
 }
-
 .add-footer button:first-child {
   background: #e2e7e2;
   color: #20232A;
 }
-
 .add-footer button:last-child {
   background: #FBFF00;
   color: #000;
 }
-
-
 .auctions-container-wrapper{
   padding-left:2rem !important;
   padding-right:2rem !important;
 }
-
-
 /* neutral (transparent) time pill – used while > 1 hour left */
 .time-tag.neutral {
-background: transparent;
-color: #071015;
+  background: transparent;
+  color: #071015;
 }
-
-/* coloured backgrounds already existed – this line just
-ensures we can address them from TS with styles[state]   */
-.inProgress {}   /* uses defaults already set above */
-
+/* coloured backgrounds already existed – this line just ensures we can address them from TS with styles[state] */
+.inProgress {
+}
+/* uses defaults already set above */
 .detail-wrapper {
   position: fixed;
   inset: 0;
   z-index: 1200;
-
-  /* backdrop */
+ /* backdrop */
   background: rgba(0, 0, 0, .35);
-
-  /* let the page behind scroll, not the overlay itself */
+ /* let the page behind scroll, not the overlay itself */
   overflow-y: auto;
-
-  /* NEW ↓ ─────────────── */
-  display: flex;            /* centre the content block */
+ /* NEW ↓ ─────────────── */
+  display: flex;
+ /* centre the content block */
   justify-content: center;
-  align-items: flex-start;  /* start at top, not perfect centre */
-  padding: 3rem 2rem;       /* side gutters that also shrink on mobile */
+  align-items: flex-start;
+ /* start at top, not perfect centre */
+  padding: 3rem 2rem;
+ /* side gutters that also shrink on mobile */
 }
-
 /* ─── 2. the actual detail card container inside the overlay ──── */
 .container {
   display: flex;
-  flex-wrap: wrap;          /* stack on very narrow screens */
+  flex-wrap: wrap;
+ /* stack on very narrow screens */
   gap: 2rem;
-
-  /* NEW ↓ ───────────────────────── */
-  width: 100%;              /* stretch to fill… but no more than: */
-  max-width: 1200px;        /* …this fixed ceiling (adjust to taste) */
-  margin: 0 auto;           /* equal left / right gaps */
-  padding: 0;               /* you already have outer padding */
+ /* NEW ↓ ───────────────────────── */
+  width: 100%;
+ /* stretch to fill… but no more than: */
+  max-width: 1200px;
+ /* …this fixed ceiling (adjust to taste) */
+  margin: 0 auto;
+ /* equal left / right gaps */
+  padding: 0;
+ /* you already have outer padding */
 }
-
-
-
-
 /* ─── TAG BASE ───────────────────────────────────────── */
 .status-tag {
-border-radius:   999px;
-padding:         1px 12px;
-font-size:       0.875rem;
-display:         inline-flex;
-align-items:     center;
-justify-content: center;
+  border-radius: 999px;
+  padding: 1px 12px;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .status-tag--small {
-padding:     2px 6px;
-font-size:   0.75rem;
+  padding: 2px 6px;
+  font-size: 0.75rem;
 }
-
 /* ─── TIME TAG BASE ───────────────────────────────────── */
 .time-tag {
-border-radius:   999px;
-padding:         1px 12px;
-font-size:       0.875rem;
-display:         inline-flex;
-align-items:     center;
-justify-content: center;
+  border-radius: 999px;
+  padding: 1px 12px;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .time-tag--small {
-padding:     2px 6px;
-font-size:   0.75rem;
+  padding: 2px 6px;
+  font-size: 0.75rem;
 }
-
 /* ─── STATE COLORS ────────────────────────────────────── */
-.outbid     { background-color: #FFB3AB; color: #071015; }
-.inProgress { background-color: #f4ff47; color: #071015; }
-.winning    { background-color: #B2F0B2; color: #137513; }
-.done       { background-color: #333;    color: #fff;    }
-
+.outbid {
+  background-color: #FFB3AB;
+  color: #071015;
+}
+.inProgress {
+  background-color: #f4ff47;
+  color: #071015;
+}
+.winning {
+  background-color: #B2F0B2;
+  color: #137513;
+}
+.done {
+  background-color: #333;
+  color: #fff;
+}
 /* ─── NEUTRAL FOR TIME > 1h ───────────────────────────── */
-.neutral    { background: transparent; color: #071015; }
-
-
-
-
-
-
-
-
-
-
-
+.neutral {
+  background: transparent;
+  color: #071015;
+}
 /*THIS ALSO UPDATED THE AUCTIONS PAGE AUCTIONS AND STYLE!!!!!!!!!!!*/
-
 /* ─── Allow cards to size exactly like public auctions ───────────────── */
 .profile-view .auction-card {
-  /* undo the old width/max-height */
+ /* undo the old width/max-height */
   width: auto;
   max-height: none;
 }
-
 /* ─── Turn all cards into column flexes ─────────────────────────────── */
 .auction-card {
   display: flex;
   flex-direction: column;
 }
-
 /* image area grows to fill & push footer down */
 .auction-card-image-container {
   flex: 1;
-  min-height: 0;     /* allow shrinking */
-  overflow: hidden;  /* clip overflow rather than overlap */
+  min-height: 0;
+ /* allow shrinking */
+  overflow: hidden;
+ /* clip overflow rather than overlap */
 }
 .auction-card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 /* footer row sits at bottom */
 .auction-card-actions {
   display: flex;
   gap: 8px;
   margin: 8px;
-  margin-top: auto;  /* pushes this row below image/info */
+  margin-top: auto;
+ /* pushes this row below image/info */
 }
-
 /* ─── Trash button ────────────────────────────────────────────────── */
 .delete-button {
   width: 40px;
@@ -1005,7 +885,6 @@ font-size:   0.75rem;
   width: 24px;
   height: 24px;
 }
-
 /* ─── Edit pill ───────────────────────────────────────────────────── */
 .edit-button {
   flex: 1;
@@ -1026,42 +905,40 @@ font-size:   0.75rem;
   margin-right: 8px;
 }
 /*THIS ALSO UPDATED THE AUCTIONS PAGE AUCTIONS AND STYLE!!!!!!!!!!!*/
-
-
-
 /* ----- preview pane ------------------------------------------------ */
 .add-image-area {
-  background: #bebebe;          /* darker = nicer contrast          */
+  background: #bebebe;
+ /* darker = nicer contrast */
   border-radius: 20px;
   overflow: hidden;
-
-  display: flex;                /*  enable vertical stacking        */
+  display: flex;
+ /* enable vertical stacking */
   flex-direction: column;
   align-items: center;
 }
-
 /* black area with the grid */
 .crop-container {
   position: relative;
-
-  
-  width: 110%;/*UBA STA PROBLEM PR PICTURE PREVIEWU*/ 
-  padding-bottom: 200%;      /*FUTURE IMPL DA SE NAMEST BLACK BAROV CUTTA IMAGE PA SE BLURA*/
-  
-  background: #000;         /* looks nicer than #333 for letter-box */
-  overflow: hidden;         /* hide the outside of the photo        */
+  width: 110%;
+ /*UBA STA PROBLEM PR PICTURE PREVIEWU*/
+  padding-bottom: 200%;
+ /*FUTURE IMPL DA SE NAMEST BLACK BAROV CUTTA IMAGE PA SE BLURA*/
+  background: #000;
+ /* looks nicer than #333 for letter-box */
+  overflow: hidden;
+ /* hide the outside of the photo */
   border-radius: 12px;
 }
-
 /* ----- buttons row ------------------------------------------------- */
 .crop-controls {
   width: 100%;
   display: flex;
-  justify-content: center;      /* -- centered -- */
+  justify-content: center;
+ /* -- centered -- */
   gap: 12px;
-  padding: 12px 0 4px;          /* some air below the preview        */
+  padding: 12px 0 4px;
+ /* some air below the preview */
 }
-
 .crop-controls button {
   padding: 8px 20px;
   font-size: 14px;
@@ -1079,8 +956,7 @@ font-size:   0.75rem;
 .previewImg {
   width: 100%;
   height: 100%;
-  object-fit: contain;   /* no more inadvertent cropping */
+  object-fit: contain;
+ /* no more inadvertent cropping */
   border-radius: 12px;
 }
-
-
