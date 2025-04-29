@@ -1,27 +1,34 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import grid from './AuctionDetailPage.module.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import grid from "./AuctionDetailPage.module.css";
 
-import clock0   from '../assets/0clock.png';
-import clock7   from '../assets/7clock.png';
-import clock15  from '../assets/15clock.png';
-import clock25  from '../assets/25clock.png';
-import clock30  from '../assets/30clock.png';
-import clock37  from '../assets/37clock.png';
-import clock45  from '../assets/45clock.png';
-import clock53  from '../assets/53clock.png';
-import clock60  from '../assets/60clock.png';
-import { formatTimeLeft } from './timeHelpers';
+import clock0 from "../assets/0clock.png";
+import clock7 from "../assets/7clock.png";
+import clock15 from "../assets/15clock.png";
+import clock25 from "../assets/25clock.png";
+import clock30 from "../assets/30clock.png";
+import clock37 from "../assets/37clock.png";
+import clock45 from "../assets/45clock.png";
+import clock53 from "../assets/53clock.png";
+import clock60 from "../assets/60clock.png";
+import { formatTimeLeft } from "./timeHelpers";
 
 const CLOCKS = [
-  clock0, clock7, clock15, clock25,
-  clock30, clock37, clock45, clock53, clock60
+  clock0,
+  clock7,
+  clock15,
+  clock25,
+  clock30,
+  clock37,
+  clock45,
+  clock53,
+  clock60,
 ];
 
 function getClockIcon(start: string, end: string): string {
   const now = Date.now();
-  const s   = new Date(start).getTime();
-  const e   = new Date(end).getTime();
+  const s = new Date(start).getTime();
+  const e = new Date(end).getTime();
   const pct = Math.min(Math.max((now - s) / (e - s), 0), 1);
   const idx = Math.round(pct * (CLOCKS.length - 1));
   return CLOCKS[idx];
@@ -39,7 +46,7 @@ export interface Auction {
   title: string;
   description: string;
   mainImageUrl: string;
-  auctionState: 'outbid' | 'inProgress' | 'winning' | 'done';
+  auctionState: "outbid" | "inProgress" | "winning" | "done";
   startDateTime: string;
   endDateTime: string;
   currentHighestBid: number;
@@ -48,59 +55,67 @@ export interface Auction {
   createdBy: string;
 }
 
-const getTagText = (s: Auction['auctionState']) =>
-  s === 'inProgress' ? 'In Progress'
-  : s === 'winning'    ? 'Winning'
-  : s === 'done'       ? 'Done'
-  :                      'Outbid';
+const getTagText = (s: Auction["auctionState"]) =>
+  s === "inProgress"
+    ? "In Progress"
+    : s === "winning"
+    ? "Winning"
+    : s === "done"
+    ? "Done"
+    : "Outbid";
 
 const getTimeTagClass = (end: string): string => {
   const hrs = (new Date(end).getTime() - Date.now()) / 3_600_000;
-  return hrs <= 1
-    ? grid.time
-    : grid.neutral;
+  return hrs <= 1 ? grid.time : grid.neutral;
 };
 
-const getStateClass = (s: Auction['auctionState']) =>
-  s === 'inProgress' ? 'editable'
-    : s === 'winning' ? 'winning'
-      : s === 'done' ? 'done'
-        : 'outbid';
+const getStateClass = (s: Auction["auctionState"]) =>
+  s === "inProgress"
+    ? "editable"
+    : s === "winning"
+    ? "winning"
+    : s === "done"
+    ? "done"
+    : "outbid";
 
 const AuctionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const jwt = localStorage.getItem('token');
-  const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+  const jwt = localStorage.getItem("token");
+  const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
   const [auction, setAuction] = useState<Auction | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
-  const [myBid, setMyBid]     = useState(0);
-  const [profileName, setProfileName] = useState('there');
-  const [myId,        setMyId]        = useState<string | null>(null); //tonot bid on own auction
+  const [error, setError] = useState<string | null>(null);
+  const [myBid, setMyBid] = useState(0);
+  const [profileName, setProfileName] = useState("there");
+  const [myId, setMyId] = useState<string | null>(null); //tonot bid on own auction
   // fetch current user’s name
-  
-  
+
   useEffect(() => {
     if (!jwt) return;
-    fetch('/api/Profile/me', {
-      headers: { Authorization: `Bearer ${jwt}` }
+    fetch("/api/Profile/me", {
+      headers: { Authorization: `Bearer ${jwt}` },
     })
-      .then(res => {
+      .then((res) => {
         if (res.status === 401) {
-          navigate('/login', { replace: true });
-          throw new Error('Unauthorized');
+          navigate("/login", { replace: true });
+          throw new Error("Unauthorized");
         }
         return res.json();
       })
       .then(
         //include "id" in the type so TS is happy
-        (p: { id: string; firstName?: string; lastName?: string; email: string }) => {
-          setMyId(p.id);   //save user-id for owner checks later
-            const name =
-            `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() ||
-            p.email.split('@')[0];
+        (p: {
+          id: string;
+          firstName?: string;
+          lastName?: string;
+          email: string;
+        }) => {
+          setMyId(p.id); //save user-id for owner checks later
+          const name =
+            `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() ||
+            p.email.split("@")[0];
           setProfileName(name);
         }
       )
@@ -112,7 +127,7 @@ const AuctionDetailPage: React.FC = () => {
   // fetch auction details
   const fetchAuction = useCallback(async () => {
     if (!id) {
-      setError('Invalid auction ID');
+      setError("Invalid auction ID");
       setLoading(false);
       return;
     }
@@ -121,10 +136,10 @@ const AuctionDetailPage: React.FC = () => {
 
     try {
       const res = await fetch(`/api/Auctions/${id}`, {
-        headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined
+        headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined,
       });
       if (res.status === 401) {
-        navigate('/login', { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
       if (!res.ok) throw new Error(`Status ${res.status}`);
@@ -132,7 +147,7 @@ const AuctionDetailPage: React.FC = () => {
       setAuction(data);
       setMyBid(data.currentHighestBid + 1);
     } catch {
-      setError('Could not load auction. Please try again.');
+      setError("Could not load auction. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -145,19 +160,16 @@ const AuctionDetailPage: React.FC = () => {
   const submitBid = async () => {
     if (!auction) return;
     try {
-      const res = await fetch(
-        `/api/Auctions/${auction.auctionId}/bid`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(jwt ? { Authorization: `Bearer ${jwt}` } : {})
-          },
-          body: JSON.stringify({ amount: myBid }),
-        }
-      );
+      const res = await fetch(`/api/Auctions/${auction.auctionId}/bid`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+        },
+        body: JSON.stringify({ amount: myBid }),
+      });
       if (res.status === 401) {
-        navigate('/login', { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
       if (!res.ok) {
@@ -166,20 +178,20 @@ const AuctionDetailPage: React.FC = () => {
       }
       await fetchAuction();
     } catch (e: any) {
-      alert(e.message || 'Bid failed.');
+      alert(e.message || "Bid failed.");
     }
   };
 
-  if (loading)   return <p className={grid.message}>Loading auction…</p>;
-  if (error)     return <p className={grid.message}>{error}</p>;
-  if (!auction)  return <p className={grid.message}>No auction found.</p>;
+  if (loading) return <p className={grid.message}>Loading auction…</p>;
+  if (error) return <p className={grid.message}>{error}</p>;
+  if (!auction) return <p className={grid.message}>No auction found.</p>;
   const isOwner = myId !== null && auction.createdBy === myId;
   // compute done vs inProgress
-  const nowMs  = Date.now();
-  const endMs  = new Date(auction.endDateTime).getTime();
+  const nowMs = Date.now();
+  const endMs = new Date(auction.endDateTime).getTime();
   const isDone = endMs <= nowMs;
-  const displayState: Auction['auctionState'] = isDone
-    ? 'done'
+  const displayState: Auction["auctionState"] = isDone
+    ? "done"
     : auction.auctionState;
 
   const displayTitle =
@@ -193,7 +205,6 @@ const AuctionDetailPage: React.FC = () => {
 
       <div className={grid.infoContainer}>
         <div className={grid.topSection}>
-
           {/* ── STATUS & TIME ROW ─────────────────────────────── */}
           <div className={grid.statusTime}>
             <span
@@ -203,16 +214,13 @@ const AuctionDetailPage: React.FC = () => {
             </span>
             {!isDone && (
               <span
-                className={`${grid['time-tag']} ${
+                className={`${grid["time-tag"]} ${
                   grid[getTimeTagClass(auction.endDateTime)]
                 }`}
               >
                 {formatTimeLeft(auction.endDateTime)}
                 <img
-                  src={getClockIcon(
-                    auction.startDateTime,
-                    auction.endDateTime
-                  )}
+                  src={getClockIcon(auction.startDateTime, auction.endDateTime)}
                   className={grid.clockIcon}
                   alt=""
                 />
@@ -225,30 +233,29 @@ const AuctionDetailPage: React.FC = () => {
           <p className={grid.description}>{auction.description}</p>
 
           <div className={grid.bidAction}>
-  <label htmlFor="bid">Bid:</label>
-  <input
-    id="bid"
-    type="number"
-    min={auction.currentHighestBid + 1}
-    value={myBid}
-    onChange={e => setMyBid(Number(e.target.value))}
-    disabled={isOwner || isDone}             //disable for owner or finished auction
-  />
-  <button
-    onClick={submitBid}
-    disabled={isOwner || isDone}
-    title={
-      isOwner
-        ? "You can't bid on your own auction"
-        : isDone
-          ? "Auction has ended"
-          : undefined
-    }
-  >
-    Place bid
-  </button>
-</div>
-
+            <label htmlFor="bid">Bid:</label>
+            <input
+              id="bid"
+              type="number"
+              min={auction.currentHighestBid + 1}
+              value={myBid}
+              onChange={(e) => setMyBid(Number(e.target.value))}
+              disabled={isOwner || isDone} //disable for owner or finished auction
+            />
+            <button
+              onClick={submitBid}
+              disabled={isOwner || isDone}
+              title={
+                isOwner
+                  ? "You can't bid on your own auction"
+                  : isDone
+                  ? "Auction has ended"
+                  : undefined
+              }
+            >
+              Place bid
+            </button>
+          </div>
         </div>
 
         <div className={grid.biddingHistory}>
@@ -274,11 +281,11 @@ const AuctionDetailPage: React.FC = () => {
                 <div className={grid.bidInfo}>{b.userName}</div>
                 <div className={grid.timestamp}>
                   {new Date(b.createdDateTime).toLocaleString(undefined, {
-                    hour:   '2-digit',
-                    minute: '2-digit',
-                    day:    'numeric',
-                    month:  'numeric',
-                    year:   'numeric',
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    day: "numeric",
+                    month: "numeric",
+                    year: "numeric",
                   })}
                 </div>
                 <div className={grid.amount}>{b.amount.toFixed(0)} €</div>

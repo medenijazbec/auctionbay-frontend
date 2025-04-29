@@ -8,34 +8,33 @@
  *  -   0–59 m ⇒ “ZZm”
  */
 export function formatTimeLeft(endDate: string): string {
-    const nowMs    = Date.now();
-    const endMs    = new Date(endDate).getTime();
-    const diffMs   = Math.max(0, endMs - nowMs);
-    const totalMins = Math.ceil(diffMs / 60_000);
-    const hours     = Math.floor(totalMins / 60);
-    const mins      = totalMins % 60;
-  
-    if (hours >= 24) {
-      const days = Math.ceil(hours / 24);
-      return `${days}d`;
-    } else if (hours >= 12) {
-      return `${hours}h`;
-    } else if (hours >= 1) {
-      return `${hours}h ${mins}m`;
-    } else {
-      return `${totalMins}m`;
-    }
+  const nowMs = Date.now();
+  const endMs = new Date(endDate).getTime();
+  const diffMs = Math.max(0, endMs - nowMs);
+  const totalMins = Math.ceil(diffMs / 60_000);
+  const hours = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+
+  if (hours >= 24) {
+    const days = Math.ceil(hours / 24);
+    return `${days}d`;
+  } else if (hours >= 12) {
+    return `${hours}h`;
+  } else if (hours >= 1) {
+    return `${hours}h ${mins}m`;
+  } else {
+    return `${totalMins}m`;
   }
-  
-  /**
-   * Picks one of your two CSS time‐pill variants:
-   *  - ≤60 m left → “urgent” (red/pink)
-   *  -  >60 m   → “neutral” (transparent)
-   */
-  export function getTimeTagClass(endDate: string): 'urgent' | 'neutral' {
-    const nowMs   = Date.now();
-    const endMs   = new Date(endDate).getTime();
-    const diffMins = Math.max(0, endMs - nowMs) / 60_000;
-    return diffMins <= 60 ? 'urgent' : 'neutral';
-  }
-  
+}
+
+/**
+ * Picks one of your two CSS time‐pill variants:
+ *  - ≤60 m left → “urgent” (red/pink)
+ *  -  >60 m   → “neutral” (transparent)
+ */
+export function getTimeTagClass(endDate: string): "urgent" | "neutral" {
+  const nowMs = Date.now();
+  const endMs = new Date(endDate).getTime();
+  const diffMins = Math.max(0, endMs - nowMs) / 60_000;
+  return diffMins <= 60 ? "urgent" : "neutral";
+}

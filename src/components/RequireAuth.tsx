@@ -8,7 +8,7 @@ const RequireAuth: React.FC<{ children: JSX.Element }> = ({ children }) => {
 
   if (!isLoggedIn()) {
     /* remember where the user tried to go –
-       you can pop it from location.state later if you wish */
+        */
     return <Navigate to="/login" state={{ from: loc }} replace />;
   }
   return children;

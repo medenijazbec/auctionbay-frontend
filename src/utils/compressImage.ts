@@ -1,17 +1,14 @@
 // src/utils/compressImage.ts
-import imageCompression, { Options } from 'browser-image-compression';
+import imageCompression, { Options } from "browser-image-compression";
 
 /**
  * Compress an image down to ≈ maxSize MB (or smaller) while
  * keeping a sensible resolution ceiling.
  */
-export async function compressImage(
-  file: File,
-  maxSizeMB = 1,
-): Promise<File> {
+export async function compressImage(file: File, maxSizeMB = 1): Promise<File> {
   const opts: Options = {
     maxSizeMB,
-    maxWidthOrHeight: 1920,  //keep ultra-large photos in check
+    maxWidthOrHeight: 1920, //keep ultra-large photos in check
     useWebWorker: true,
     alwaysKeepResolution: false,
   };

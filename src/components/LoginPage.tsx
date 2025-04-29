@@ -1,60 +1,73 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import styles from './LoginPage.module.css';
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import styles from "./LoginPage.module.css";
 
 /* ───── assets ───────────────────────────────────────── */
-import logo     from '../assets/logo.png';
-import clock0   from '../assets/0clock.png';
-import clock7   from '../assets/7clock.png';
-import clock15  from '../assets/15clock.png';
-import clock25  from '../assets/25clock.png';
-import clock30  from '../assets/30clock.png';
-import clock37  from '../assets/37clock.png';
-import clock45  from '../assets/45clock.png';
-import clock53  from '../assets/53clock.png';
-import clock60  from '../assets/60clock.png';
+import logo from "../assets/logo.png";
+import clock0 from "../assets/0clock.png";
+import clock7 from "../assets/7clock.png";
+import clock15 from "../assets/15clock.png";
+import clock25 from "../assets/25clock.png";
+import clock30 from "../assets/30clock.png";
+import clock37 from "../assets/37clock.png";
+import clock45 from "../assets/45clock.png";
+import clock53 from "../assets/53clock.png";
+import clock60 from "../assets/60clock.png";
 
 const CLOCKS = [
-  clock0, clock7, clock15, clock25,
-  clock30, clock37, clock45, clock53, clock60
+  clock0,
+  clock7,
+  clock15,
+  clock25,
+  clock30,
+  clock37,
+  clock45,
+  clock53,
+  clock60,
 ];
 
-const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 /* ───── types ─────────────────────────────────────────── */
 interface Auction {
-  auctionId:     number;
-  title:         string;
+  auctionId: number;
+  title: string;
   startingPrice: number;
   startDateTime: string;
-  endDateTime:   string;
-  auctionState:  'outbid' | 'inProgress' | 'winning' | 'done';
-  thumbnailUrl?:  string;
-  mainImageUrl?: string;            /* fall-back */
+  endDateTime: string;
+  auctionState: "outbid" | "inProgress" | "winning" | "done";
+  thumbnailUrl?: string;
+  mainImageUrl?: string /* fall-back */;
 }
 
 interface LoginResponse {
-  Token?:  string;
-  token?:  string;
-  Error?:  string;
-  Message?:string;
+  Token?: string;
+  token?: string;
+  Error?: string;
+  Message?: string;
 }
 
 /* ───── helpers ───────────────────────────────────────── */
 const imgUrl = (u?: string) =>
-  u?.startsWith('http') ? u : `${BACKEND_BASE_URL}${u ?? ''}`;
+  u?.startsWith("http") ? u : `${BACKEND_BASE_URL}${u ?? ""}`;
 
-const getTagText = (s: Auction['auctionState']) =>
-  s === 'inProgress' ? 'In progress'
-: s === 'winning'    ? 'Winning'
-: s === 'done'       ? 'Done'
-:                      'Outbid';
+const getTagText = (s: Auction["auctionState"]) =>
+  s === "inProgress"
+    ? "In progress"
+    : s === "winning"
+    ? "Winning"
+    : s === "done"
+    ? "Done"
+    : "Outbid";
 
-const getStatusClass = (s: Auction['auctionState']) =>
-  s === 'inProgress' ? 'editable'
-: s === 'winning'    ? 'winning'
-: s === 'done'       ? 'done'
-:                      'outbid';
+const getStatusClass = (s: Auction["auctionState"]) =>
+  s === "inProgress"
+    ? "editable"
+    : s === "winning"
+    ? "winning"
+    : s === "done"
+    ? "done"
+    : "outbid";
 
 /* ▸ time-pill tone (<= 1 h => urgent) */
 const hoursLeft = (endISO: string) =>
@@ -65,19 +78,19 @@ const getTimeTagClass = (endISO: string) =>
 
 /* human friendly time-left */
 const formatTimeLeft = (endISO: string) => {
-  const ms   = Math.max(0, new Date(endISO).getTime() - Date.now());
+  const ms = Math.max(0, new Date(endISO).getTime() - Date.now());
   const mins = Math.ceil(ms / 60_000);
-  if (mins < 60)               return `${mins} m`;
-  const hrs  = Math.floor(mins / 60);
-  if (hrs < 24)                return `${hrs} h`;
+  if (mins < 60) return `${mins} m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} h`;
   return `${Math.ceil(hrs / 24)} d`;
 };
 
 /* choose analogue-clock sprite frame */
 const getClockIcon = (startISO: string, endISO: string) => {
   const now = Date.now();
-  const s   = new Date(startISO).getTime();
-  const e   = new Date(endISO).getTime();
+  const s = new Date(startISO).getTime();
+  const e = new Date(endISO).getTime();
   const pct = Math.min(Math.max((now - s) / (e - s), 0), 1);
   const idx = Math.round(pct * (CLOCKS.length - 1));
   return CLOCKS[idx];
@@ -91,12 +104,12 @@ const LoginPage: React.FC = () => {
   const [auctions, setAuctions] = useState<Auction[]>([]);
   useEffect(() => {
     fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=20`)
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((rows: Auction[]) =>
         setAuctions(
-          rows.map(a => ({
+          rows.map((a) => ({
             ...a,
-            auctionState: a.auctionState as Auction['auctionState'],
+            auctionState: a.auctionState as Auction["auctionState"],
           }))
         )
       )
@@ -110,9 +123,12 @@ const LoginPage: React.FC = () => {
   }, [auctions]);
 
   /* ── login form state ── */
-  const [email,    setEmail]    = useState('');
-  const [password, setPassword] = useState('');
-  const [msg,      setMsg]      = useState<{type:'error'|'success';text:string}|null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState<{
+    type: "error" | "success";
+    text: string;
+  } | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,21 +136,24 @@ const LoginPage: React.FC = () => {
 
     try {
       const resp = await fetch(`${BACKEND_BASE_URL}/api/Auth/login`, {
-        method : 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body   : JSON.stringify({ Email: email, Password: password })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Email: email, Password: password }),
       });
       const data: LoginResponse = await resp.json();
 
       if (!resp.ok || !(data.Token || data.token)) {
-        setMsg({ type:'error', text: data.Error || data.Message || 'Login failed.' });
+        setMsg({
+          type: "error",
+          text: data.Error || data.Message || "Login failed.",
+        });
         return;
       }
-      localStorage.setItem('token', (data.Token || data.token)!);
-      setMsg({ type:'success', text:'Login successful! Redirecting…' });
-      nav('/auctions', { replace: true });
+      localStorage.setItem("token", (data.Token || data.token)!);
+      setMsg({ type: "success", text: "Login successful! Redirecting…" });
+      nav("/auctions", { replace: true });
     } catch {
-      setMsg({ type:'error', text:'Network error. Please try again.' });
+      setMsg({ type: "error", text: "Network error. Please try again." });
     }
   };
 
@@ -144,14 +163,16 @@ const LoginPage: React.FC = () => {
       {/* left column – promo grid */}
       <div className={styles.auctionGridContainer}>
         <div className={styles.auctionGrid}>
-          {promoAuctions.map(a => {
-            const isDone = a.auctionState === 'done';
+          {promoAuctions.map((a) => {
+            const isDone = a.auctionState === "done";
             return (
               <div key={a.auctionId} className={styles.auctionCard}>
                 <div className={styles.auctionCardHeader}>
                   {/* status pill */}
                   <span
-                    className={`${styles.auctionTag} ${styles[getStatusClass(a.auctionState)]}`}
+                    className={`${styles.auctionTag} ${
+                      styles[getStatusClass(a.auctionState)]
+                    }`}
                   >
                     {getTagText(a.auctionState)}
                   </span>
@@ -159,7 +180,9 @@ const LoginPage: React.FC = () => {
                   {/* time-left pill (hidden after done) */}
                   {!isDone && (
                     <span
-                      className={`${styles.timeTag} ${getTimeTagClass(a.endDateTime)}`}
+                      className={`${styles.timeTag} ${getTimeTagClass(
+                        a.endDateTime
+                      )}`}
                     >
                       {formatTimeLeft(a.endDateTime)}
                       <img
@@ -191,13 +214,19 @@ const LoginPage: React.FC = () => {
 
       {/* right column – form */}
       <div className={styles.registerFormContainer}>
-        <div className={styles.brandIcon}><img src={logo} className={styles.logoImage} /></div>
+        <div className={styles.brandIcon}>
+          <img src={logo} className={styles.logoImage} />
+        </div>
 
         <h2 className={styles.formTitle}>Welcome back!</h2>
-        <p  className={styles.formSubtitle}>Please enter your details</p>
+        <p className={styles.formSubtitle}>Please enter your details</p>
 
         {msg && (
-          <p className={msg.type === 'error' ? styles.errorMsg : styles.successMsg}>
+          <p
+            className={
+              msg.type === "error" ? styles.errorMsg : styles.successMsg
+            }
+          >
             {msg.text}
           </p>
         )}
@@ -208,7 +237,7 @@ const LoginPage: React.FC = () => {
             type="email"
             placeholder="Enter your E-mail"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 
@@ -217,22 +246,29 @@ const LoginPage: React.FC = () => {
             type="password"
             placeholder="Enter your password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <div style={{ width:'100%', textAlign:'right', marginBottom:16 }}>
-            <Link to="/forgot-password" style={{ textDecoration:'none', color:'#6c7078' }}>
+          <div style={{ width: "100%", textAlign: "right", marginBottom: 16 }}>
+            <Link
+              to="/forgot-password"
+              style={{ textDecoration: "none", color: "#6c7078" }}
+            >
               Forgot password?
             </Link>
           </div>
 
-          <button type="submit" className={styles.registerButton}>Login</button>
+          <button type="submit" className={styles.registerButton}>
+            Login
+          </button>
         </form>
 
         <p className={styles.footerText}>
-          Don’t have an account?{' '}
-          <Link to="/register" className={styles.loginLink}>Sign Up</Link>
+          Don’t have an account?{" "}
+          <Link to="/register" className={styles.loginLink}>
+            Sign Up
+          </Link>
         </p>
       </div>
     </div>
