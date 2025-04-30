@@ -1057,6 +1057,23 @@ body, html {
 .notificationItem:last-child {
   /* nothing needed here now */
 }
+/* Admin button */
+.adminButton {
+  display: inline-block;
+  margin-left: 1rem;
+  margin-right: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  background-color: #272d2d;
+  color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+.adminButton:hover {
+  background-color: #1e2323;
+}
 
 
 

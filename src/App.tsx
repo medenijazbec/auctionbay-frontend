@@ -14,9 +14,9 @@ import ForgotPasswordPage from "./components/ForgotPasswordPage";
 import ProfilePage from "./components/ProfilePage";
 import AuctionsPage from "./components/AuctionsPage";
 import AuctionDetailPage from "./components/AuctionDetailPage";
-
+import ControlPanelPage from "./components/ControlPanelPage";
 import RequireAuth from "./components/RequireAuth";
-
+import RequireAdmin      from "./components/RequireAdmin";
 import "./App.css";
 
 export function App() {
@@ -58,6 +58,18 @@ export function App() {
             }
           />
         </Route>
+
+        {/* Admin-only control panel */}
+        <Route
+          path="admin"
+          element={
+          <RequireAuth>
+          <RequireAdmin>
+            <ControlPanelPage />
+            </RequireAdmin>
+            </RequireAuth>
+        }
+        />
 
         {/* Fallback for any unknown URL */}
         <Route path="*" element={<Navigate to="/" replace />} />

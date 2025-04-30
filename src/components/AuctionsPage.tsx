@@ -17,6 +17,8 @@ import styles from "./AuctionsPage.module.css";
 import Cropper, { Area } from "react-easy-crop";
 import getCroppedImg from "../utils/getCroppedImg";
 
+import { useAuth } from "../utils/useAuth";
+
 /* ───── Assets ───────────────────────────────────────────── */
 import logo from "../assets/logo.png";
 import houseIcon from "../assets/home.png";
@@ -182,7 +184,7 @@ interface Notification {
 /* ─────────────────────────────────────────────────────────── */
 const AuctionsPage: React.FC = () => {
 
-
+  const { isAdmin } = useAuth();
 // ─── Notifications support ─────────────────────────────────
 const [notifications, setNotifications] = useState<Notification[]>([]);
 const [unread, setUnread] = useState(0);
@@ -787,6 +789,13 @@ useEffect(() => {
           </div>
         </div>
         <div className={styles["top-nav-right"]}>
+         {isAdmin && (
+   <Link to="/admin" className={styles.adminButton}>
+     Admin Panel
+   </Link>
+ )}
+
+
           <div className={styles["right-pill-container"]}>
 {/* ─── NOTIFICATION WRAPPER ────────────────────── */}
 <div className={styles.notificationWrapper}>
