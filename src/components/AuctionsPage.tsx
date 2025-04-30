@@ -197,9 +197,10 @@ const [showNotifs, setShowNotifs] = useState(false);
 const saveNotifs = (items: Notification[]) => {
   localStorage.setItem("notifications", JSON.stringify(items));
   setNotifications(items);
-  setUnread(notifications.filter(n => !n.isRead).length);
-
+  //filter the items you just passed in
+  setUnread(items.filter(n => !n.isRead).length);
 };
+
 
 const openNotifications = () => {
   setShowNotifs((open) => !open);
@@ -589,21 +590,46 @@ useEffect(() => {
   useEffect(() => {
     if (!jwt) return;
   
-    const fetchNotifications = () => {
+    const fetchNotificationsAndAuctions = () => {
+      //Fetch Notifications
       fetch(`${BACKEND_BASE_URL}/api/Profile/notifications`, {
         headers: { Authorization: `Bearer ${jwt}` },
       })
-      .then((res) => res.json())
-      .then((data: Notification[]) => {
-        setNotifications(data);
-        setUnread(notifications.filter(n => !n.isRead).length);
-
+        .then((res) => res.json())
+        .then((data: Notification[]) => {
+          setNotifications(data);
+          setUnread(data.filter(n => !n.isRead).length);
+        })
+        .catch((err) => console.error("Polling notifications failed:", err));
+  
+      //ALSO Fetch Bidding auctions regularly
+      fetch(`${BACKEND_BASE_URL}/api/Profile/bidding`, {
+        headers: { Authorization: `Bearer ${jwt}` },
       })
-      .catch((err) => console.error("Polling notifications failed:", err));
+        .then(r => r.json())
+        .then((rows: Auction[]) => {
+          const mapped = rows.map(a => ({
+            ...a,
+            auctionState: statusFromDto(a.auctionState),
+          }));
+          setBidding(mapped);  //Update state, triggers your notification logic
+        })
+        .catch((err) => console.error("Polling bidding failed:", err));
+  
+      //also fetch MyAuctions regularly
+      fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+        headers: { Authorization: `Bearer ${jwt}` },
+      })
+        .then(r => r.json())
+        .then((rows: Auction[]) => {
+          setMyAuctions(rows);
+        })
+        .catch((err) => console.error("Polling my auctions failed:", err));
     };
   
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
+    //Run it immediately and every 30 seconds
+    fetchNotificationsAndAuctions();
+    const interval = setInterval(fetchNotificationsAndAuctions, 30000);
   
     return () => clearInterval(interval);
   }, [jwt]);
@@ -778,26 +804,42 @@ useEffect(() => {
               )}
               {showNotifs && (
                 <div className={styles.notificationPopup}>
+                  <div className={styles.notificationPopupInner}>
                   {notifications.length === 0 && (
                     <div className={styles.notificationItem}>
                       No notifications
                     </div>
                   )}
                   {notifications.map((n) => (
-                    <div key={`${n.kind}-${n.notificationId}-${n.timestamp}`} className={styles.notificationItem}>
-                      <span className={styles.notificationItemKind}>
-                        {n.kind.replace(/-/g, " ")}
-                      </span>
-                      <span className={styles.notificationItemTime}>
-                      {new Date(n.timestamp).toLocaleTimeString([], {
-                        hour:   "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-
-                      <div>{n.title}</div>
-                    </div>
+                    <div
+                           key={`${n.kind}-${n.notificationId}-${n.timestamp}`}
+                           className={styles.notificationItem}
+                           style={{ cursor: "pointer" }}
+                           onClick={() => {
+                             setShowNotifs(false);
+                             nav(`/auctions/${n.auctionId}`);
+                           }}
+                         >
+                           {/* pill: Outbid (red) or Done (grey/white) */}
+                           <span
+                             className={`
+                               ${styles["auction-tag"]}
+                               ${n.kind === "outbid" ? styles.outbid : styles.done}
+                             `}
+                           >
+                             {n.kind === "outbid" ? "Outbid" : "Done"}
+                           </span>
+                           <span className={styles.notificationItemTime}>
+                             {new Date(n.timestamp).toLocaleTimeString([], {
+                               hour: "2-digit",
+                               minute: "2-digit",
+                             })}
+                           </span>
+                           <div>{n.title}</div>
+                         </div>
                   ))}
+
+                  </div>
                 </div>
               )}
             </div>
