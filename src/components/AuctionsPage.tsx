@@ -650,6 +650,28 @@ useEffect(() => {
   const [price, setPrice] = useState("");
   const [endDate, setEndDate] = useState("");
 
+
+
+    // derive “all fields valid?” from your DTO rules:
+  const isFormValid =
+    // title: 5–100 chars
+    title.length >= 5 && title.length <= 100 &&
+    // description: 20–2000 chars
+    desc.length  >= 20 && desc.length  <= 2000 &&
+    // price: numeric, 0.01–1 000 000
+    (() => {
+      const v = parseFloat(price);
+      return !isNaN(v) && v >= 0.01 && v <= 1_000_000;
+    })() &&
+    // endDate: in the future
+    (() => {
+      const dt = new Date(endDate);
+      return !isNaN(dt.getTime()) && dt > new Date();
+    })();
+
+
+
+
   // when the user selects a file
   const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -1324,7 +1346,7 @@ useEffect(() => {
             onClick={(e) => e.stopPropagation()}
           >
             <h2>Add auction</h2>
-            <form className={styles["add-form"]} onSubmit={submitAuction}>
+            <form className={styles["add-form"]} onSubmit={submitAuction} noValidate>
               <div className={styles["add-image-area"]}>
                 {showCropper && imageSrc /* imageSrc, not preview */ ? (
                   <>
@@ -1405,59 +1427,93 @@ useEffect(() => {
               </div>
               <label>Title</label>
               <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Write item name here"
-                required
-              />
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder="Write item name here"
+            minLength={5}
+            maxLength={100}
+            required
+          />
+          {(title.length > 0 && (title.length < 5 || title.length > 100)) && (
+            <p className={styles.error}>
+              Title must be between 5 and 100 characters.
+            </p>
+          )}
               <label>Description</label>
               <textarea
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                placeholder="Write description here..."
-                required
-              />
+            value={desc}
+            onChange={e => setDesc(e.target.value)}
+            placeholder="Write description here..."
+            minLength={20}
+            maxLength={2000}
+            rows={4}
+            required
+          />
+          {(desc.length > 0 && (desc.length < 20 || desc.length > 2000)) && (
+            <p className={styles.error}>
+              Description must be between 20 and 2000 characters.
+            </p>
+          )}
               <div className={styles["add-row"]}>
                 <div className={styles["add-col"]}>
                   <label>Starting price</label>
                   <div className={styles["price-input"]}>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      placeholder="Price"
-                      required
-                    />
-                    <span>€</span>
-                  </div>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
+                  placeholder="Price"
+                  min={0.01}
+                  max={1000000}
+                  required
+                />
+                <span>€</span>
+              </div>
+              {(!price || isNaN(parseFloat(price)) ||
+                parseFloat(price) < 0.01 || parseFloat(price) > 1000000) && (
+                <p className={styles.error}>
+                  Price must be between €0.01 and €1 000 000.
+                </p>
+              )}
                 </div>
                 <div className={styles["add-col"]}>
                   <label>End date</label>
                   <input
-                    type="datetime-local"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    required
-                  />
+                type="datetime-local"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+                required
+                // enforce > now
+                min={new Date().toISOString().slice(0,16)}
+              />
+              {endDate && new Date(endDate) <= new Date() && (
+                <p className={styles.error}>
+                  End date must be in the future.
+                </p>
+              )}
                 </div>
               </div>
               <div className={styles["add-footer"]}>
-                <button
-                  type="button"
-                  onClick={() => setAddOpen(false)}
-                  disabled={submitting}
-                >
-                  Cancel
-                </button>
-                <button type="submit" disabled={submitting}>
-                  {submitting
-                    ? "Starting…"
-                    : editAuction
-                    ? "Save changes"
-                    : "Start auction"}
-                </button>
-              </div>
+            <button
+              type="button"
+              onClick={() => setAddOpen(false)}
+              disabled={submitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || !isFormValid}
+            >
+              {submitting
+               ? "Starting…"
+                : editAuction
+                ? "Save changes"
+                : "Start auction"}
+            </button>
+          </div>
             </form>
           </div>
         </div>
