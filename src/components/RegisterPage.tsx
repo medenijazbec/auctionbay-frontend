@@ -45,6 +45,9 @@ interface ApiMessage {
   Message?: string;
 }
 
+
+
+
 /* ───── helpers — identical to login page ────────────── */
 const imgUrl = (u?: string) =>
   u?.startsWith("http") ? u : `${BACKEND_BASE_URL}${u ?? ""}`;
@@ -95,6 +98,9 @@ const getClockIcon = (startISO: string, endISO: string) => {
 const RegisterPage: React.FC = () => {
   const nav = useNavigate();
 
+
+
+
   /* promo auctions */
   const [auctions, setAuctions] = useState<Auction[]>([]);
 
@@ -105,10 +111,20 @@ const RegisterPage: React.FC = () => {
   const [pass, setPass] = useState("");
   const [repeat, setRepeat] = useState("");
 
+  
   const [msg, setMsg] = useState<{
     type: "error" | "success";
     text: string;
   } | null>(null);
+
+
+    // mirror RegisterDto
+    const isRegisterValid =
+      name.length >= 2 && name.length <= 50 &&
+      surname.length >= 2 && surname.length <= 50 &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+      pass.length >= 8 && pass.length <= 100 &&
+      pass === repeat;
 
   /* fetch promo grid once */
   useEffect(() => {
@@ -258,9 +274,16 @@ const RegisterPage: React.FC = () => {
                 type="text"
                 placeholder="Enter your name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
+                minLength={2}
+                maxLength={50}
                 required
               />
+              {(name.length > 0 && (name.length < 2 || name.length > 50)) && (
+                <p className={styles.error}>
+                  Name must be 2–50 characters.
+                </p>
+              )}
             </div>
             <div className={styles.nameField}>
               <label className={styles.inputLabel}>Surname</label>
@@ -268,9 +291,16 @@ const RegisterPage: React.FC = () => {
                 type="text"
                 placeholder="Enter your surname"
                 value={surname}
-                onChange={(e) => setSurname(e.target.value)}
+                onChange={e => setSurname(e.target.value)}
+                minLength={2}
+                maxLength={50}
                 required
               />
+              {(surname.length > 0 && (surname.length < 2 || surname.length > 50)) && (
+                <p className={styles.error}>
+                  Surname must be 2–50 characters.
+                </p>
+              )}
             </div>
           </div>
 
@@ -279,29 +309,51 @@ const RegisterPage: React.FC = () => {
             type="email"
             placeholder="Enter your E-mail"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
           />
+          {(email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && (
+            <p className={styles.error}>
+              Must be a valid email address.
+            </p>
+          )}
 
           <label className={styles.inputLabel}>Password</label>
           <input
             type="password"
             placeholder="Enter your password"
             value={pass}
-            onChange={(e) => setPass(e.target.value)}
+            onChange={e => setPass(e.target.value)}
+            minLength={8}
+            maxLength={100}
             required
           />
+          {(pass.length > 0 && pass.length < 8) && (
+            <p className={styles.error}>
+              Password must be at least 8 characters.
+            </p>
+          )}
 
           <label className={styles.inputLabel}>Repeat password</label>
           <input
             type="password"
             placeholder="Retype your password"
             value={repeat}
-            onChange={(e) => setRepeat(e.target.value)}
+            onChange={e => setRepeat(e.target.value)}
             required
           />
+          {(repeat.length > 0 && repeat !== pass) && (
+            <p className={styles.error}>
+              Passwords do not match.
+            </p>
+          )}
 
-          <button type="submit" className={styles.registerButton}>
+
+          <button
+            type="submit"
+            className={styles.registerButton}
+            disabled={!isRegisterValid}
+          >
             Sign up
           </button>
         </form>

@@ -130,6 +130,13 @@ const LoginPage: React.FC = () => {
     text: string;
   } | null>(null);
 
+    // simple front‐end check
+    const isLoginValid =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+      password.length > 0;
+
+
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(null);
@@ -259,7 +266,7 @@ const LoginPage: React.FC = () => {
             </Link>
           </div>
 
-          <button type="submit" className={styles.registerButton}>
+          <button type="submit" className={styles.registerButton} disabled={!isLoginValid}>
             Login
           </button>
         </form>

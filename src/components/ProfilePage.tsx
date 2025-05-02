@@ -106,8 +106,16 @@ const ProfilePage: React.FC = () => {
       </div>
     );
 
+    const isProfileValid =
+    first.length >= 2 && first.length <= 50 &&
+    last.length  >= 2 && last.length  <= 50 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
+
   // ─── save basic profile ─────────────────────────────
   const saveProfile = async () => {
+
+      
+
     setFlash(null);
     try {
       const resp = await fetch(`${API}/api/Profile/me`, {
@@ -232,27 +240,49 @@ const ProfilePage: React.FC = () => {
         <div className={styles.formGroup}>
           <label>Name</label>
           <input
+            type="text"
             value={first}
-            onChange={(e) => setFirst(e.target.value)}
+            onChange={e => setFirst(e.target.value)}
+            minLength={2}
+            maxLength={50}
             required
           />
+          {(first.length > 0 && (first.length < 2 || first.length > 50)) && (
+            <p className={styles.error}>
+              First name must be 2–50 characters.
+            </p>
+          )}
         </div>
         <div className={styles.formGroup}>
           <label>Surname</label>
-          <input
+                    <input
+            type="text"
             value={last}
-            onChange={(e) => setLast(e.target.value)}
+            onChange={e => setLast(e.target.value)}
+            minLength={2}
+            maxLength={50}
             required
           />
+          {(last.length > 0 && (last.length < 2 || last.length > 50)) && (
+            <p className={styles.error}>
+              Surname must be 2–50 characters.
+            </p>
+          )}
         </div>
       </div>
       <div className={styles.formCol}>
         <label>Email</label>
         <input
+          type="email"
           value={mail}
-          onChange={(e) => setMail(e.target.value)}
+          onChange={e => setMail(e.target.value)}
           required
         />
+        {(mail.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) && (
+          <p className={styles.error}>
+            Must be a valid email address.
+          </p>
+        )}
       </div>
 
       <button className={styles.linkBtn} onClick={() => setPwOpen(true)}>
@@ -263,10 +293,14 @@ const ProfilePage: React.FC = () => {
       </button>
 
       <div className={styles.footer}>
-        <button className={styles.cancelBtn} onClick={() => nav(-1)}>
+      <button className={styles.cancelBtn} onClick={() => nav(-1)}>
           Cancel
         </button>
-        <button className={styles.saveBtn} onClick={saveProfile}>
+        <button
+          className={styles.saveBtn}
+          onClick={saveProfile}
+          disabled={!isProfileValid}
+        >
           Save changes
         </button>
       </div>
