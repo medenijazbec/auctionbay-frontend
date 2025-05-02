@@ -655,6 +655,19 @@ useEffect(() => {
     const f = e.target.files?.[0];
     if (!f) return;
 
+    // --- NEW: validate ---
+    const maxBytes = 10 * 1024 * 1024;
+    const allowed = ["image/jpeg", "image/png", "image/gif"];
+    if (f.size > maxBytes) {
+      alert("Image too large (max 5 MB).");
+      return;
+    }
+    if (!allowed.includes(f.type)) {
+        alert("Invalid image type. Only JPEG, PNG, GIF.");
+        return;
+    }
+     
+
     setOriginalFile(f); //keep the file
     const url = URL.createObjectURL(f);
     setImageSrc(url); //full image Cropper

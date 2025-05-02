@@ -7,7 +7,20 @@ const FileUploadComponent: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      //type & size check ---
+      const maxBytes = 5 * 1024 * 1024; // 5 MB
+      const allowed = ["image/jpeg", "image/png", "image/gif"];
+      if (file.size > maxBytes) {
+        alert("File too large (max 5 MB).");
+        return;
+      }
+      if (!allowed.includes(file.type)) {
+       alert("Invalid file type. Only JPEG, PNG or GIF.");
+       return;
+      }
+      //end checks
+      setSelectedFile(file);
     }
   };
 

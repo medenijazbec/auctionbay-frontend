@@ -158,6 +158,17 @@ const ProfilePage: React.FC = () => {
   const onSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
+    //enforce 10 MB max + only common image types ---
+    const maxBytes = 10 * 1024 * 1024; // 10 MB
+    const allowed = ["image/jpeg", "image/png", "image/gif"];
+    if (f.size > maxBytes) {
+      alert("File too large (max 10 MB).");
+      return;
+    }
+    if (!allowed.includes(f.type)) {
+        alert("Invalid file type. Only JPEG, PNG, GIF allowed.");
+        return;
+      }
     setFile(f);
     setPreview(URL.createObjectURL(f));
     setShowCropper(true);
