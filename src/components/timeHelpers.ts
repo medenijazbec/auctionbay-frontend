@@ -33,8 +33,11 @@ export function formatTimeLeft(endDate: string): string {
  *  -  >60 m   → “neutral” (transparent)
  */
 export function getTimeTagClass(endDate: string): "urgent" | "neutral" {
-  const nowMs = Date.now();
-  const endMs = new Date(endDate).getTime();
-  const diffMins = Math.max(0, endMs - nowMs) / 60_000;
-  return diffMins <= 60 ? "urgent" : "neutral";
+  const now   = Date.now();
+  const end   = new Date(endDate).getTime();
+  const diffM = Math.max(0, end - now) / 60_000;   // minutes left
+
+  return diffM <= 1_440              // 1 440 min  = 24 h
+         ? "urgent"
+         : "neutral";
 }

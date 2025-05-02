@@ -39,7 +39,7 @@ import clock53 from "../assets/53clock.png";
 import clock60 from "../assets/60clock.png";
 import profileWhiteIcon from "../assets/profile_white.png";
 import houseWhiteIcon from "../assets/home_white.png";
-import { formatTimeLeft } from "./timeHelpers";
+import { formatTimeLeft, getTimeTagClass } from "./timeHelpers";
 
 const CLOCKS = [
   clock0,
@@ -139,11 +139,7 @@ const hoursLeft = (end: string) =>
   Math.max(0, (new Date(end).getTime() - Date.now()) / 3_600_000);
 
 // colour the time-pill only when ≤1 h left; else use a “neutral” transparent style
-const getTimeTagClass = (end: string): string => {
-  return hoursLeft(end) <= 1
-    ? `${styles["time-tag"]} ${styles["urgent"]}`
-    : `${styles["time-tag"]} ${styles["neutral"]}`;
-};
+
 
 // ensure we always map back to one of our 4 states
 const statusFromDto = (raw: string): Auction["auctionState"] =>
