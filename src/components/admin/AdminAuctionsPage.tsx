@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styles from "./Admin.module.css";
-
+import { API_BASE } from "../../config";
 interface Auction {
   auctionId: number;
   title: string;
   createdAt: string;
 }
 
-const BACKEND = "https://localhost:7056";
+
 
 const AuctionsPage: React.FC = () => {
   const jwt = localStorage.getItem("token");
@@ -20,7 +20,7 @@ const AuctionsPage: React.FC = () => {
 
   useEffect(() => {
     fetch(
-      `${BACKEND}/api/Admin/auctions?search=${encodeURIComponent(
+      `${API_BASE}/api/Admin/auctions?search=${encodeURIComponent(
         search
       )}&page=${page}&pageSize=20`,
       { headers: { Authorization: `Bearer ${jwt}` } }
@@ -34,7 +34,7 @@ const AuctionsPage: React.FC = () => {
 
   const deleteAuction = (id: number) => {
     if (!confirm("Delete this auction?")) return;
-    fetch(`${BACKEND}/api/Admin/auctions/${id}`, {
+    fetch(`${API_BASE}/api/Admin/auctions/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${jwt}` },
     }).then((r) => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styles from "./RegisterPage.module.css";
-
+import { API_BASE } from "../config";
 /* ───── assets ───────────────────────────────────────── */
 import logo from "../assets/logo.png";
 import clock0 from "../assets/0clock.png";
@@ -26,8 +26,6 @@ const CLOCKS = [
   clock60,
 ];
 
-const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
-
 /* ───── types ─────────────────────────────────────────── */
 interface Auction {
   auctionId: number;
@@ -50,7 +48,7 @@ interface ApiMessage {
 
 /* ───── helpers — identical to login page ────────────── */
 const imgUrl = (u?: string) =>
-  u?.startsWith("http") ? u : `${BACKEND_BASE_URL}${u ?? ""}`;
+  u?.startsWith("http") ? u : `${API_BASE}${u ?? ""}`;
 
 const getTagText = (s: Auction["auctionState"]) =>
   s === "inProgress"
@@ -128,7 +126,7 @@ const RegisterPage: React.FC = () => {
 
   /* fetch promo grid once */
   useEffect(() => {
-    fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=20`)
+    fetch(`${API_BASE}/api/Auctions?page=1&pageSize=20`)
       .then((r) => r.json())
       .then((rows: Auction[]) =>
         setAuctions(
@@ -157,7 +155,7 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      const resp = await fetch(`${BACKEND_BASE_URL}/api/Auth/register`, {
+      const resp = await fetch(`${API_BASE}/api/Auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

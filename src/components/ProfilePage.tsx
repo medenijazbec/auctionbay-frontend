@@ -9,8 +9,8 @@ import { useNavigate } from "react-router-dom";
 import Cropper, { Area } from "react-easy-crop";
 import getCroppedImg from "../utils/getCroppedImg";
 import styles from "./ProfilePage.module.css";
+import { API_BASE } from "../config";
 
-const API = "https://localhost:7056";
 const CROP_PX = 180;
 
 interface UserMe {
@@ -69,7 +69,7 @@ const ProfilePage: React.FC = () => {
       nav("/login");
       return;
     }
-    fetch(`${API}/api/Profile/me`, auth)
+    fetch(`${API_BASE}/api/Profile/me`, auth)
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
@@ -118,7 +118,7 @@ const ProfilePage: React.FC = () => {
 
     setFlash(null);
     try {
-      const resp = await fetch(`${API}/api/Profile/me`, {
+      const resp = await fetch(`${API_BASE}/api/Profile/me`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", ...auth.headers },
         body: JSON.stringify({
@@ -145,7 +145,7 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
     try {
-      const r = await fetch(`${API}/api/Profile/update-password`, {
+      const r = await fetch(`${API_BASE}/api/Profile/update-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", ...auth.headers },
         body: JSON.stringify({
@@ -202,14 +202,14 @@ const ProfilePage: React.FC = () => {
     const fd = new FormData();
     fd.append("file", file);
     try {
-      const up = await fetch(`${API}/api/ImageUpload`, {
+      const up = await fetch(`${API_BASE}/api/ImageUpload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       });
       if (!up.ok) throw new Error("upload");
       const { url } = await up.json();
-      await fetch(`${API}/api/Profile/me`, {
+      await fetch(`${API_BASE}/api/Profile/me`, {
         method: "PUT",
         headers: {
           ...auth.headers,
@@ -376,7 +376,7 @@ const ProfilePage: React.FC = () => {
             src={
               preview ??
               (me.profilePictureUrl
-                ? `${API}${me.profilePictureUrl}`
+                ? `${API_BASE}${me.profilePictureUrl}`
                 : "/placeholder.png")
             }
             alt="preview"

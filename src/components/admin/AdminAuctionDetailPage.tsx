@@ -1,4 +1,5 @@
 // src/components/admin/AdminAuctionDetailPage.tsx
+
 import React, {
     useState,
     useEffect,
@@ -8,7 +9,7 @@ import React, {
   } from "react";
   import { useParams, useNavigate } from "react-router-dom";
   import styles from "./AdminAuctionDetailPage.module.css";
-  
+  import { API_BASE } from "../../config";
   const CLOCKS = [
     "/assets/0clock.png",
     "/assets/7clock.png",
@@ -67,7 +68,6 @@ import React, {
     bids: any[];
   }
   
-  const BACKEND = "https://localhost:7056";
   
   const AdminAuctionDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -92,7 +92,7 @@ import React, {
     const fetchAuction = useCallback(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${BACKEND}/api/Admin/auctions/${id}`, {
+        const res = await fetch(`${API_BASE}/api/Admin/auctions/${id}`, {
           headers: { Authorization: `Bearer ${jwt}` },
         });
         if (!res.ok) throw new Error(`Status ${res.status}`);
@@ -128,7 +128,7 @@ import React, {
     const handleSave = async (e: FormEvent) => {
       e.preventDefault();
       try {
-        const res = await fetch(`${BACKEND}/api/Admin/auctions/${id}`, {
+        const res = await fetch(`${API_BASE}/api/Admin/auctions/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -155,7 +155,7 @@ import React, {
     const handleDelete = async () => {
       if (!confirm("Delete this auction?")) return;
       try {
-        const res = await fetch(`${BACKEND}/api/Admin/auctions/${id}`, {
+        const res = await fetch(`${API_BASE}/api/Admin/auctions/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${jwt}` },
         });

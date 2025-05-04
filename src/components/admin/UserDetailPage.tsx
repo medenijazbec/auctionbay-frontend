@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import styles from "./Admin.module.css";
-
+import { API_BASE } from "../../config";
 interface AuctionSummary {
   auctionId: number;
   title: string;
@@ -18,7 +18,7 @@ interface UserDetail {
   auctions: AuctionSummary[];
 }
 
-const BACKEND = "https://localhost:7056";
+
 
 const UserDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,7 +34,7 @@ const UserDetailPage: React.FC = () => {
   });
 
   useEffect(() => {
-    fetch(`${BACKEND}/api/Admin/users/${id}`, {
+    fetch(`${API_BASE}/api/Admin/users/${id}`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
       .then((r) => r.json())
@@ -50,7 +50,7 @@ const UserDetailPage: React.FC = () => {
   }, [id, jwt]);
 
   const save = () => {
-    fetch(`${BACKEND}/api/Admin/users/${id}`, {
+    fetch(`${API_BASE}/api/Admin/users/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -61,7 +61,7 @@ const UserDetailPage: React.FC = () => {
       if (r.ok) {
         alert("Saved!");
         // re-fetch user
-        fetch(`${BACKEND}/api/Admin/users/${id}`, {
+        fetch(`${API_BASE}/api/Admin/users/${id}`, {
           headers: { Authorization: `Bearer ${jwt}` },
         })
           .then((r2) => r2.json())
@@ -74,7 +74,7 @@ const UserDetailPage: React.FC = () => {
 
   const deleteAuction = (auctionId: number) => {
     if (!confirm("Delete this auction?")) return;
-    fetch(`${BACKEND}/api/Admin/auctions/${auctionId}`, {
+    fetch(`${API_BASE}/api/Admin/auctions/${auctionId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${jwt}` },
     }).then((r) => {

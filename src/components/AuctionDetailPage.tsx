@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import grid from "./AuctionDetailPage.module.css";
+import { API_BASE } from "../config";
 
 import clock0 from "../assets/0clock.png";
 import clock7 from "../assets/7clock.png";
@@ -82,7 +83,7 @@ const AuctionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const jwt = localStorage.getItem("token");
-  const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+  
 
   const [auction, setAuction] = useState<Auction | null>(null);
   const [loading, setLoading] = useState(true);
@@ -273,7 +274,7 @@ const AuctionDetailPage: React.FC = () => {
                   className={grid.bidAvatar}
                   src={
                     b.profilePictureUrl
-                      ? `${BACKEND_BASE_URL}${b.profilePictureUrl}`
+                      ? `${API_BASE}${b.profilePictureUrl}`
                       : `https://i.pravatar.cc/40?u=${b.userName}`
                   }
                   alt={b.userName}

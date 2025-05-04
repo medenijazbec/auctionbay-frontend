@@ -16,7 +16,7 @@ import {
 import styles from "./AuctionsPage.module.css";
 import Cropper, { Area } from "react-easy-crop";
 import getCroppedImg from "../utils/getCroppedImg";
-
+import { API_BASE } from "../config";
 import { useAuth } from "../utils/useAuth";
 
 /* ───── Assets ───────────────────────────────────────────── */
@@ -76,7 +76,6 @@ interface ProfileMeDto {
   profilePictureUrl?: string;
 }
 
-const BACKEND_BASE_URL = "https://localhost:7056";
 
 /* ───── Helpers ──────────────────────────────────────────── */
 const getTagText = (s: Auction["auctionState"]) =>
@@ -133,7 +132,7 @@ function getClockIcon(start: string, end: string): string {
 }
 
 const imgUrl = (u?: string) =>
-  u?.startsWith("http") ? u : `${BACKEND_BASE_URL}${u ?? ""}`;
+  u?.startsWith("http") ? u : `${API_BASE}${u ?? ""}`;
 
 const hoursLeft = (end: string) =>
   Math.max(0, (new Date(end).getTime() - Date.now()) / 3_600_000);
@@ -204,7 +203,7 @@ const openNotifications = () => {
   setShowNotifs((open) => !open);
 
   if (!showNotifs && unread > 0) {
-    fetch(`${BACKEND_BASE_URL}/api/Profile/notifications/markAllRead`, {
+    fetch(`${API_BASE}/api/Profile/notifications/markAllRead`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${jwt}` },
     })
@@ -286,7 +285,7 @@ const openNotifications = () => {
   /* ─── fetch logged-in user once ────────────────────── */
   useEffect(() => {
     if (!jwt) return;
-    fetch(`${BACKEND_BASE_URL}/api/Profile/me`, {
+    fetch(`${API_BASE}/api/Profile/me`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
       .then(async (r) => {
@@ -374,7 +373,7 @@ const openNotifications = () => {
     if (activeNav !== "auctions" || id) return;
 
     setLoading(true);
-    fetch(`${BACKEND_BASE_URL}/api/Auctions?page=${page}&pageSize=9`, {
+    fetch(`${API_BASE}/api/Auctions?page=${page}&pageSize=9`, {
       headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined,
     })
       .then((r) => r.json() as Promise<Auction[]>)
@@ -416,7 +415,7 @@ const openNotifications = () => {
   /* “My auctions” */
   useEffect(() => {
     if (activeNav !== "profile") return;
-    fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+    fetch(`${API_BASE}/api/Profile/auctions`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
     .then(r => r.json())
@@ -436,7 +435,7 @@ const openNotifications = () => {
     const headers = { Authorization: `Bearer ${jwt}` };
 
     if (subTab === "bidding") {
-      fetch(`${BACKEND_BASE_URL}/api/Profile/bidding`, { headers })
+      fetch(`${API_BASE}/api/Profile/bidding`, { headers })
       .then(r => r.json())
       .then((rows: Auction[]) => {
         const mapped = rows.map(a => ({
@@ -450,7 +449,7 @@ const openNotifications = () => {
     }
 
     if (subTab === "won") {
-      fetch(`${BACKEND_BASE_URL}/api/Profile/won`, { headers })
+      fetch(`${API_BASE}/api/Profile/won`, { headers })
         .then((r) => r.json())
         .then((rows: Auction[]) =>
           setWon(
@@ -466,7 +465,7 @@ const openNotifications = () => {
 
   const handleDelete = (id: number) => {
     if (!confirm("Delete this auction?")) return;
-    fetch(`${BACKEND_BASE_URL}/api/Profile/auction/${id}`, {
+    fetch(`${API_BASE}/api/Profile/auction/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${jwt}` },
     }).then((r) => {
@@ -571,7 +570,7 @@ useEffect(() => {
   useEffect(() => {
     if (!jwt) return;
     
-    fetch(`${BACKEND_BASE_URL}/api/Profile/notifications`, {
+    fetch(`${API_BASE}/api/Profile/notifications`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
     .then((res) => res.json())
@@ -590,7 +589,7 @@ useEffect(() => {
   
     const fetchNotificationsAndAuctions = () => {
       //Fetch Notifications
-      fetch(`${BACKEND_BASE_URL}/api/Profile/notifications`, {
+      fetch(`${API_BASE}/api/Profile/notifications`, {
         headers: { Authorization: `Bearer ${jwt}` },
       })
         .then((res) => res.json())
@@ -601,7 +600,7 @@ useEffect(() => {
         .catch((err) => console.error("Polling notifications failed:", err));
   
       //ALSO Fetch Bidding auctions regularly
-      fetch(`${BACKEND_BASE_URL}/api/Profile/bidding`, {
+      fetch(`${API_BASE}/api/Profile/bidding`, {
         headers: { Authorization: `Bearer ${jwt}` },
       })
         .then(r => r.json())
@@ -615,7 +614,7 @@ useEffect(() => {
         .catch((err) => console.error("Polling bidding failed:", err));
   
       //also fetch MyAuctions regularly
-      fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+      fetch(`${API_BASE}/api/Profile/auctions`, {
         headers: { Authorization: `Bearer ${jwt}` },
       })
         .then(r => r.json())
@@ -724,8 +723,8 @@ useEffect(() => {
       fd.append("existingImageUrl", editAuction?.mainImageUrl ?? "");
 
       const url = editAuction
-        ? `${BACKEND_BASE_URL}/api/Profile/auction/${editAuction.auctionId}`
-        : `${BACKEND_BASE_URL}/api/Auctions`;
+        ? `${API_BASE}/api/Profile/auction/${editAuction.auctionId}`
+        : `${API_BASE}/api/Auctions`;
       const method = editAuction ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -754,7 +753,7 @@ useEffect(() => {
       if (activeNav === "auctions") {
         const pageSize = 9;
         const r2 = await fetch(
-          `${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=${pageSize}`,
+          `${API_BASE}/api/Auctions?page=1&pageSize=${pageSize}`,
           { headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined }
         );
         const rows: Auction[] = await r2.json();
@@ -769,7 +768,7 @@ useEffect(() => {
       }
       // ─── otherwise (profile tab), just refresh “myAuctions” ───
       else {
-        const r3 = await fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+        const r3 = await fetch(`${API_BASE}/api/Profile/auctions`, {
           headers: { Authorization: `Bearer ${jwt}` },
         });
         const mine: Auction[] = await r3.json();

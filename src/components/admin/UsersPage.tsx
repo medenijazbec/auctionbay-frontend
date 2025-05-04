@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styles from "./Admin.module.css";
-
+import { API_BASE } from "../../config";
 interface User {
   id: string;
   email: string;
@@ -11,7 +11,7 @@ interface User {
   profilePictureUrl: string;
 }
 
-const BACKEND = "https://localhost:7056";
+
 
 const UsersPage: React.FC = () => {
   const jwt = localStorage.getItem("token");
@@ -23,7 +23,7 @@ const UsersPage: React.FC = () => {
 
   useEffect(() => {
     fetch(
-      `${BACKEND}/api/Admin/users?search=${encodeURIComponent(
+      `${API_BASE}/api/Admin/users?search=${encodeURIComponent(
         search
       )}&page=${page}&pageSize=20`,
       { headers: { Authorization: `Bearer ${jwt}` } }
@@ -37,7 +37,7 @@ const UsersPage: React.FC = () => {
 
   const deleteUser = (id: string) => {
     if (!confirm("Really delete this user?")) return;
-    fetch(`${BACKEND}/api/Admin/users/${id}`, {
+    fetch(`${API_BASE}/api/Admin/users/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${jwt}` },
     }).then((r) => {

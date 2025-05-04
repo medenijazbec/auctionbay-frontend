@@ -5,7 +5,7 @@ import styles from "./ForgotPasswordPage.module.css";
 
 import logo from "../assets/logo.png";
 import backArrow from "../assets/backarrow.png";
-
+import { API_BASE } from "../config";
 /* ⬇  clocks that match AuctionsPage */
 import clock0 from "../assets/0clock.png";
 import clock7 from "../assets/7clock.png";
@@ -29,8 +29,6 @@ const CLOCKS = [
   clock60,
 ];
 
-const BACKEND_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://localhost:7056";
 
 /* ─── Types ───────────────────────────────────────────── */
 interface Auction {
@@ -102,8 +100,8 @@ const imgUrl = (thumb?: string, full?: string) =>
   thumb || full
     ? /^https?:/.test(thumb ?? full!)
       ? (thumb ?? full)!
-      : `${BACKEND_BASE_URL}${thumb ?? full}`
-    : `${BACKEND_BASE_URL}/placeholder.png`;
+      : `${API_BASE}${thumb ?? full}`
+    : `${API_BASE}/placeholder.png`;
 
 /* ─── Component ────────────────────────────────────────── */
 const ForgotPasswordPage: React.FC = () => {
@@ -119,7 +117,7 @@ const ForgotPasswordPage: React.FC = () => {
 
   /* fetch once */
   useEffect(() => {
-    fetch(`${BACKEND_BASE_URL}/api/Auctions?page=1&pageSize=4`)
+    fetch(`${API_BASE}/api/Auctions?page=1&pageSize=4`)
       .then((r) => r.json())
       .then((rows: Auction[]) =>
         setAuctions(
@@ -143,7 +141,7 @@ const ForgotPasswordPage: React.FC = () => {
     setSuccess("");
 
     try {
-      const resp = await fetch(`${BACKEND_BASE_URL}/api/Auth/forgot-password`, {
+      const resp = await fetch(`${API_BASE}/api/Auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

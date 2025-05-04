@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./LandingPage.css";
-
+import { API_BASE } from "../config";
 /* ───── Assets ───────────────────────────────────────────── */
 import logo from "../assets/logo.png";
 import houseIcon from "../assets/home.png";
@@ -66,7 +66,7 @@ interface ProfileMeDto {
   profilePictureUrl?: string;
 }
 
-const BACKEND_BASE_URL = "https://localhost:7056";
+
 
 /* ───── Helpers ──────────────────────────────────────────── */
 const getTagText = (s: Auction["auctionState"]) =>
@@ -126,7 +126,7 @@ function getClockIcon(start: string, end: string): string {
   return CLOCKS[idx];
 }
 const imgUrl = (u?: string) =>
-  u?.startsWith("http") ? u : `${BACKEND_BASE_URL}${u ?? ""}`;
+  u?.startsWith("http") ? u : `${API_BASE}${u ?? ""}`;
 
 /* ─────────────────────────────────────────────────────────── */
 const LandingPage: React.FC = () => {
@@ -141,7 +141,7 @@ const LandingPage: React.FC = () => {
   /* ─── fetch logged‑in user once ────────────────────── */
   useEffect(() => {
     if (!jwt) return;
-    fetch(`${BACKEND_BASE_URL}/api/Profile/me`, {
+    fetch(`${API_BASE}/api/Profile/me`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
       .then(async (r) => {
@@ -214,7 +214,7 @@ const LandingPage: React.FC = () => {
   useEffect(() => {
     if (activeNav !== "auctions") return;
     setLoading(true);
-    fetch(`${BACKEND_BASE_URL}/api/Auctions?page=${page}&pageSize=9`)
+    fetch(`${API_BASE}/api/Auctions?page=${page}&pageSize=9`)
       .then((r) => r.json())
       .then((rows: Auction[]) => {
         setAuctions((prev) => [...prev, ...rows]);
@@ -239,7 +239,7 @@ const LandingPage: React.FC = () => {
 
   const handleDelete = (id: number) => {
     if (!confirm("Delete this auction?")) return;
-    fetch(`${BACKEND_BASE_URL}/api/Profile/auction/${id}`, {
+    fetch(`${API_BASE}/api/Profile/auction/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${jwt}` },
     }).then((r) => {
@@ -288,7 +288,7 @@ const LandingPage: React.FC = () => {
     fd.append("startingPrice", price);
     fd.append("endDateTime", endDate);
 
-    const res = await fetch(`${BACKEND_BASE_URL}/api/Auctions`, {
+    const res = await fetch(`${API_BASE}/api/Auctions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${jwt}` },
       body: fd,
@@ -304,7 +304,7 @@ const LandingPage: React.FC = () => {
     setHasMore(true);
 
     /* refresh “My auctions” tab */
-    fetch(`${BACKEND_BASE_URL}/api/Profile/auctions`, {
+    fetch(`${API_BASE}/api/Profile/auctions`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
       .then((r) => r.json())
