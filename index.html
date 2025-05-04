@@ -30,17 +30,16 @@
 
     <!-- Content Security Policy: adjust domains as needed -->
     <meta http-equiv="Content-Security-Policy"
-    content="
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com;
-      img-src 'self' data: blob: https://localhost:7056 http://192.168.1.13:8080;
-      connect-src 'self' https://localhost:7056 http://192.168.1.13:8080 http://localhost:5173 http://192.168.1.4:5173 ws://localhost:5173 ws://192.168.1.4:5173;
-      frame-ancestors 'none';
-    "
-  />
-  
+      content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' data: blob: https://localhost:7056 http://192.168.1.13:8080;
+        connect-src 'self' https://localhost:7056 http://192.168.1.13:8080 http://localhost:5173 http://192.168.1.4:5173 ws://localhost:5173 ws://192.168.1.4:5173;
+        frame-ancestors 'none';
+      "
+    />
     <!-- ──────────────────────────────────────────────────────────────── -->
   </head>
   <body>

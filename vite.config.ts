@@ -1,23 +1,25 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     https: false,
+    host: true,       //can access from 192.168.1.4:5173
+    port: 5173,       //dev server port
     proxy: {
-      // Proxy all /api requests to your ASP.NET backend
-      '/api': {
-        target: 'https://localhost:7056',
-        secure: false,       // accept self-signed cert
-        changeOrigin: true,  // rewrite Host header to match target
+      // Proxy all /api requests to ASP.NET backend
+      "/api": {
+        target: "http://192.168.1.13:8080",
+        secure: false,      // accept self-signed certificate
+        changeOrigin: true, // rewrite the Host header to match the target
       },
-	  '/images': {                    // ← add this block
-        target: 'https://localhost:7056',
+      // Proxy all /images requests to the same backend
+      "/images": {
+        target: "http://192.168.1.13:8080",
         secure: false,
         changeOrigin: true,
-      },  
+      },
     },
   },
-})
+});
