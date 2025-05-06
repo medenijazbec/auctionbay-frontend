@@ -66,9 +66,8 @@ interface ProfileMeDto {
   profilePictureUrl?: string;
 }
 
-
-
 /* ───── Helpers ──────────────────────────────────────────── */
+// Returns label for a given auction state
 const getTagText = (s: Auction["auctionState"]) =>
   s === "inProgress"
     ? "In progress"
@@ -80,6 +79,12 @@ const getTagText = (s: Auction["auctionState"]) =>
 /**
  * @param endISO   endDateTime as ISO string
  * @param nowMs    optional override of Date.now(), useful for testing
+ */
+
+/**
+ * Formats remaining time until auction end
+ * @param endISO - Auction end time as ISO string
+ * @param nowMs - Override for current time (for testing)
  */
 function formatTimeLeft(endISO: string, nowMs = Date.now()): string {
   const endMs = new Date(endISO).getTime();
@@ -107,7 +112,7 @@ function formatTimeLeft(endISO: string, nowMs = Date.now()): string {
   const days = Math.ceil(hours / 24);
   return `${days} days`;
 }
-
+// Returns CSS class for a given state
 const getStatusClass = (s: Auction["auctionState"]) =>
   s === "inProgress"
     ? "editable"
@@ -116,7 +121,7 @@ const getStatusClass = (s: Auction["auctionState"]) =>
     : s === "done"
     ? "done"
     : "";
-
+// Returns clock icon path based on auction progress
 function getClockIcon(start: string, end: string): string {
   const now = Date.now();
   const s = new Date(start).getTime();
@@ -125,6 +130,7 @@ function getClockIcon(start: string, end: string): string {
   const idx = Math.round(pct * (CLOCKS.length - 1));
   return CLOCKS[idx];
 }
+// Builds full URL for images
 const imgUrl = (u?: string) =>
   u?.startsWith("http") ? u : `${API_BASE}${u ?? ""}`;
 
@@ -165,18 +171,14 @@ const LandingPage: React.FC = () => {
 
   // if already authenticated, immediately send them to /auctions
 
-  //WILL NEED TO CHANGE IF I DECIDE TO UP THE AUNTY AND LET THE USER VIEW THE LANDING PAGE,
-  // GET A POPUP FOR AUCTIONS BUT WHEN THEY CLICK THE
-  // BID BUTTON ->IF ONT LOGGED IN SEND TO LOGIN PAGE.
-  // AND HAVE THE START BIDDING BUTTON TO ROUTE TO THE
-  // AUCTIONS PAGE IF LOGGED IN AND TO LOGIN IF NOT
+  /* ─── Redirect if already authenticated ────────────────────── */
   useEffect(() => {
     if (localStorage.getItem("token")) {
       nav("/auctions");
     }
   }, [nav]);
 
-  /* ─── dropdown ───────────────────────────────────── */
+  /* ─── User menu dropdown ──────────────────────────────── */
   const [menuOpen, setMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const logOut = () => {
@@ -196,7 +198,7 @@ const LandingPage: React.FC = () => {
     return () => document.removeEventListener("click", onBodyClick);
   }, [menuOpen]);
 
-  /* ─── auctions data ──────────────────────────────── */
+  /* ─── Auctions data ──────────────────────────────── */
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -211,6 +213,7 @@ const LandingPage: React.FC = () => {
   const [bidding] = useState<Auction[]>([]);
   const [won] = useState<Auction[]>([]);
 
+  // Fetch public auctions when on auctions tab
   useEffect(() => {
     if (activeNav !== "auctions") return;
     setLoading(true);
@@ -223,6 +226,7 @@ const LandingPage: React.FC = () => {
       .finally(() => setLoading(false));
   }, [page, activeNav]);
 
+  // Infinite scroll handler
   useEffect(() => {
     const onScroll = () => {
       if (loading || !hasMore || activeNav !== "auctions") return;
@@ -237,6 +241,7 @@ const LandingPage: React.FC = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, [loading, hasMore, activeNav]);
 
+  // Deletes an auction from “My auctions”
   const handleDelete = (id: number) => {
     if (!confirm("Delete this auction?")) return;
     fetch(`${API_BASE}/api/Profile/auction/${id}`, {
@@ -247,6 +252,7 @@ const LandingPage: React.FC = () => {
     });
   };
 
+  // Generate placeholder cards when needed
   const placeholders = (n: number) =>
     Array.from({ length: n }, (_, i) => (
       <div key={`ph-${i}`} className="auction-card auction-card--placeholder" />
@@ -267,17 +273,21 @@ const LandingPage: React.FC = () => {
   const [desc, setDesc] = useState("");
   const [price, setPrice] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // Handles file selection in modal
   const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
     setFile(f);
     setPreview(URL.createObjectURL(f));
   };
+  // Clears selected image
   const removeImage = () => {
     setFile(null);
     setPreview(null);
   };
 
+  // Submits new auction to server
   const submitAuction = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -304,6 +314,7 @@ const LandingPage: React.FC = () => {
     setHasMore(true);
 
     /* refresh “My auctions” tab */
+    // Refresh lists and reset form
     fetch(`${API_BASE}/api/Profile/auctions`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
@@ -359,8 +370,8 @@ const LandingPage: React.FC = () => {
           onClick={
             () =>
               jwt
-                ? nav("/auctions") // logged in → go see auctions
-                : nav("/login") // not yet → force login
+                ? nav("/auctions") // logged in -> go see auctions
+                : nav("/login") // not yet -> force login
           }
         >
           Start bidding
@@ -416,7 +427,6 @@ const LandingPage: React.FC = () => {
                     if (!jwt) {
                       nav("/login", { replace: true });
                     } else {
-                      // TODO: open your notification pane
                     }
                   }}
                 >

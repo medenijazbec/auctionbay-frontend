@@ -29,7 +29,6 @@ const CLOCKS = [
   clock60,
 ];
 
-
 /* ─── Types ───────────────────────────────────────────── */
 interface Auction {
   auctionId: number;
@@ -45,6 +44,7 @@ interface Auction {
 }
 
 /* ─── Helpers copied from AuctionsPage ─────────────────── */
+// Returns human-readable label for an auction state
 const getTagText = (s: Auction["auctionState"]) =>
   s === "inProgress"
     ? "In progress"
@@ -54,6 +54,7 @@ const getTagText = (s: Auction["auctionState"]) =>
     ? "Done"
     : "Outbid";
 
+// Maps an auction state to a CSS class name
 const getStatusClass = (s: Auction["auctionState"]) =>
   s === "inProgress"
     ? "editable"
@@ -63,13 +64,16 @@ const getStatusClass = (s: Auction["auctionState"]) =>
     ? "done"
     : "outbid";
 
+// Computes hours left until auction end
 const hoursLeft = (end: string) =>
   Math.max(0, (new Date(end).getTime() - Date.now()) / 3_600_000);
 
 /* neutral vs urgent (≤1 h) */
+// Returns 'urgent' if ≤1h remains, otherwise 'neutral'
 const getTimeTagClass = (end: string) =>
   hoursLeft(end) <= 1 ? "urgent" : "neutral";
 
+// Formats remaining time as minutes, hours, or days
 function formatTimeLeft(endISO: string): string {
   const ms = Math.max(new Date(endISO).getTime() - Date.now(), 0);
   const mins = Math.ceil(ms / 60_000);
@@ -83,6 +87,7 @@ function formatTimeLeft(endISO: string): string {
   return `${Math.ceil(h / 24)} days`;
 }
 
+// Selects a clock icon based on auction progress percentage
 function getClockIcon(start: string, end: string): string {
   const pct = Math.min(
     Math.max(
@@ -96,6 +101,7 @@ function getClockIcon(start: string, end: string): string {
   return CLOCKS[idx];
 }
 
+// Constructs full image URL or placeholder
 const imgUrl = (thumb?: string, full?: string) =>
   thumb || full
     ? /^https?:/.test(thumb ?? full!)
@@ -104,6 +110,7 @@ const imgUrl = (thumb?: string, full?: string) =>
     : `${API_BASE}/placeholder.png`;
 
 /* ─── Component ────────────────────────────────────────── */
+// ForgotPasswordPage component: displays a promo auction grid and a reset form
 const ForgotPasswordPage: React.FC = () => {
   const nav = useNavigate();
 
@@ -117,6 +124,7 @@ const ForgotPasswordPage: React.FC = () => {
 
   /* fetch once */
   useEffect(() => {
+    // Fetch up to 4 promotional auctions on mount
     fetch(`${API_BASE}/api/Auctions?page=1&pageSize=4`)
       .then((r) => r.json())
       .then((rows: Auction[]) =>
@@ -136,6 +144,7 @@ const ForgotPasswordPage: React.FC = () => {
 
   /* submit */
   const handleSubmit = async (e: React.FormEvent) => {
+    // Handles form submission to request password reset
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -165,9 +174,10 @@ const ForgotPasswordPage: React.FC = () => {
   };
 
   /* ─── JSX ────────────────────────────────────────────── */
+  // Component render: left side shows promo grid, right side shows reset form
   return (
     <div className={styles.registerPageContainer}>
-      {/* LEFT – promo grid */}
+      {/* Left: promotional auctions grid */}
       <div className={styles.auctionGridContainer}>
         <div className={styles.auctionGrid}>
           {auctions.map((a) => (
@@ -211,7 +221,7 @@ const ForgotPasswordPage: React.FC = () => {
         </div>
       </div>
 
-      {/* RIGHT – form */}
+      {/* Right: password reset form */}
       <div className={styles.registerFormContainer}>
         <div className={styles.brandIcon}>
           <img src={logo} className={styles.logoImage} />

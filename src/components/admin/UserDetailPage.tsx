@@ -18,14 +18,14 @@ interface UserDetail {
   auctions: AuctionSummary[];
 }
 
-
-
 const UserDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const jwt = localStorage.getItem("token");
   const nav = useNavigate();
 
+  // Holds fetched user data
   const [user, setUser] = useState<UserDetail | null>(null);
+  // Form state for editing user fields
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -33,12 +33,14 @@ const UserDetailPage: React.FC = () => {
     profilePictureUrl: "",
   });
 
+  // Fetches user details on component mount or when id/jwt change
   useEffect(() => {
     fetch(`${API_BASE}/api/Admin/users/${id}`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
       .then((r) => r.json())
       .then((u: UserDetail) => {
+        // Populate user state and prefill form fields
         setUser(u);
         setForm({
           firstName: u.firstName,
@@ -49,6 +51,7 @@ const UserDetailPage: React.FC = () => {
       });
   }, [id, jwt]);
 
+  // Saves updated user data to the API
   const save = () => {
     fetch(`${API_BASE}/api/Admin/users/${id}`, {
       method: "PUT",
@@ -60,7 +63,7 @@ const UserDetailPage: React.FC = () => {
     }).then((r) => {
       if (r.ok) {
         alert("Saved!");
-        // re-fetch user
+        // Re-fetch user to get updated data
         fetch(`${API_BASE}/api/Admin/users/${id}`, {
           headers: { Authorization: `Bearer ${jwt}` },
         })
@@ -72,6 +75,7 @@ const UserDetailPage: React.FC = () => {
     });
   };
 
+  // Deletes an auction belonging to the user and updates UI
   const deleteAuction = (auctionId: number) => {
     if (!confirm("Delete this auction?")) return;
     fetch(`${API_BASE}/api/Admin/auctions/${auctionId}`, {
@@ -79,6 +83,7 @@ const UserDetailPage: React.FC = () => {
       headers: { Authorization: `Bearer ${jwt}` },
     }).then((r) => {
       if (r.ok && user) {
+        // Remove deleted auction from user.auctions
         setUser({
           ...user,
           auctions: user.auctions.filter((a) => a.auctionId !== auctionId),
@@ -86,7 +91,7 @@ const UserDetailPage: React.FC = () => {
       }
     });
   };
-
+  // Show loading state
   if (!user) return <p>Loading…</p>;
 
   return (
@@ -138,15 +143,11 @@ const UserDetailPage: React.FC = () => {
             {user.auctions.map((a) => (
               <tr key={a.auctionId}>
                 <td>
-                  <Link to={`/admin/auctions/${a.auctionId}`}>
-                    {a.title}
-                  </Link>
+                  <Link to={`/admin/auctions/${a.auctionId}`}>{a.title}</Link>
                 </td>
                 <td>{a.auctionState}</td>
                 <td>
-                  <Link to={`/admin/auctions/${a.auctionId}`}>
-                    Edit
-                  </Link>{" "}
+                  <Link to={`/admin/auctions/${a.auctionId}`}>Edit</Link>{" "}
                   <button onClick={() => deleteAuction(a.auctionId)}>
                     Delete
                   </button>

@@ -26,6 +26,7 @@ const CLOCKS = [
   clock60,
 ];
 
+// Returns the appropriate clock icon based on auction progress
 function getClockIcon(start: string, end: string): string {
   const now = Date.now();
   const s = new Date(start).getTime();
@@ -56,6 +57,7 @@ export interface Auction {
   createdBy: string;
 }
 
+// Maps auction state to human-readable label
 const getTagText = (s: Auction["auctionState"]) =>
   s === "inProgress"
     ? "In Progress"
@@ -65,11 +67,13 @@ const getTagText = (s: Auction["auctionState"]) =>
     ? "Done"
     : "Outbid";
 
+// Determines CSS class for time tag based on remaining hours
 const getTimeTagClass = (end: string): string => {
   const hrs = (new Date(end).getTime() - Date.now()) / 3_600_000;
   return hrs <= 1 ? grid.time : grid.neutral;
 };
 
+// Maps auction state to CSS class for styling
 const getStateClass = (s: Auction["auctionState"]) =>
   s === "inProgress"
     ? "editable"
@@ -83,7 +87,6 @@ const AuctionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const jwt = localStorage.getItem("token");
-  
 
   const [auction, setAuction] = useState<Auction | null>(null);
   const [loading, setLoading] = useState(true);
@@ -125,10 +128,10 @@ const AuctionDetailPage: React.FC = () => {
       });
   }, [jwt, navigate]);
 
-  // fetch auction details
+  // Fetches auction details from API and updates state
   const fetchAuction = useCallback(async () => {
     if (!id) {
-      setError("Invalid auction ID");
+      setError("Invalid auction ID"); // Handle missing ID
       setLoading(false);
       return;
     }
@@ -140,13 +143,13 @@ const AuctionDetailPage: React.FC = () => {
         headers: jwt ? { Authorization: `Bearer ${jwt}` } : undefined,
       });
       if (res.status === 401) {
-        navigate("/login", { replace: true });
+        navigate("/login", { replace: true }); // Redirect if unauthorized
         return;
       }
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data: Auction = await res.json();
       setAuction(data);
-      setMyBid(data.currentHighestBid + 1);
+      setMyBid(data.currentHighestBid + 1); // Pre-fill next bid value
     } catch {
       setError("Could not load auction. Please try again.");
     } finally {
@@ -158,6 +161,7 @@ const AuctionDetailPage: React.FC = () => {
     fetchAuction();
   }, [fetchAuction]);
 
+  // Submits a new bid to the API
   const submitBid = async () => {
     if (!auction) return;
     try {
@@ -170,14 +174,14 @@ const AuctionDetailPage: React.FC = () => {
         body: JSON.stringify({ amount: myBid }),
       });
       if (res.status === 401) {
-        navigate("/login", { replace: true });
+        navigate("/login", { replace: true }); // Prompt login on auth error
         return;
       }
       if (!res.ok) {
         const err = await res.json().catch(() => null);
         throw new Error(err?.error || `Status ${res.status}`);
       }
-      await fetchAuction();
+      await fetchAuction(); // Refresh details after successful bid
     } catch (e: any) {
       alert(e.message || "Bid failed.");
     }

@@ -76,8 +76,8 @@ interface ProfileMeDto {
   profilePictureUrl?: string;
 }
 
-
 /* ───── Helpers ──────────────────────────────────────────── */
+// Returns display text for a given auction state
 const getTagText = (s: Auction["auctionState"]) =>
   s === "inProgress"
     ? "In Progress"
@@ -92,7 +92,7 @@ interface StatusTagProps {
   mine?: boolean;
   size?: "default" | "small";
 }
-
+/*
 const StatusTag: React.FC<StatusTagProps> = ({
   state,
   mine = false,
@@ -111,7 +111,7 @@ const getTimeText = (end: string) => {
   if (h <= 0) return "0h";
   if (h < 24) return `${Math.ceil(h)}h`;
   return `${Math.ceil(h / 24)} days`;
-};
+};*/
 
 /*const getStatusClass = (s:Auction['auctionState']) =>
   s === 'inProgress' ? 'editable'
@@ -119,9 +119,11 @@ const getTimeText = (end: string) => {
   : s === 'done'     ? 'done'
   : 'outbid';*/
 
+// Determines CSS class for status tag based on state and ownership
 const getStatusClass = (s: Auction["auctionState"], mine = false): TagClass =>
   mine && s === "inProgress" ? "editable" : s;
 
+// Returns the appropriate clock icon path based on auction progress
 function getClockIcon(start: string, end: string): string {
   const now = Date.now();
   const s = new Date(start).getTime();
@@ -130,15 +132,13 @@ function getClockIcon(start: string, end: string): string {
   const idx = Math.round(pct * (CLOCKS.length - 1));
   return CLOCKS[idx];
 }
-
+// Prefixes relative URLs with API_BASE
 const imgUrl = (u?: string) =>
   u?.startsWith("http") ? u : `${API_BASE}${u ?? ""}`;
 
+// Computes hours left until end time
 const hoursLeft = (end: string) =>
   Math.max(0, (new Date(end).getTime() - Date.now()) / 3_600_000);
-
-// colour the time-pill only when ≤1 h left; else use a “neutral” transparent style
-
 
 // ensure we always map back to one of our 4 states
 const statusFromDto = (raw: string): Auction["auctionState"] =>
@@ -153,9 +153,6 @@ const statusFromDto = (raw: string): Auction["auctionState"] =>
 type TagClass = keyof typeof styles;
 /* ─── Notifications type ───────────────────────────────── */
 
-
-
-
 /*type Notification =
   | { id: number; kind: "outbid"      ; title: string; ts: string; read?: boolean }
   | { id: number; kind: "bid-finished"; title: string; ts: string; read?: boolean }
@@ -164,59 +161,51 @@ type TagClass = keyof typeof styles;
 
 interface Notification {
   notificationId: number;
-  auctionId:      number;
-  userId:         string;
-  kind:           "outbid" | "bid-finished" | "my-finished";
-  title:          string;
-  timestamp:      string;  // ISO datetime from backend
-  isRead:         boolean;
+  auctionId: number;
+  userId: string;
+  kind: "outbid" | "bid-finished" | "my-finished";
+  title: string;
+  timestamp: string; // ISO datetime from backend
+  isRead: boolean;
 }
-
-
-
-
 
 /* ─────────────────────────────────────────────────────────── */
 const AuctionsPage: React.FC = () => {
-
   const { isAdmin } = useAuth();
-// ─── Notifications support ─────────────────────────────────
-const [notifications, setNotifications] = useState<Notification[]>([]);
-const [unread, setUnread] = useState(0);
+  // ─── Notifications support ─────────────────────────────────
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unread, setUnread] = useState(0);
 
-const [userId, setUserId] = useState<string>("");
-const prevBidding    = useRef<Auction[]>([]);
-const prevMyAuctions = useRef<Auction[]>([]);
+  const [userId, setUserId] = useState<string>("");
+  const prevBidding = useRef<Auction[]>([]);
+  const prevMyAuctions = useRef<Auction[]>([]);
 
+  const [showNotifs, setShowNotifs] = useState(false);
 
-const [showNotifs, setShowNotifs] = useState(false);
+  const saveNotifs = (items: Notification[]) => {
+    localStorage.setItem("notifications", JSON.stringify(items));
+    setNotifications(items);
+    //filter the items you just passed in
+    setUnread(items.filter((n) => !n.isRead).length);
+  };
 
-const saveNotifs = (items: Notification[]) => {
-  localStorage.setItem("notifications", JSON.stringify(items));
-  setNotifications(items);
-  //filter the items you just passed in
-  setUnread(items.filter(n => !n.isRead).length);
-};
+  const openNotifications = () => {
+    setShowNotifs((open) => !open);
 
-
-const openNotifications = () => {
-  setShowNotifs((open) => !open);
-
-  if (!showNotifs && unread > 0) {
-    fetch(`${API_BASE}/api/Profile/notifications/markAllRead`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${jwt}` },
-    })
-    .then(() => {
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-      setUnread(0);
-    })
-    .catch((err) => console.error("Failed to mark notifications read:", err));
-  }
-};
-
-
-
+    if (!showNotifs && unread > 0) {
+      fetch(`${API_BASE}/api/Profile/notifications/markAllRead`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${jwt}` },
+      })
+        .then(() => {
+          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+          setUnread(0);
+        })
+        .catch((err) =>
+          console.error("Failed to mark notifications read:", err)
+        );
+    }
+  };
 
   const cropperRef = useRef<HTMLDivElement>(null);
 
@@ -275,6 +264,7 @@ const openNotifications = () => {
   // Only when they click “Crop” do we turn that region into our preview + thumbnail:
   // ── 1a. “Crop” button ─────────────────────────────────────────
   const handleCrop = async () => {
+    // Crop handler: generates cropped image and thumbnail
     if (!imageSrc || !croppedPixels) return; // imageSrc!
     const { blob, file } = await getCroppedImg(imageSrc, croppedPixels);
     setPreview(URL.createObjectURL(blob)); // show true crop
@@ -291,7 +281,7 @@ const openNotifications = () => {
       .then(async (r) => {
         if (!r.ok) throw new Error("unauthorised");
         const p: ProfileMeDto = await r.json();
-        setUserId(p.id);  
+        setUserId(p.id);
         setUserName(
           `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() ||
             p.email.split("@")[0] ||
@@ -345,6 +335,7 @@ const openNotifications = () => {
 
   // utils – merge while keeping ids unique
   const mergeUnique = (oldRows: Auction[], newRows: Auction[]) => {
+    // Merges two lists of auctions, preserving existing order and avoiding duplicates
     const seen = new Set<number>();
     const result: Auction[] = [];
 
@@ -418,14 +409,12 @@ const openNotifications = () => {
     fetch(`${API_BASE}/api/Profile/auctions`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
-    .then(r => r.json())
-    .then((rows: Auction[]) => {
-      setMyAuctions(rows);
-      
-      prevMyAuctions.current = rows;//for notifications
-    });
+      .then((r) => r.json())
+      .then((rows: Auction[]) => {
+        setMyAuctions(rows);
 
-      
+        prevMyAuctions.current = rows; //for notifications
+      });
   }, [activeNav]);
 
   /* ─── “Bidding” & “Won” lists ───────────────────────────── */
@@ -436,16 +425,16 @@ const openNotifications = () => {
 
     if (subTab === "bidding") {
       fetch(`${API_BASE}/api/Profile/bidding`, { headers })
-      .then(r => r.json())
-      .then((rows: Auction[]) => {
-        const mapped = rows.map(a => ({
-          ...a,
-          auctionState: statusFromDto(a.auctionState),
-        }));
-        setBidding(mapped);
-        // ← and add this line:
-        prevBidding.current = mapped;
-      });
+        .then((r) => r.json())
+        .then((rows: Auction[]) => {
+          const mapped = rows.map((a) => ({
+            ...a,
+            auctionState: statusFromDto(a.auctionState),
+          }));
+          setBidding(mapped);
+          // ← and add this line:
+          prevBidding.current = mapped;
+        });
     }
 
     if (subTab === "won") {
@@ -473,6 +462,7 @@ const openNotifications = () => {
     });
   };
 
+  // Placeholder cards generator for loading states
   const placeholders = (n: number) =>
     Array.from({ length: n }, (_, i) => (
       <div
@@ -490,75 +480,77 @@ const openNotifications = () => {
 
   const isProfileFixed = activeNav === "profile" && currentCount === 0;
 
+  useEffect(() => {
+    if (!jwt) return;
+    const now = new Date().toISOString(); // ISO string
 
-useEffect(() => {
-  if (!jwt) return;
-  const now = new Date().toISOString();  // ISO string
-
-  const newNotifs: Notification[] = [];
-  const prevBidMap  = new Map(prevBidding.current.map(a => [a.auctionId, a.auctionState]));
-  const prevMineMap = new Map(prevMyAuctions.current.map(a => [a.auctionId, a.auctionState]));
-
-  // 1) out-bid
-  bidding.forEach(a => {
-    const was = prevBidMap.get(a.auctionId);
-    if (a.auctionState === "outbid" && was && was !== "outbid") {
-      newNotifs.push({
-        notificationId: a.auctionId,
-        auctionId:      a.auctionId,
-        userId:         userId,       // now provided
-        kind:           "outbid",
-        title:          a.title,
-        timestamp:      now,
-        isRead:         false
-      });
-    }
-  });
-
-  // 2) bidding-auction ended
-  bidding.forEach(a => {
-    const was = prevBidMap.get(a.auctionId);
-    if (a.auctionState === "done" && was && was !== "done") {
-      newNotifs.push({
-        notificationId: a.auctionId,
-        auctionId:      a.auctionId,
-        userId:         userId,
-        kind:           "bid-finished",
-        title:          a.title,
-        timestamp:      now,
-        isRead:         false
-      });
-    }
-  });
-
-  // 3) your auction ended
-  myAuctions.forEach(a => {
-    const was = prevMineMap.get(a.auctionId);
-    if (a.auctionState === "done" && was && was !== "done") {
-      newNotifs.push({
-        notificationId: a.auctionId,
-        auctionId:      a.auctionId,
-        userId:         userId,
-        kind:           "my-finished",
-        title:          a.title,
-        timestamp:      now,
-        isRead:         false
-      });
-    }
-  });
-
-  if (newNotifs.length) {
-    const stored: Notification[] = JSON.parse(
-      localStorage.getItem("notifications") || "[]"
+    const newNotifs: Notification[] = [];
+    const prevBidMap = new Map(
+      prevBidding.current.map((a) => [a.auctionId, a.auctionState])
     );
-    saveNotifs([...newNotifs, ...stored]);
-  }
+    const prevMineMap = new Map(
+      prevMyAuctions.current.map((a) => [a.auctionId, a.auctionState])
+    );
 
-  prevBidding.current    = bidding;
-  prevMyAuctions.current = myAuctions;
-}, [bidding, myAuctions, jwt, userId]);
+    // 1) out-bid
+    bidding.forEach((a) => {
+      const was = prevBidMap.get(a.auctionId);
+      if (a.auctionState === "outbid" && was && was !== "outbid") {
+        newNotifs.push({
+          notificationId: a.auctionId,
+          auctionId: a.auctionId,
+          userId: userId, // now provided
+          kind: "outbid",
+          title: a.title,
+          timestamp: now,
+          isRead: false,
+        });
+      }
+    });
 
-  
+    // 2) bidding-auction ended
+    bidding.forEach((a) => {
+      const was = prevBidMap.get(a.auctionId);
+      if (a.auctionState === "done" && was && was !== "done") {
+        newNotifs.push({
+          notificationId: a.auctionId,
+          auctionId: a.auctionId,
+          userId: userId,
+          kind: "bid-finished",
+          title: a.title,
+          timestamp: now,
+          isRead: false,
+        });
+      }
+    });
+
+    // 3) your auction ended
+    myAuctions.forEach((a) => {
+      const was = prevMineMap.get(a.auctionId);
+      if (a.auctionState === "done" && was && was !== "done") {
+        newNotifs.push({
+          notificationId: a.auctionId,
+          auctionId: a.auctionId,
+          userId: userId,
+          kind: "my-finished",
+          title: a.title,
+          timestamp: now,
+          isRead: false,
+        });
+      }
+    });
+
+    if (newNotifs.length) {
+      const stored: Notification[] = JSON.parse(
+        localStorage.getItem("notifications") || "[]"
+      );
+      saveNotifs([...newNotifs, ...stored]);
+    }
+
+    prevBidding.current = bidding;
+    prevMyAuctions.current = myAuctions;
+  }, [bidding, myAuctions, jwt, userId]);
+
   /**
    * Poll the server every 30s for updates to
    *   – the auctions you’re bidding on
@@ -569,24 +561,21 @@ useEffect(() => {
 
   useEffect(() => {
     if (!jwt) return;
-    
+
     fetch(`${API_BASE}/api/Profile/notifications`, {
       headers: { Authorization: `Bearer ${jwt}` },
     })
-    .then((res) => res.json())
-    .then((data: Notification[]) => {
-      setNotifications(data);
-      setUnread(notifications.filter(n => !n.isRead).length);
-
-    })
-    .catch((err) => console.error("Failed fetching notifications:", err));
+      .then((res) => res.json())
+      .then((data: Notification[]) => {
+        setNotifications(data);
+        setUnread(notifications.filter((n) => !n.isRead).length);
+      })
+      .catch((err) => console.error("Failed fetching notifications:", err));
   }, [jwt]);
-  
-
 
   useEffect(() => {
     if (!jwt) return;
-  
+
     const fetchNotificationsAndAuctions = () => {
       //Fetch Notifications
       fetch(`${API_BASE}/api/Profile/notifications`, {
@@ -595,45 +584,41 @@ useEffect(() => {
         .then((res) => res.json())
         .then((data: Notification[]) => {
           setNotifications(data);
-          setUnread(data.filter(n => !n.isRead).length);
+          setUnread(data.filter((n) => !n.isRead).length);
         })
         .catch((err) => console.error("Polling notifications failed:", err));
-  
+
       //ALSO Fetch Bidding auctions regularly
       fetch(`${API_BASE}/api/Profile/bidding`, {
         headers: { Authorization: `Bearer ${jwt}` },
       })
-        .then(r => r.json())
+        .then((r) => r.json())
         .then((rows: Auction[]) => {
-          const mapped = rows.map(a => ({
+          const mapped = rows.map((a) => ({
             ...a,
             auctionState: statusFromDto(a.auctionState),
           }));
-          setBidding(mapped);  //Update state, triggers your notification logic
+          setBidding(mapped); //Update state, triggers your notification logic
         })
         .catch((err) => console.error("Polling bidding failed:", err));
-  
+
       //also fetch MyAuctions regularly
       fetch(`${API_BASE}/api/Profile/auctions`, {
         headers: { Authorization: `Bearer ${jwt}` },
       })
-        .then(r => r.json())
+        .then((r) => r.json())
         .then((rows: Auction[]) => {
           setMyAuctions(rows);
         })
         .catch((err) => console.error("Polling my auctions failed:", err));
     };
-  
+
     //Run it immediately and every 30 seconds
     fetchNotificationsAndAuctions();
     const interval = setInterval(fetchNotificationsAndAuctions, 30000);
-  
+
     return () => clearInterval(interval);
   }, [jwt]);
-  
-
-  
-
 
   /* ─── ADD AUCTION POPUP STATE ─────────────────────── */
   const [imageSrc, setImageSrc] = useState<string | null>(null); // full image
@@ -645,14 +630,14 @@ useEffect(() => {
   const [price, setPrice] = useState("");
   const [endDate, setEndDate] = useState("");
 
-
-
-    // derive “all fields valid?” from your DTO rules:
+  // derive “all fields valid?” from your DTO rules:
   const isFormValid =
     // title: 5–100 chars
-    title.length >= 5 && title.length <= 100 &&
+    title.length >= 5 &&
+    title.length <= 100 &&
     // description: 20–2000 chars
-    desc.length  >= 20 && desc.length  <= 2000 &&
+    desc.length >= 20 &&
+    desc.length <= 2000 &&
     // price: numeric, 0.01–1 000 000
     (() => {
       const v = parseFloat(price);
@@ -663,9 +648,6 @@ useEffect(() => {
       const dt = new Date(endDate);
       return !isNaN(dt.getTime()) && dt > new Date();
     })();
-
-
-
 
   // when the user selects a file
   const onAddSelect = (e: ChangeEvent<HTMLInputElement>) => {
@@ -680,10 +662,9 @@ useEffect(() => {
       return;
     }
     if (!allowed.includes(f.type)) {
-        alert("Invalid image type. Only JPEG, PNG, GIF.");
-        return;
+      alert("Invalid image type. Only JPEG, PNG, GIF.");
+      return;
     }
-     
 
     setOriginalFile(f); //keep the file
     const url = URL.createObjectURL(f);
@@ -697,6 +678,7 @@ useEffect(() => {
     setPreview(null);
   };
 
+  // Submits new auction or edits existing one via FormData
   const submitAuction = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return; // guard
@@ -739,7 +721,7 @@ useEffect(() => {
       }
 
       // close modal & reset form
-      setAddOpen(false);
+      setAddOpen(false); // Reset state and refresh lists after success
       setEditAuction(null);
       setOriginalFile(null);
       setCroppedFile(null);
@@ -751,6 +733,7 @@ useEffect(() => {
 
       // ─── if we’re on the public list, re-fetch page 1 ───
       if (activeNav === "auctions") {
+        // Re-fetch first page of public auctions
         const pageSize = 9;
         const r2 = await fetch(
           `${API_BASE}/api/Auctions?page=1&pageSize=${pageSize}`,
@@ -768,6 +751,7 @@ useEffect(() => {
       }
       // ─── otherwise (profile tab), just refresh “myAuctions” ───
       else {
+        // Refresh profile auctions
         const r3 = await fetch(`${API_BASE}/api/Profile/auctions`, {
           headers: { Authorization: `Bearer ${jwt}` },
         });
@@ -819,16 +803,15 @@ useEffect(() => {
           </div>
         </div>
         <div className={styles["top-nav-right"]}>
-         {isAdmin && (
-   <Link to="/admin" className={styles.adminButton}>
-     Admin Panel
-   </Link>
- )}
-
+          {isAdmin && (
+            <Link to="/admin" className={styles.adminButton}>
+              Admin Panel
+            </Link>
+          )}
 
           <div className={styles["right-pill-container"]}>
-{/* ─── NOTIFICATION WRAPPER ────────────────────── */}
-<div className={styles.notificationWrapper}>
+            {/* ─── NOTIFICATION WRAPPER ────────────────────── */}
+            <div className={styles.notificationWrapper}>
               <button
                 className={`${styles["icon-button"]} ${styles["bell-btn"]}`}
                 onClick={openNotifications}
@@ -844,40 +827,43 @@ useEffect(() => {
               {showNotifs && (
                 <div className={styles.notificationPopup}>
                   <div className={styles.notificationPopupInner}>
-                  {notifications.length === 0 && (
-                    <div className={styles.notificationItem}>
-                      No notifications
-                    </div>
-                  )}
-                  {notifications.map((n) => (
-                    <div
-                           key={`${n.kind}-${n.notificationId}-${n.timestamp}`}
-                           className={styles.notificationItem}
-                           style={{ cursor: "pointer" }}
-                           onClick={() => {
-                             setShowNotifs(false);
-                             nav(`/auctions/${n.auctionId}`);
-                           }}
-                         >
-                           {/* pill: Outbid (red) or Done (grey/white) */}
-                           <span
-                             className={`
+                    {notifications.length === 0 && (
+                      <div className={styles.notificationItem}>
+                        No notifications
+                      </div>
+                    )}
+                    {notifications.map((n) => (
+                      <div
+                        key={`${n.kind}-${n.notificationId}-${n.timestamp}`}
+                        className={styles.notificationItem}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          setShowNotifs(false);
+                          nav(`/auctions/${n.auctionId}`);
+                        }}
+                      >
+                        {/* pill: Outbid (red) or Done (grey/white) */}
+                        <span
+                          className={`
                                ${styles["auction-tag"]}
-                               ${n.kind === "outbid" ? styles.outbid : styles.done}
+                               ${
+                                 n.kind === "outbid"
+                                   ? styles.outbid
+                                   : styles.done
+                               }
                              `}
-                           >
-                             {n.kind === "outbid" ? "Outbid" : "Done"}
-                           </span>
-                           <span className={styles.notificationItemTime}>
-                             {new Date(n.timestamp).toLocaleTimeString([], {
-                               hour: "2-digit",
-                               minute: "2-digit",
-                             })}
-                           </span>
-                           <div>{n.title}</div>
-                         </div>
-                  ))}
-
+                        >
+                          {n.kind === "outbid" ? "Outbid" : "Done"}
+                        </span>
+                        <span className={styles.notificationItemTime}>
+                          {new Date(n.timestamp).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        <div>{n.title}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -1341,7 +1327,11 @@ useEffect(() => {
             onClick={(e) => e.stopPropagation()}
           >
             <h2>Add auction</h2>
-            <form className={styles["add-form"]} onSubmit={submitAuction} noValidate>
+            <form
+              className={styles["add-form"]}
+              onSubmit={submitAuction}
+              noValidate
+            >
               <div className={styles["add-image-area"]}>
                 {showCropper && imageSrc /* imageSrc, not preview */ ? (
                   <>
@@ -1422,93 +1412,92 @@ useEffect(() => {
               </div>
               <label>Title</label>
               <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="Write item name here"
-            minLength={5}
-            maxLength={100}
-            required
-          />
-          {(title.length > 0 && (title.length < 5 || title.length > 100)) && (
-            <p className={styles.error}>
-              Title must be between 5 and 100 characters.
-            </p>
-          )}
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Write item name here"
+                minLength={5}
+                maxLength={100}
+                required
+              />
+              {title.length > 0 && (title.length < 5 || title.length > 100) && (
+                <p className={styles.error}>
+                  Title must be between 5 and 100 characters.
+                </p>
+              )}
               <label>Description</label>
               <textarea
-            value={desc}
-            onChange={e => setDesc(e.target.value)}
-            placeholder="Write description here..."
-            minLength={20}
-            maxLength={2000}
-            rows={4}
-            required
-          />
-          {(desc.length > 0 && (desc.length < 20 || desc.length > 2000)) && (
-            <p className={styles.error}>
-              Description must be between 20 and 2000 characters.
-            </p>
-          )}
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="Write description here..."
+                minLength={20}
+                maxLength={2000}
+                rows={4}
+                required
+              />
+              {desc.length > 0 && (desc.length < 20 || desc.length > 2000) && (
+                <p className={styles.error}>
+                  Description must be between 20 and 2000 characters.
+                </p>
+              )}
               <div className={styles["add-row"]}>
                 <div className={styles["add-col"]}>
                   <label>Starting price</label>
                   <div className={styles["price-input"]}>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={price}
-                  onChange={e => setPrice(e.target.value)}
-                  placeholder="Price"
-                  min={0.01}
-                  max={1000000}
-                  required
-                />
-                <span>€</span>
-              </div>
-              {(!price || isNaN(parseFloat(price)) ||
-                parseFloat(price) < 0.01 || parseFloat(price) > 1000000) && (
-                <p className={styles.error}>
-                  Price must be between €0.01 and €1 000 000.
-                </p>
-              )}
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      placeholder="Price"
+                      min={0.01}
+                      max={1000000}
+                      required
+                    />
+                    <span>€</span>
+                  </div>
+                  {(!price ||
+                    isNaN(parseFloat(price)) ||
+                    parseFloat(price) < 0.01 ||
+                    parseFloat(price) > 1000000) && (
+                    <p className={styles.error}>
+                      Price must be between €0.01 and €1 000 000.
+                    </p>
+                  )}
                 </div>
                 <div className={styles["add-col"]}>
                   <label>End date</label>
                   <input
-                type="datetime-local"
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
-                required
-                // enforce > now
-                min={new Date().toISOString().slice(0,16)}
-              />
-              {endDate && new Date(endDate) <= new Date() && (
-                <p className={styles.error}>
-                  End date must be in the future.
-                </p>
-              )}
+                    type="datetime-local"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    required
+                    // enforce > now
+                    min={new Date().toISOString().slice(0, 16)}
+                  />
+                  {endDate && new Date(endDate) <= new Date() && (
+                    <p className={styles.error}>
+                      End date must be in the future.
+                    </p>
+                  )}
                 </div>
               </div>
               <div className={styles["add-footer"]}>
-            <button
-              type="button"
-              onClick={() => setAddOpen(false)}
-              disabled={submitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting || !isFormValid}
-            >
-              {submitting
-               ? "Starting…"
-                : editAuction
-                ? "Save changes"
-                : "Start auction"}
-            </button>
-          </div>
+                <button
+                  type="button"
+                  onClick={() => setAddOpen(false)}
+                  disabled={submitting}
+                >
+                  Cancel
+                </button>
+                <button type="submit" disabled={submitting || !isFormValid}>
+                  {submitting
+                    ? "Starting…"
+                    : editAuction
+                    ? "Save changes"
+                    : "Start auction"}
+                </button>
+              </div>
             </form>
           </div>
         </div>
