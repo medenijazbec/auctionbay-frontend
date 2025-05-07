@@ -1,7 +1,6 @@
 ![logo_banner](https://github.com/user-attachments/assets/cb423cfe-c515-4244-bbe0-ac94a183206c)# AuctionBay Frontend
 
 **AuctionBay Frontend** is a responsive React-based client application for interacting with the AuctionBay Web API. It provides user registration/login, auction browsing, bidding UI, profile management, notifications, and image uploads.
-![logo_banner](https://github.com/user-attachments/assets/288a1132-e5a4-4a54-9054-d43e6b831c6d)
 
 ---
 
